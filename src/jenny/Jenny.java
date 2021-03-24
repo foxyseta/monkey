@@ -37,6 +37,6 @@ public class Jenny implements MNKPlayer {
 	}
 
 	public String playerName() {
-		return "R4nd0m";
+		return "Jenny";
 	}
 }
