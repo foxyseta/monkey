@@ -12,7 +12,7 @@ PLAYER_FILE = jenny/Jenny.java
 
 MNK = 3 3 3
 
-run:
+run: build
 	@$(JR) -cp "$(LIB_DIR)/*:$(BUILD_DIR)/" $(MAIN_CLASS) $(MNK) $(PLAYER_CLASS)
 
 build:
