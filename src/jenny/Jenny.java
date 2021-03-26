@@ -10,8 +10,8 @@ public class Jenny implements MNKPlayer {
 	private Random rand;
 
 	/**
-   * Default empty constructor
-   */
+	 * Default empty constructor
+	 */
 	public Jenny() {
 	}
 
@@ -19,20 +19,22 @@ public class Jenny implements MNKPlayer {
 		// New random seed for each game
 		rand = new Random(System.currentTimeMillis());
 
-		// Uncomment to chech the initialization timeout
-		/*
-		 * try { Thread.sleep(1000*61); } catch(Exception e) { }
-		 */
+		try {
+			Thread.sleep(1000 * 61);
+		} catch (Exception e) {
+		}
+
 	}
 
 	/**
 	 * Selects a random cell in <code>FC</code>
 	 */
 	public MNKCell selectCell(MNKCell[] FC, MNKCell[] MC) {
-		// Uncomment to chech the move timeout
-		/*
-		 * try { Thread.sleep(1000*11); } catch(Exception e) { }
-		 */
+		try {
+			Thread.sleep(1000 * 11);
+		} catch (Exception e) {
+		}
+
 		return FC[rand.nextInt(FC.length)];
 	}
 
