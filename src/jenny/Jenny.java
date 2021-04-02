@@ -10,12 +10,12 @@ public class Jenny implements MNKPlayer {
 	private Random rand;
 
 	/**
-   * Default empty constructor
-   */
+	 * Default empty constructor
+	 */
 	public Jenny() {
 	}
 
-	public void initPlayer(int M, int N, int K, boolean first) {
+	public void initPlayer(int M, int N, int K, boolean first, int timeout_in_secs) {
 		// New random seed for each game
 		rand = new Random(System.currentTimeMillis());
 
