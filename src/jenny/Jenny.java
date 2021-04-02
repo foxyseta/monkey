@@ -16,23 +16,13 @@ public class Jenny implements MNKPlayer {
 	}
 
 	public void initPlayer(int M, int N, int K, boolean first, int timeout_in_secs) {
-		// New random seed for each game
 		rand = new Random(System.currentTimeMillis());
-
-		// Uncomment to chech the initialization timeout
-		/*
-		 * try { Thread.sleep(1000*61); } catch(Exception e) { }
-		 */
 	}
 
 	/**
 	 * Selects a random cell in <code>FC</code>
 	 */
 	public MNKCell selectCell(MNKCell[] FC, MNKCell[] MC) {
-		// Uncomment to chech the move timeout
-		/*
-		 * try { Thread.sleep(1000*11); } catch(Exception e) { }
-		 */
 		return FC[rand.nextInt(FC.length)];
 	}
 
