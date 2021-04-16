@@ -6,9 +6,9 @@ SRC_DIR  = src
 BUILD_DIR  = build
 
 MAIN_CLASS = mnkgame.MNKGame
-PLAYER_CLASS = jenny.Jenny
+PLAYER_CLASS = monkey.MoNKey
 
-PLAYER_FILE = jenny/Jenny.java
+PLAYER_FILE = monkey/MoNKey.java
 
 MNK = 3 3 3
 

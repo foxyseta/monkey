@@ -1,4 +1,4 @@
-package jenny;
+package monkey;
 
 import java.util.Random;
 import mnkgame.*;
@@ -6,13 +6,13 @@ import mnkgame.*;
 /**
  * Totally random software player.
  */
-public class Jenny implements MNKPlayer {
+public class MoNKey implements MNKPlayer {
 	private Random rand;
 
 	/**
 	 * Default empty constructor
 	 */
-	public Jenny() {
+	public MoNKey() {
 	}
 
 	public void initPlayer(int M, int N, int K, boolean first, int timeout_in_secs) {
@@ -27,6 +27,6 @@ public class Jenny implements MNKPlayer {
 	}
 
 	public String playerName() {
-		return "Jenny";
+		return "🅼🐵🅽🅺ey";
 	}
 }
