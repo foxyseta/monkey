@@ -1,10 +1,13 @@
+JD = javadoc
 JC = javac
 JR = java
 
 LIB_DIR = lib
 SRC_DIR  = src
+DOCS_DIR = docs
 BUILD_DIR  = build
 
+DOCS_PACKAGE = monkey
 MAIN_CLASS = mnkgame.MNKGame
 TESTER_CLASS = mnkgame.MNKPlayerTester
 PLAYER_CLASS = monkey.MoNKey
@@ -25,7 +28,15 @@ test: build
 build:
 	@echo "Building..."
 	@mkdir -p $(BUILD_DIR)
-	@$(JC) -cp "$(LIB_DIR)/*:" -d $(BUILD_DIR) -sourcepath $(SRC_DIR) $(SRC_DIR)/$(PLAYER_FILE)
+	@$(JC) -cp "$(LIB_DIR)/*" -d "$(BUILD_DIR)/" -sourcepath "$(SRC_DIR)/" "$(SRC_DIR)/$(PLAYER_FILE)"
 
-clean:
-	@$(RM) -r $(BUILD_DIR)
+docs:
+	@$(JD) -cp "$(LIB_DIR)/*:$(BUILD_DIR)/" -d "$(DOCS_DIR)/" -sourcepath "$(SRC_DIR)/" $(DOCS_PACKAGE)
+
+clean: clean-docs clean-build
+
+clean-build:
+	@$(RM) -rf $(BUILD_DIR)
+
+clean-docs:
+	@$(RM) -rf $(DOCS_DIR) 
