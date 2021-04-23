@@ -17,7 +17,7 @@ import monkey.util.ObjectUtils;
  * @version 1.0
  * @since 1.0
  */
-public class AI<S extends State<A, U>, A, U extends Comparable<U>> {
+public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 
 	/** The player the {@link AI} will play as. */
 	final private Player player;
@@ -101,8 +101,7 @@ public class AI<S extends State<A, U>, A, U extends Comparable<U>> {
 		Pair<A, U> v = new Pair<A, U>(null, s.initial_alpha(player));
 		final A[] actions = s.actions().clone();
 		for (A toChild : actions) {
-			s.result(toChild); // TODO make method non-void
-			v = objectUtils.max(v, minPair(s, alpha, beta), alphaBetaComparator);
+			v = objectUtils.max(v, minPair(s.result(toChild), alpha, beta), alphaBetaComparator);
 			if (v.getValue().compareTo(beta) >= 0)
 				return v;
 			alpha = objectUtils.max(alpha, v.getValue());
@@ -134,8 +133,7 @@ public class AI<S extends State<A, U>, A, U extends Comparable<U>> {
 		Pair<A, U> v = new Pair<A, U>(null, s.initial_beta(player));
 		final A[] actions = s.actions().clone();
 		for (A toChild : actions) {
-			s.result(toChild); // TODO make method non-void
-			v = objectUtils.min(v, maxPair(s, alpha, beta), alphaBetaComparator);
+			v = objectUtils.min(v, maxPair(s.result(toChild), alpha, beta), alphaBetaComparator);
 			if (v.getValue().compareTo(beta) <= 0)
 				return v;
 			beta = objectUtils.min(beta, v.getValue());

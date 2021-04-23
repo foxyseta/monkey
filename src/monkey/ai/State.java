@@ -7,13 +7,14 @@ package monkey.ai;
  * Russell, P. Norvig, <i>Artificial Intelligence: A Modern Approach</i>, 3rd
  * ed., Prentice Hall, p. 166f.
  *
+ * @param <Self>    The class implementing the interface.
  * @param <Action>  The type of the moves of the game.
  * @param <Utility> The type used to quantify the payoffs.
  * @author Stefano Volpe
  * @version 1.0
  * @since 1.0
  */
-public interface State<Action, Utility extends Comparable<Utility>> {
+public interface State<Self extends State<Self, Action, Utility>, Action, Utility extends Comparable<Utility>> {
 
 	/**
 	 * Defines which {@link Player} has the move.
@@ -45,7 +46,7 @@ public interface State<Action, Utility extends Comparable<Utility>> {
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	public /* State<Action, Utility> */ void result(Action a);
+	public Self result(Action a);
 
 	/**
 	 * Checks for terminal {@link State}s.
