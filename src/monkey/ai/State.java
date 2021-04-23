@@ -2,10 +2,10 @@ package monkey.ai;
 
 /**
  * A <code>State</code> represents a single scenario between those which can be
- * encountered when playing a generic deterministic, turn-taking, two-player,
- * zero-sum games of perfect information. Alpha-beta pruning support is
- * included. See S. Russell, P. Norvig, Artificial Intelligence: A Modern
- * Approach, 3rd ed., Prentice Hall, p. 166f.
+ * encountered when playing a deterministic, turn-taking, two-player, zero-sum
+ * games of perfect information. Alpha-beta pruning support is included. See S.
+ * Russell, P. Norvig, <i>Artificial Intelligence: A Modern Approach</i>, 3rd
+ * ed., Prentice Hall, p. 166f.
  *
  * @param <Action>  The type of the moves of the game.
  * @param <Utility> The type used to quantify the payoffs.
@@ -13,7 +13,7 @@ package monkey.ai;
  * @version 1.0
  * @since 1.0
  */
-interface State<Action, Utility extends Comparable<Utility>> {
+public interface State<Action, Utility extends Comparable<Utility>> {
 
 	/**
 	 * Defines which {@link Player} has the move.
@@ -63,6 +63,7 @@ interface State<Action, Utility extends Comparable<Utility>> {
 	 * @see #terminalTest
 	 * @param p The {@link Player} whose payoff is to be returned.
 	 * @return The payoff for {@link Player} <code>p</code>.
+	 * @throws IllegalCallerException Non-terminal {@link State}.
 	 * @author Stefano Volpe
 	 * @version 1.0
 	 * @since 1.0

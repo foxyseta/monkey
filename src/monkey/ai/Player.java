@@ -8,7 +8,7 @@ package monkey.ai;
  * @version 1.0
  * @since 1.0
  */
-enum Player {
+public enum Player {
 	/** The first agent to play. */
 	P1(true) {
 		/**
