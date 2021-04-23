@@ -49,12 +49,35 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	AI(Player p, S s0, long t) {
+	public AI(Player p, S s0, long t) {
 		if (p == null || s0 == null)
 			throw new NullPointerException("Some of the arguments are null.");
 		player = p;
 		state = s0;
 		time = t;
+	}
+
+	/**
+	 * Updates the current {@link State} with the given action. It does nothing if
+	 * the action passed is null.
+	 *
+	 * @param a A legal action to inform this {@link AI} about.
+	 * @throws IllegalArgumentException <code>a</code> is an illegal action for the
+	 *                                  current state.
+	 * @author Gaia Clerici
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	public void update(A a) {
+		if (a != null) {
+			final A[] actions = state.actions();
+			for (A action : actions)
+				if (a.equals(action)) {
+					state.result(a);
+					return;
+				}
+			throw new IllegalArgumentException("Illegal action for the current state.");
+		}
 	}
 
 	/**
@@ -65,19 +88,16 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 	 * @return A legal action to be played.
 	 * @throws IllegalArgumentException The player does not have the move or if the
 	 *                                  state is terminal.
-	 * @throws NullPointerException     The state is null.
 	 * @author Gaia Clerici
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	public A alphaBetaSearch(S s) {
-		if (s == null)
-			throw new NullPointerException("s is null.");
-		if (s.terminalTest())
+	public A alphaBetaSearch() {
+		if (state.terminalTest())
 			throw new IllegalArgumentException("s is a terminal state");
-		if (player != s.player())
+		if (player != state.player())
 			throw new IllegalArgumentException("It's not your turn");
-		return maxPair(s, s.initial_alpha(player), s.initial_beta(player)).getKey();
+		return maxPair(state, state.initial_alpha(player), state.initial_beta(player)).getKey();
 	}
 
 	/**
