@@ -3,9 +3,9 @@ package monkey.ai;
 /**
  * A <code>State</code> represents a single scenario between those which can be
  * encountered when playing a deterministic, turn-taking, two-player, zero-sum
- * games of perfect information. Alpha-beta pruning support is included. See S.
- * Russell, P. Norvig, <i>Artificial Intelligence: A Modern Approach</i>, 3rd
- * ed., Prentice Hall, p. 166f.
+ * games of perfect information. Backtracking and alpha-beta pruning support is
+ * included. See S. Russell, P. Norvig, <i>Artificial Intelligence: A Modern
+ * Approach</i>, 3rd ed., Prentice Hall, p. 166f.
  *
  * @param <Self>    The class implementing the interface.
  * @param <Action>  The type of the moves of the game.
@@ -41,12 +41,24 @@ public interface State<Self extends State<Self, Action, Utility>, Action, Utilit
 	 *
 	 * @param a The <code>Action</code> to be applied.
 	 * @throws IllegalArgumentExeption Illegal move.
+	 * @throws NullPointerException    The action is null.
 	 * @return A reference to this {@link State}.
 	 * @author Stefano Volpe
 	 * @version 1.0
 	 * @since 1.0
 	 */
 	public Self result(Action a);
+
+	/**
+	 * Reverts the state to its parent.
+	 *
+	 * @return A reference to this {@link State}.
+	 * @throws IllegalCallerException This is the initial {@link State}.
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	public Self revert();
 
 	/**
 	 * Checks for terminal {@link State}s.
@@ -67,6 +79,7 @@ public interface State<Self extends State<Self, Action, Utility>, Action, Utilit
 	 * @param p The {@link Player} whose payoff is to be returned.
 	 * @return The payoff for {@link Player} <code>p</code>.
 	 * @throws IllegalCallerException Non-terminal {@link State}.
+	 * @throws NullPointerException   The {@link Player} is null.
 	 * @author Stefano Volpe
 	 * @version 1.0
 	 * @since 1.0
@@ -81,6 +94,7 @@ public interface State<Self extends State<Self, Action, Utility>, Action, Utilit
 	 * @param p the {@link Player} whose initial alpha is to be returned.
 	 * @return The initial alpha of the relative initial {@link State} for
 	 *         <code>p</code>.
+	 * @throws NullPointerException The {@link Player} is null.
 	 * @author Stefano Volpe
 	 * @version 1.0
 	 * @since 1.0
@@ -95,6 +109,7 @@ public interface State<Self extends State<Self, Action, Utility>, Action, Utilit
 	 * @param p the {@link Player} whose initial beta is to be returned.
 	 * @return The initial beta of the relative initial {@link State} for
 	 *         <code>p</code>.
+	 * @throws NullPointerException The {@link Player} is null.
 	 * @author Stefano Volpe
 	 * @version 1.0
 	 * @since 1.0

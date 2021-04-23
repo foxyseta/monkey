@@ -5,10 +5,10 @@ import monkey.util.Pair;
 import monkey.util.ObjectUtils;
 
 /**
- * An <code>AI</code> is a generic alpha-beta pruner for a deterministic,
- * turn-taking, two-player, zero-sum game of perfect information. See S.
- * Russell, P. Norvig, <i>Artificial Intelligence: A Modern Approach</i>, 3rd
- * ed., Prentice Hall, p. 167f.
+ * An <code>AI</code> is a generic, backtracking alpha-beta pruner for a
+ * deterministic, turn-taking, two-player, zero-sum game of perfect information.
+ * See S. Russell, P. Norvig, <i>Artificial Intelligence: A Modern Approach</i>,
+ * 3rd ed., Prentice Hall, p. 167f.
  *
  * @param <S> The type to be used for game {@link State}s.
  * @param <A> The type of the moves of the game.
@@ -44,11 +44,14 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 	 * @param p  The player the {@link AI} will play as.
 	 * @param s0 The initial {@link State} of the game.
 	 * @param t  The maximum number of milliseconds usable to select a move.
+	 * @throws NullPointerException Any of the arguments are null
 	 * @author Gaia Clerici
 	 * @version 1.0
 	 * @since 1.0
 	 */
 	AI(Player p, S s0, long t) {
+		if (p == null || s0 == null)
+			throw new NullPointerException("Some of the arguments are null.");
 		player = p;
 		state = s0;
 		time = t;
@@ -59,7 +62,7 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 	 * actions to be played using alpa-beta pruning.
 	 *
 	 * @param s Current state of the game. It might be dirtied by the method.
-	 * @return An legal action to be played.
+	 * @return A legal action to be played.
 	 * @throws IllegalArgumentException The player does not have the move or if the
 	 *                                  state is terminal.
 	 * @throws NullPointerException     The state is null.
@@ -82,12 +85,13 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 	 * implementation, here the whole action-utility {@link monkey.util.Pair [Pair]}
 	 * is returned instead. This is due to performance reasons.
 	 *
-	 * @s The state to be considered.
-	 * @alpha The current alpha value and it could be null.
-	 * @beta The current beta value and it could be null.
-	 * @returns A action-utility {@link monkey.util.Pair [Pair]} describing the most
-	 *          ideal state among the results of applying one of the legal moves to
-	 *          the state <code>s</code>.
+	 * @param s     The state to be considered.
+	 * @param alpha The current alpha value and it could be null.
+	 * @param beta  The current beta value and it could be null.
+	 * @return An action-utility {@link monkey.util.Pair [Pair]} describing the most
+	 *         ideal state among the results of applying one of the legal moves to
+	 *         the state <code>s</code>.
+	 * @throws NullPointerException The state is null.
 	 * @author Gaia Clerici
 	 * @version 1.0
 	 * @since 1.0
@@ -102,6 +106,7 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 		final A[] actions = s.actions().clone();
 		for (A toChild : actions) {
 			v = objectUtils.max(v, minPair(s.result(toChild), alpha, beta), alphaBetaComparator);
+			s.revert();
 			if (v.getValue().compareTo(beta) >= 0)
 				return v;
 			alpha = objectUtils.max(alpha, v.getValue());
@@ -114,12 +119,13 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 	 * implementation, here the whole action-utility {@link monkey.util.Pair [Pair]}
 	 * is returned instead. This is due to performance reasons.
 	 *
-	 * @s The state to be considered.
-	 * @alpha The current alpha value and it could be null.
-	 * @beta The current beta value and it could be null.
-	 * @returns A action-utility {@link monkey.util.Pair [Pair]} describing the most
-	 *          ideal state among the results of applying one of the legal moves to
-	 *          the state <code>s</code>.
+	 * @param s     The state to be considered.
+	 * @param alpha The current alpha value and it could be null.
+	 * @param beta  The current beta value and it could be null.
+	 * @return An action-utility {@link monkey.util.Pair [Pair]} describing the most
+	 *         ideal state among the results of applying one of the legal moves to
+	 *         the state <code>s</code>.
+	 * @throws NullPointerException The state is null.
 	 * @author Gaia Clerici
 	 * @version 1.0
 	 * @since 1.0
@@ -134,6 +140,7 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 		final A[] actions = s.actions().clone();
 		for (A toChild : actions) {
 			v = objectUtils.min(v, maxPair(s.result(toChild), alpha, beta), alphaBetaComparator);
+			s.revert();
 			if (v.getValue().compareTo(beta) <= 0)
 				return v;
 			beta = objectUtils.min(beta, v.getValue());
