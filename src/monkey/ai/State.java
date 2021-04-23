@@ -39,11 +39,13 @@ public interface State<Action, Utility extends Comparable<Utility>> {
 	 * Defines the result of a certain move updating the {@link State} accordingly.
 	 *
 	 * @param a The <code>Action</code> to be applied.
+	 * @throws IllegalArgumentExeption Illegal move.
+	 * @return A reference to this {@link State}.
 	 * @author Stefano Volpe
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	public void result(Action a);
+	public /* State<Action, Utility> */ void result(Action a);
 
 	/**
 	 * Checks for terminal {@link State}s.

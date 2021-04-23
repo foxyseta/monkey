@@ -12,6 +12,11 @@ package monkey.util;
  */
 public class Pair<K, V> {
 
+	/** key */
+	private K key;
+	/** value */
+	private V value;
+
 	/**
 	 * Creates a new {@link Pair}.
 	 *
@@ -21,7 +26,10 @@ public class Pair<K, V> {
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	// Pair(K k, V v) { }
+	public Pair(K k, V v) {
+		key = k;
+		value = v;
+	}
 
 	/**
 	 * Gets the key for this {@link Pair}.
@@ -31,7 +39,9 @@ public class Pair<K, V> {
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	// K getKey() { }
+	public K getKey() {
+		return key;
+	}
 
 	/**
 	 * Gets the value for this {@link Pair}.
@@ -41,6 +51,8 @@ public class Pair<K, V> {
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	// K getValue() { }
+	public V getValue() {
+		return value;
+	}
 
 }

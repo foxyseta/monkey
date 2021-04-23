@@ -11,27 +11,15 @@ package monkey.ai;
 public enum Player {
 	/** The first agent to play. */
 	P1(true) {
-		/**
-		 * Returns the other {@link Player}.
-		 *
-		 * @return The other {@link Player}.
-		 * @author Gaia Clerici
-		 * @version 1.0
-		 * @since 1.0
-		 */
-		// Player not() { }
+		public Player not() {
+			return P2;
+		}
 	},
 	/** The second agent to play. */
 	P2(false) {
-		/**
-		 * Returns the other {@link Player}.
-		 *
-		 * @return The other {@link Player}.
-		 * @author Gaia Clerici
-		 * @version 1.0
-		 * @since 1.0
-		 */
-		// Player not() { }
+		public Player not() {
+			return P1;
+		}
 	};
 
 	/**
@@ -46,4 +34,14 @@ public enum Player {
 	 */
 	Player(boolean first) {
 	}
+
+	/**
+	 * Returns the other {@link Player}.
+	 *
+	 * @return The other {@link Player}.
+	 * @author Gaia Clerici
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	abstract public Player not();
 }
