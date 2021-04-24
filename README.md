@@ -1,13 +1,16 @@
 # 🅼🐵🅽🅺ey
-Progetto per l'esame di algoritmi e strutture dati all'università di Bologna
+Project for the Unibo course on algorithms and data structures (a.y. 2020-21).
 
-## Prerequisiti
-- un qualsiasi Java Development Kit
+## Prerequisites
+- any Java Development Kit
 - `make`
 
-## Compilazione
-`make build` compila l'intero progetto da zero.
+## Docs generation
+`make docs` generates the relevant documentation.
+
+## Building
+`make build` builds the whole project from zero.
 
 ## Esecuzione
-`make run MNK="5 4 3"` esegue un _5-4-3-game_, mentre `make run` (senza
-ulteriori parametri) esegue un tris (_3-3-3-game_).
+`make run MNK="5 4 3"` executes a _5-4-3-game_. `make run` (with no additional
+parameters) executes a game of tic-tac-toe (_3-3-3-game_).
