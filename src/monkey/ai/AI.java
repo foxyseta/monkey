@@ -38,7 +38,7 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 	final private ObjectUtils objectUtils = new ObjectUtils();
 
 	/**
-	 * Construct a new {@link AI} for a certain {@link Player} given an initial
+	 * Constructs a new {@link AI} for a certain {@link Player} given an initial
 	 * {@link State} and a timeout in milliseconds.
 	 *
 	 * @param p  The player the {@link AI} will play as.
@@ -84,7 +84,6 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 	 * Given a state in which the player has the move, selects one of the legal
 	 * actions to be played using alpa-beta pruning.
 	 *
-	 * @param s Current state of the game. It might be dirtied by the method.
 	 * @return A legal action to be played.
 	 * @throws IllegalArgumentException The player does not have the move or if the
 	 *                                  state is terminal.

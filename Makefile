@@ -31,7 +31,7 @@ build:
 	@$(JC) -cp "$(LIB_DIR)/*" -d "$(BUILD_DIR)/" -sourcepath "$(SRC_DIR)/" "$(SRC_DIR)/$(PLAYER_FILE)"
 
 docs:
-	@$(JD) -cp "$(LIB_DIR)/*:$(BUILD_DIR)/" -d "$(DOCS_DIR)/" -sourcepath "$(SRC_DIR)/" $(DOCS_PACKAGE)
+	@$(JD) -cp "$(LIB_DIR)/*:$(BUILD_DIR)/" -d "$(DOCS_DIR)/" -sourcepath "$(SRC_DIR)/" -subpackages $(DOCS_PACKAGE)
 
 clean: clean-docs clean-build
 

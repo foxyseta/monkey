@@ -40,8 +40,8 @@ public interface State<Self extends State<Self, Action, Utility>, Action, Utilit
 	 * Defines the result of a certain move updating the {@link State} accordingly.
 	 *
 	 * @param a The <code>Action</code> to be applied.
-	 * @throws IllegalArgumentExeption Illegal move.
-	 * @throws NullPointerException    The action is null.
+	 * @throws IllegalArgumentException Illegal move.
+	 * @throws NullPointerException     The action is null.
 	 * @return A reference to this {@link State}.
 	 * @author Stefano Volpe
 	 * @version 1.0

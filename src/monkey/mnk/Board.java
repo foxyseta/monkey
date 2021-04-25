@@ -4,10 +4,10 @@ import monkey.ai.Player;
 
 public class Board implements monkey.ai.State<Board, Position, Integer> {
 
-	final public int M, N, K, SIZE;
+	final public int M, N, K, SIZE, VICTORYUTILITY, DRAWUTILITY, LOSSUTILITY;
 
 	public Board(int m, int n, int k) {
-		M = N = K = SIZE = 0;
+		M = N = K = SIZE = VICTORYUTILITY = DRAWUTILITY = LOSSUTILITY = 0;
 	}
 
 	@Override
