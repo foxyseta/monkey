@@ -17,6 +17,11 @@ public class Position {
 	/** Number of columns of the board. */
 	public final int COLUMNSNUMBER;
 
+	/** Current row index. */
+	private int row;
+	/** Current column index */
+	private int column;
+
 	/**
 	 * Implements bounds checking for rows.
 	 *
