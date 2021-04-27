@@ -108,13 +108,7 @@ public class Position {
 	 * @since 1.0
 	 */
 	public Position(Board b, int row, int column) {
-		if (b == null)
-			throw new NullPointerException("b is null");
-		ROWSNUMBER = b.M;
-		COLUMNSNUMBER = b.N;
-		validate(row, column);
-		this.row = row;
-		this.column = column;
+		this(b.M, b.N, row, column);
 	}
 
 	/**
@@ -214,7 +208,6 @@ public class Position {
 	 * @param rows    The row offset used to move this {@link Position}.
 	 * @param columns The column offset used to move this {@link Position}.
 	 * @return A reference to this object after the update.
-	 * @throws NullPointerException      <code>offset</code> is null.
 	 * @throws IndexOutOfBoundsException Moving this {@link Position} outside of
 	 *                                   <code>b</code>'s bounds.
 	 * @author Gaia Clerici
