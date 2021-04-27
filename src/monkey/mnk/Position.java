@@ -65,6 +65,26 @@ public class Position {
 	}
 
 	/**
+	 * Constructs a new {@link Position} given the numbers of rwos and columns and
+	 * its coordinates.
+	 *
+	 * @param rowsNumber    Number of rows in the grid.
+	 * @param columnsNumber Number of columns in the grid.
+	 * @param row           Row index (starting from zero).
+	 * @param column        Column index (starting from zero).
+	 * @throws NullPointerException      Null {@link Board}.
+	 * @throws IndexOutOfBoundsException Referring to a {@link Position} outside of
+	 *                                   <code>b</code>'s bounds.
+	 * @author Gaia Clerici
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	public Position(int rowsNumber, int columnsNumber, int row, int column) {
+		// TODO Constructor stub
+		ROWSNUMBER = COLUMNSNUMBER = 0;
+	}
+
+	/**
 	 * Constructs a new {@link Position} given its parent {@link Board} and its
 	 * coordinates.
 	 *
