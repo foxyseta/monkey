@@ -1,5 +1,7 @@
 package monkey.mnk;
 
+import java.lang.reflect.InaccessibleObjectException;
+
 import monkey.util.Pair;
 
 /**
@@ -33,7 +35,8 @@ public class Position {
 	 * @since 1.0
 	 */
 	private void validateRow(int row) {
-		// TODO Method stub
+		if ((row > ROWSNUMBER) || (row < 0))
+			throw new IndexOutOfBoundsException("This row isn't valid");
 	}
 
 	/**
@@ -46,8 +49,9 @@ public class Position {
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	private void validateColumn() {
-		// TODO Method stub
+	private void validateColumn(int column) {
+		if ((column > COLUMNSNUMBER) || (column < 0))
+			throw new IndexOutOfBoundsException("This row isn't valid");
 	}
 
 	/**
@@ -60,8 +64,9 @@ public class Position {
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	private void validate() {
-		// TODO Method stub
+	private void validate(int row, int column) {
+		validateRow(row);
+		validateColumn(column);
 	}
 
 	/**
@@ -72,7 +77,6 @@ public class Position {
 	 * @param columnsNumber Number of columns in the grid.
 	 * @param row           Row index (starting from zero).
 	 * @param column        Column index (starting from zero).
-	 * @throws NullPointerException      Null {@link Board}.
 	 * @throws IndexOutOfBoundsException Referring to a {@link Position} outside of
 	 *                                   <code>b</code>'s bounds.
 	 * @author Gaia Clerici
@@ -80,8 +84,13 @@ public class Position {
 	 * @since 1.0
 	 */
 	public Position(int rowsNumber, int columnsNumber, int row, int column) {
-		// TODO Constructor stub
-		ROWSNUMBER = COLUMNSNUMBER = 0;
+		if (rowsNumber < 0 || columnsNumber < 0)
+			throw new IndexOutOfBoundsException("rowsNumber or columnsNumber aren't valid");
+		ROWSNUMBER = rowsNumber;
+		COLUMNSNUMBER = columnsNumber;
+		validate(row, column);
+		this.row = row;
+		this.column = column;
 	}
 
 	/**
@@ -100,8 +109,13 @@ public class Position {
 	 * @since 1.0
 	 */
 	public Position(Board b, int row, int column) {
-		// TODO Constructor stub
-		ROWSNUMBER = COLUMNSNUMBER = 0;
+		if (b == null)
+			throw new NullPointerException("b is null");
+		ROWSNUMBER = b.M;
+		COLUMNSNUMBER = b.N;
+		validate(row, column);
+		this.row = row;
+		this.column = column;
 	}
 
 	/**
@@ -114,8 +128,7 @@ public class Position {
 	 * @since 1.0
 	 */
 	public int getRow() {
-		// TODO Method stub
-		return 0;
+		return row;
 	}
 
 	/**
@@ -129,7 +142,8 @@ public class Position {
 	 * @since 1.0
 	 */
 	public void setRow(int row) {
-		// TODO Method stub
+		validateRow(row);
+		this.row = row;
 	}
 
 	/**
@@ -142,8 +156,7 @@ public class Position {
 	 * @since 1.0
 	 */
 	public int getColumn() {
-		// TODO Method stub
-		return 0;
+		return column;
 	}
 
 	/**
@@ -157,7 +170,8 @@ public class Position {
 	 * @since 1.0
 	 */
 	public void setColumn(int column) {
-		// TODO Method stub
+		validateColumn(column);
+		this.column = column;
 	}
 
 	/**
@@ -171,8 +185,7 @@ public class Position {
 	 * @since 1.0
 	 */
 	public Pair<Integer, Integer> offsetFrom(Position p) {
-		// TODO Method stub
-		return new Pair<Integer, Integer>(0, 0);
+		return new Pair<Integer, Integer>(ROWSNUMBER - p.getRow(), COLUMNSNUMBER - p.getColumn());
 	}
 
 	/**
@@ -188,8 +201,12 @@ public class Position {
 	 * @since 1.0
 	 */
 	public Position move(Pair<Integer, Integer> offset) {
-		// TODO Method stub
-		return null;
+		if (offset == null)
+			throw new NullPointerException("The offset is null");
+		validate(row + offset.getKey(), column + offset.getValue());
+		row = row + offset.getKey();
+		column = column + offset.getValue();
+		return this;
 	}
 
 	/**
@@ -206,8 +223,9 @@ public class Position {
 	 * @since 1.0
 	 */
 	public Position move(int rows, int columns) {
-		// TODO Method stub
-		return null;
+		validate(row + rows, column + columns);
+		Pair<Integer, Integer> offset = new Pair<Integer, Integer>(rows, columns);
+		return move(offset);
 	}
 
 }
