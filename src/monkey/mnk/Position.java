@@ -35,7 +35,7 @@ public class Position {
 	 * @since 1.0
 	 */
 	private void validateRow(int row) {
-		if ((row > ROWSNUMBER) || (row < 0))
+		if ((row >= ROWSNUMBER) || (row < 0))
 			throw new IndexOutOfBoundsException("This row isn't valid");
 	}
 
@@ -50,7 +50,7 @@ public class Position {
 	 * @since 1.0
 	 */
 	private void validateColumn(int column) {
-		if ((column > COLUMNSNUMBER) || (column < 0))
+		if ((column >= COLUMNSNUMBER) || (column < 0))
 			throw new IndexOutOfBoundsException("This row isn't valid");
 	}
 
