@@ -178,7 +178,7 @@ public class Position {
 	 * @since 1.0
 	 */
 	public Pair<Integer, Integer> offsetFrom(Position p) {
-		return new Pair<Integer, Integer>(ROWSNUMBER - p.getRow(), COLUMNSNUMBER - p.getColumn());
+		return new Pair<Integer, Integer>(row - p.getRow(), column - p.getColumn());
 	}
 
 	/**
@@ -195,11 +195,8 @@ public class Position {
 	 */
 	public Position move(Pair<Integer, Integer> offset) {
 		if (offset == null)
-			throw new NullPointerException("The offset is null");
-		validate(row + offset.getKey(), column + offset.getValue());
-		row = row + offset.getKey();
-		column = column + offset.getValue();
-		return this;
+			throw new NullPointerException("\noffset is null");
+		return move(offset.getKey(), offset.getValue());
 	}
 
 	/**
@@ -217,7 +214,9 @@ public class Position {
 	public Position move(int rows, int columns) {
 		validate(row + rows, column + columns);
 		Pair<Integer, Integer> offset = new Pair<Integer, Integer>(rows, columns);
-		return move(offset);
+		row = row + offset.getKey();
+		column = column + offset.getValue();
+		return this;
 	}
 
 }
