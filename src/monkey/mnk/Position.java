@@ -1,7 +1,5 @@
 package monkey.mnk;
 
-import java.lang.reflect.InaccessibleObjectException;
-
 import monkey.util.Pair;
 
 /**
@@ -70,13 +68,14 @@ public class Position {
 	}
 
 	/**
-	 * Constructs a new {@link Position} given the numbers of rwos and columns and
+	 * Constructs a new {@link Position} given the numbers of rows and columns and
 	 * its coordinates.
 	 *
 	 * @param rowsNumber    Number of rows in the grid.
 	 * @param columnsNumber Number of columns in the grid.
 	 * @param row           Row index (starting from zero).
 	 * @param column        Column index (starting from zero).
+	 * @throws IllegalArgumentException  rowsNumber or columnsNumber is negative
 	 * @throws IndexOutOfBoundsException Referring to a {@link Position} outside of
 	 *                                   <code>b</code>'s bounds.
 	 * @author Gaia Clerici
@@ -85,7 +84,7 @@ public class Position {
 	 */
 	public Position(int rowsNumber, int columnsNumber, int row, int column) {
 		if (rowsNumber < 0 || columnsNumber < 0)
-			throw new IndexOutOfBoundsException("rowsNumber or columnsNumber aren't valid");
+			throw new IllegalArgumentException("rowsNumber or columnsNumber aren't valid");
 		ROWSNUMBER = rowsNumber;
 		COLUMNSNUMBER = columnsNumber;
 		validate(row, column);
