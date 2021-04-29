@@ -131,8 +131,6 @@ public class Alignment {
 	private int p1Cells = 0;
 	/** Number of cells marked by the second {@link monkey.ai.Player [Player]}. */
 	private int p2Cells = 0;
-	/** Number of free cells. */
-	private int freeCells;
 	/** Current state. */
 	private State state = State.EMPTY;
 

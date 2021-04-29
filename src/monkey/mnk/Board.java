@@ -1,7 +1,11 @@
 package monkey.mnk;
 
+import java.util.Arrays;
+import java.util.stream.Stream;
 import mnkgame.MNKCellState;
 import monkey.ai.Player;
+import monkey.util.DirectAddressTable;
+import monkey.util.ObjectUtils;
 
 /**
  * A <code>Board</code> describes the {@link monkey.ai.State [State]} of a
@@ -21,6 +25,8 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	final public int K;
 	/** Number of cells. */
 	final public int SIZE;
+	/** Number of possible {@link Alignment}s. */
+	final public int ALIGNMENTS;
 	/** Quantifies the satisfaction earned by winning the game. */
 	final public static int VICTORYUTILITY = 1;
 	/** Quantifies the satisfaction earned when the game ends in a draw. */
@@ -53,18 +59,19 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 		SIZE = m * n;
 		// cell states
 		cellStates = new MNKCellState[M][N];
-		java.util.Arrays.fill(cellStates, MNKCellState.FREE);
+		Arrays.fill(cellStates, MNKCellState.FREE);
+		// alignments
+		ALIGNMENTS = countAlignments();
+		alignments = new DirectAddressTable<Alignment>(Alignment.class, Board::toKey, ALIGNMENTS);
 	}
 
 	@Override
 	public Player player() {
-		// TODO Auto-generated method stub
-		return null;
+		return turn % 2 == 0 ? Player.P1 : Player.P2;
 	}
 
 	@Override
 	public Position[] actions() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -104,12 +111,25 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 		return null;
 	}
 
+	private static int toKey(Alignment a) {
+		return 0;
+	}
+
+	private int countAlignments() {
+		final int b = objectUtils.max(0, N - K + 1), h = objectUtils.max(0, M - K + 1);
+		return b * (M + h) + h * (N + b);
+	}
+
+	ObjectUtils objectUtils = new ObjectUtils();
+
 	/**
 	 * The turn number (starting from 0). It is equal to the number of non-free
 	 * cells of the board.
 	 */
 	private int turn = 0;
-	/** Stores the board's {@link mnkgame.MNKCell [cells]}. */
+	/** Stores the {@link Board}'s {@link mnkgame.MNKCell [cells]}. */
 	private MNKCellState[][] cellStates;
+	/** Stores all of the {@link Board}'s possible {@link Alignment}s. */
+	DirectAddressTable<Alignment> alignments;
 
 }
