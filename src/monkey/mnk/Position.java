@@ -195,7 +195,7 @@ public class Position {
 	 */
 	public Position move(Pair<Integer, Integer> offset) {
 		if (offset == null)
-			throw new NullPointerException("\noffset is null");
+			throw new NullPointerException("offset is null");
 		return move(offset.getKey(), offset.getValue());
 	}
 
@@ -213,9 +213,8 @@ public class Position {
 	 */
 	public Position move(int rows, int columns) {
 		validate(row + rows, column + columns);
-		Pair<Integer, Integer> offset = new Pair<Integer, Integer>(rows, columns);
-		row = row + offset.getKey();
-		column = column + offset.getValue();
+		row += rows;
+		column += columns;
 		return this;
 	}
 
