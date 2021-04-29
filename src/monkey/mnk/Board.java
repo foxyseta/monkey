@@ -22,11 +22,11 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	/** Number of cells. */
 	final public int SIZE;
 	/** Quantifies the satisfaction earned by winning the game. */
-	final public int VICTORYUTILITY = 1;
+	final public static int VICTORYUTILITY = 1;
 	/** Quantifies the satisfaction earned when the game ends in a draw. */
-	final public int DRAWUTILITY = 0;
+	final public static int DRAWUTILITY = 0;
 	/** Quantifies the satisfaction earned by losing the game. */
-	final public int LOSSUTILITY = -1;
+	final public static int LOSSUTILITY = -1;
 
 	/**
 	 * Constructs a new {@link Board} given its m, n and k parameters.
@@ -53,9 +53,7 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 		SIZE = m * n;
 		// cell states
 		cellStates = new MNKCellState[M][N];
-		for (MNKCellState[] row : cellStates)
-			for (MNKCellState cell : row)
-				cell = MNKCellState.FREE;
+		java.util.Arrays.fill(cellStates, MNKCellState.FREE);
 	}
 
 	@Override
@@ -106,6 +104,11 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 		return null;
 	}
 
+	/**
+	 * The turn number (starting from 0). It is equal to the number of non-free
+	 * cells of the board.
+	 */
+	private int turn = 0;
 	/** Stores the board's {@link mnkgame.MNKCell [cells]}. */
 	private MNKCellState[][] cellStates;
 
