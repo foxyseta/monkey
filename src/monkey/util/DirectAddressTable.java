@@ -24,7 +24,8 @@ public class DirectAddressTable<T> {
 	/**
 	 * Constructs a new {@link DirectAddressTable}.
 	 *
-	 * @param type        Type token to allocate the underlying {@link Array}.
+	 * @param type        Type token to allocate the underlying
+	 *                    {@link java.lang.reflect.Array Array}.
 	 * @param keyFunction Initializer for {@link #KEYFUNCTION}.
 	 * @param length      Number of possible keys.
 	 * @throws IllegalArgumentException length is negative

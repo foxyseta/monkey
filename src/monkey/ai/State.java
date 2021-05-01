@@ -31,7 +31,7 @@ public interface State<Self extends State<Self, Action, Utility>, Action, Utilit
 	/**
 	 * Defines the set of legal <code>Action</code>s.
 	 *
-	 * @return An {@link java.lang.Iterable [Iterable]} containing the legal
+	 * @return An {@link java.lang.Iterable Iterable} containing the legal
 	 *         <code>Action</code>s for the state.
 	 * @author Stefano Volpe
 	 * @version 1.0

@@ -171,7 +171,7 @@ public class Position {
 	 * Computes the offset of this {@link Position} from <code>p</code>.
 	 *
 	 * @param p Starting point from which to compute the offset.
-	 * @return A {@link monkey.util.Pair [Pair]} containing row and column offsets.
+	 * @return A {@link monkey.util.Pair Pair} containing row and column offsets.
 	 * @throws NullPointerException <code>p</code> is null.
 	 * @author Gaia Clerici
 	 * @version 1.0

@@ -12,7 +12,7 @@ import monkey.util.DirectAddressTable;
 import monkey.util.ObjectUtils;
 
 /**
- * A <code>Board</code> describes the {@link monkey.ai.State [State]} of a
+ * A <code>Board</code> describes the {@link monkey.ai.State State} of a
  * MNK-game. It supports backtracking and alpha-beta pruning. A single istance
  * of this class takes O({@link #SIZE}) memory.
  *
@@ -181,8 +181,8 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	}
 
 	/**
-	 * Maps a valid {@link monkey.mnk.Alignment [Alignment]} for this {@link Board}
-	 * to an appropriate integer key in [0 .. {@link #ALIGNMENTS} - 1].
+	 * Maps a valid {@link monkey.mnk.Alignment Alignment} for this {@link Board} to
+	 * an appropriate integer key in [0 .. {@link #ALIGNMENTS} - 1].
 	 *
 	 * @see #alignments
 	 * @param a Value to be mapped.
@@ -215,10 +215,10 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	}
 
 	/**
-	 * Computes the number of possible {@link monkey.mnk.Alignment [Alignment]}s for
+	 * Computes the number of possible {@link monkey.mnk.Alignment Alignment}s for
 	 * this {@link Board}.
 	 *
-	 * @return The number of possible {@link monkey.mnk.Alignment [Alignment]}s.
+	 * @return The number of possible {@link monkey.mnk.Alignment Alignment}s.
 	 * @author Stefano Volpe
 	 * @version 1.0
 	 * @since 1.0
@@ -228,8 +228,8 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	}
 
 	/**
-	 * Records a new mark for a certain {@link monkey.mnk.Alignment [Alignment]}
-	 * based on the current {@link monkey.ai.Player [Player]}.
+	 * Records a new mark for a certain {@link monkey.mnk.Alignment Alignment} based
+	 * on the current {@link monkey.ai.Player Player}.
 	 *
 	 * @param query Its coordinates are used to identify the element to update. May
 	 *              be dirtied after its use.
@@ -264,7 +264,7 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	final private int B;
 	/** See the study group's notes. */
 	final private int H;
-	/** Stores the {@link Board}'s {@link mnkgame.MNKCell [cells]}. */
+	/** Stores the {@link Board}'s {@link mnkgame.MNKCell cells}. */
 	final private MNKCellState[][] cellStates;
 	/** The moves played so far. */
 	final private Stack<Position> history = new Stack<Position>();

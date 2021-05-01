@@ -70,7 +70,7 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 	 */
 	public void update(A a) {
 		if (a != null) {
-			final A[] actions = state.actions();
+			final Iterable<A> actions = state.actions();
 			for (A action : actions)
 				if (a.equals(action)) {
 					state.result(a);
@@ -107,7 +107,7 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 	 * @param s     The state to be considered.
 	 * @param alpha The current alpha value and it could be null.
 	 * @param beta  The current beta value and it could be null.
-	 * @return An action-utility {@link monkey.util.Pair [Pair]} describing the most
+	 * @return An action-utility {@link monkey.util.Pair Pair} describing the most
 	 *         ideal state among the results of applying one of the legal moves to
 	 *         the state <code>s</code>.
 	 * @throws NullPointerException The state is null.
@@ -122,7 +122,7 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 			return new Pair<A, U>(null, s.utility(player));
 		// There isn't the chance to return a null key because this isn't the base case
 		Pair<A, U> v = new Pair<A, U>(null, s.initial_alpha(player));
-		final A[] actions = s.actions().clone();
+		final Iterable<A> actions = s.actions();
 		for (A toChild : actions) {
 			v = objectUtils.max(v, minPair(s.result(toChild), alpha, beta), alphaBetaComparator);
 			s.revert();
@@ -135,13 +135,13 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 
 	/**
 	 * Executes a "min" alpha-beta pruning step. Unlike in Russel and Norvig's
-	 * implementation, here the whole action-utility {@link monkey.util.Pair [Pair]}
+	 * implementation, here the whole action-utility {@link monkey.util.Pair Pair}
 	 * is returned instead. This is due to performance reasons.
 	 *
 	 * @param s     The state to be considered.
 	 * @param alpha The current alpha value and it could be null.
 	 * @param beta  The current beta value and it could be null.
-	 * @return An action-utility {@link monkey.util.Pair [Pair]} describing the most
+	 * @return An action-utility {@link monkey.util.Pair Pair} describing the most
 	 *         ideal state among the results of applying one of the legal moves to
 	 *         the state <code>s</code>.
 	 * @throws NullPointerException The state is null.
@@ -156,7 +156,7 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 			return new Pair<A, U>(null, s.utility(player));
 		// There isn't the chance to return a null key because this isn't the base case
 		Pair<A, U> v = new Pair<A, U>(null, s.initial_beta(player));
-		final A[] actions = s.actions().clone();
+		final Iterable<A> actions = s.actions();
 		for (A toChild : actions) {
 			v = objectUtils.min(v, maxPair(s.result(toChild), alpha, beta), alphaBetaComparator);
 			s.revert();
