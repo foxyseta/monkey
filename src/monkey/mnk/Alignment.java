@@ -128,6 +128,18 @@ public class Alignment {
 		// TODO Method stub
 	}
 
+	/**
+	 * Resets every counter of this {@link Alignment} to its initializer and updates
+	 * its {@link #state} accordingly.
+	 *
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	public void clear() {
+		// TODO Method stub
+	}
+
 	/** Number of cells marked by the first {@link monkey.ai.Player [Player]}. */
 	private int p1Cells = 0;
 	/** Number of cells marked by the second {@link monkey.ai.Player [Player]}. */

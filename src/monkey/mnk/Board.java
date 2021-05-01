@@ -97,6 +97,8 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	 */
 	@Override
 	public Board result(Position a) {
+		if (state != MNKGameState.OPEN)
+			throw new IllegalCallerException("The game is already over.");
 		if (a.ROWSNUMBER != M || a.COLUMNSNUMBER != N)
 			throw new IllegalArgumentException("Referring to a board of different extents.");
 		final int row = a.getRow(), column = a.getColumn();
@@ -178,19 +180,27 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 		return VICTORYUTILITY;
 	}
 
+	/**
+	 * Maps a valid {@link monkey.mnk.Alignment [Alignment]} for this {@link Board}
+	 * to an appropriate integer key in [0 .. {@link #ALIGNMENTS} - 1].
+	 *
+	 * @see #alignments
+	 * @param a Value to be mapped.
+	 * @throws IllegalArgumentException a's grid extents are different from this
+	 *                                  {@link Board}'s.
+	 * @throws NullPointerException     a is <code>null</code>.
+	 * @return An integer key
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
 	private int toKey(Alignment a) {
 		if (a == null)
 			throw new NullPointerException("Null alignment.");
-		return toKey(a.FIRSTCELL.getRow(), a.FIRSTCELL.getColumn(), a.DIRECTION);
-	}
-
-	private int toKey(int row, int column, Alignment.Direction d) {
-		if (row < 0)
-			throw new IllegalArgumentException("Negative row.");
-		if (column < 0)
-			throw new IllegalArgumentException("Negative column.");
-		// TODO direction-specific out of bounds checks
-		switch (d) {
+		if (a.FIRSTCELL.ROWSNUMBER != M || a.FIRSTCELL.COLUMNSNUMBER != N)
+			throw new IllegalArgumentException("Incompatible grid extents.");
+		final int row = a.FIRSTCELL.getRow(), column = a.FIRSTCELL.getColumn();
+		switch (a.DIRECTION) {
 		case HORIZONTAL: // [0 .. B * M - 1]
 			return row * B + column;
 		case VERTICAL: // B * M + [0 .. N * H - 1]
@@ -204,17 +214,40 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 		}
 	}
 
+	/**
+	 * Computes the number of possible {@link monkey.mnk.Alignment [Alignment]}s for
+	 * this {@link Board}.
+	 *
+	 * @return The number of possible {@link monkey.mnk.Alignment [Alignment]}s.
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
 	private int countAlignments() {
 		return B * (M + H) + H * (N + B);
 	}
 
-	private MNKGameState addMark(int row, int column, Alignment.Direction d) {
-		Alignment a = alignments.search(toKey(row, column, Alignment.Direction.HORIZONTAL));
-		if (a == null) {
-			a = new Alignment(new Position(this, row, column), d, K);
-			alignments.insert(a);
+	/**
+	 * Records a new mark for a certain {@link monkey.mnk.Alignment [Alignment]}
+	 * based on the current {@link monkey.ai.Player [Player]}.
+	 *
+	 * @param query Its coordinates are used to identify the element to update. May
+	 *              be dirtied after its use.
+	 * @throws IllegalArgumentException query is meant for another M-N-K tuple.
+	 * @return The updated object's {@link #state}.
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	private MNKGameState addMark(Alignment query) {
+		if (query.FIRSTCELL.ROWSNUMBER != M || query.FIRSTCELL.COLUMNSNUMBER != N || query.LENGTH != K)
+			throw new IllegalArgumentException("M-N-K incompatibility.");
+		Alignment result = alignments.search(toKey(query));
+		if (result == null) {
+			query.clear();
+			alignments.insert(result = query);
 		}
-		switch (a.addMark(player())) {
+		switch (result.addMark(player())) {
 		case EMPTY: // should never occur
 		case MIXED:
 			return state;
@@ -227,12 +260,17 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 		}
 	}
 
-	final private int B, H;
+	/** See the study group's notes. */
+	final private int B;
+	/** See the study group's notes. */
+	final private int H;
 	/** Stores the {@link Board}'s {@link mnkgame.MNKCell [cells]}. */
 	final private MNKCellState[][] cellStates;
+	/** The moves played so far. */
 	final private Stack<Position> history = new Stack<Position>();
 	/** Stores all of the {@link Board}'s possible {@link Alignment}s. */
 	final private DirectAddressTable<Alignment> alignments;
+	/** The current game state. */
 	private MNKGameState state;
 
 }
