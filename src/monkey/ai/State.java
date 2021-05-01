@@ -1,5 +1,7 @@
 package monkey.ai;
 
+import java.lang.Iterable;
+
 /**
  * A <code>State</code> represents a single scenario between those which can be
  * encountered when playing a deterministic, turn-taking, two-player, zero-sum
@@ -29,12 +31,13 @@ public interface State<Self extends State<Self, Action, Utility>, Action, Utilit
 	/**
 	 * Defines the set of legal <code>Action</code>s.
 	 *
-	 * @return An array containing the legal <code>Action</code>s for the state.
+	 * @return An {@link java.lang.Iterable [Iterable]} containing the legal
+	 *         <code>Action</code>s for the state.
 	 * @author Stefano Volpe
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	public Action[] actions();
+	public Iterable<Action> actions();
 
 	/**
 	 * Defines the result of a certain move updating the {@link State} accordingly.

@@ -3,7 +3,7 @@ package monkey.util;
 import java.util.function.ToIntFunction;
 
 /**
- * A generic direct address table indexed using [0..length - 1] integers as
+ * A generic direct address table indexed using [0 .. length - 1] integers as
  * keys. See T. H. Cormen, C. E. Leiserson, R. L. Rivest, C. Stein,
  * <i>Introduction to Algorithms</i>, 3rd ed., Mcgraw-Hill Book Company, p.
  * 254f.
@@ -16,8 +16,8 @@ import java.util.function.ToIntFunction;
 public class DirectAddressTable<T> {
 
 	/**
-	 * A function associating each value to an integer key in the range [0..length -
-	 * 1].
+	 * A function associating each value to an integer key in the range [0 .. length
+	 * - 1].
 	 */
 	final public ToIntFunction<T> KEYFUNCTION;
 
@@ -63,8 +63,8 @@ public class DirectAddressTable<T> {
 	 * tell whether it represents a missing element or an actual <code>null</code>
 	 * element previously inserted.
 	 *
-	 * @param key Key of the value to be returned. It must be in the interval
-	 *            [0..length - 1].
+	 * @param key Key of the value to be returned. It must be in the interval [0 ..
+	 *            length - 1].
 	 * @throws IndexOutOfBoundsException key is out of bounds
 	 * @return The value associated to the key, or <code>null</code> if such a value
 	 *         does not exist.
