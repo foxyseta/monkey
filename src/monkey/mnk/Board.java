@@ -1,6 +1,7 @@
 package monkey.mnk;
 
 import java.lang.Iterable;
+import java.lang.Math;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Stack;
@@ -67,8 +68,8 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 		cellStates = new MNKCellState[M][N];
 		Arrays.fill(cellStates, MNKCellState.FREE);
 		// alignments
-		B = objectUtils.max(0, N - K + 1);
-		H = objectUtils.max(0, M - K + 1);
+		B = Math.max(0, N - K + 1);
+		H = Math.max(0, M - K + 1);
 		ALIGNMENTS = countAlignments();
 		alignments = new DirectAddressTable<Alignment>(Alignment.class, a -> toKey(a), ALIGNMENTS);
 	}
@@ -103,7 +104,30 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 			throw new IllegalArgumentException("(" + row + ", " + column + ") is not free.");
 		cellStates[row][column] = player() == Player.P1 ? MNKCellState.P1 : MNKCellState.P2;
 		history.push(a);
-		// TODO Update alignments
+		if (history.size() == SIZE)
+			state = MNKGameState.DRAW;
+		else {
+			// horizontal alignments
+			int max = Math.min(N - K, column);
+			for (int j = Math.max(0, column - K + 1); j <= max; ++j)
+				if (addMark(row, j, Alignment.Direction.HORIZONTAL) != MNKGameState.OPEN)
+					return this;
+			// vertical alignments
+			max = Math.min(M - K, row);
+			for (int i = Math.max(0, row - K + 1); i <= max; ++i)
+				if (addMark(i, column, Alignment.Direction.VERTICAL) != MNKGameState.OPEN)
+					return this;
+			// primary diagonal alignments
+			max = Math.min(N - K + row - column, Math.min(M - K, row));
+			for (int i = Math.max(0, Math.max(row - K + 1, row - column)), j = i + column - row; i <= max; ++i, ++j)
+				if (addMark(i, j, Alignment.Direction.PRIMARY_DIAGONAL) != MNKGameState.OPEN)
+					return this;
+			// secondary diagonal alignments
+			max = Math.max(column + row, Math.min(M - 1, row + K - 1));
+			for (int i = Math.min(N - K, Math.max(K - 1, row)), j = row + column - i; i <= max; ++i, --j)
+				if (addMark(i, j, Alignment.Direction.SECONDARY_DIAGONAL) != MNKGameState.OPEN)
+					return this;
+		}
 		return this;
 	}
 
@@ -155,8 +179,18 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	}
 
 	private int toKey(Alignment a) {
-		final int row = a.FIRSTCELL.getRow(), column = a.FIRSTCELL.getColumn();
-		switch (a.DIRECTION) {
+		if (a == null)
+			throw new NullPointerException("Null alignment.");
+		return toKey(a.FIRSTCELL.getRow(), a.FIRSTCELL.getColumn(), a.DIRECTION);
+	}
+
+	private int toKey(int row, int column, Alignment.Direction d) {
+		if (row < 0)
+			throw new IllegalArgumentException("Negative row.");
+		if (column < 0)
+			throw new IllegalArgumentException("Negative column.");
+		// TODO direction-specific out of bounds checks
+		switch (d) {
 		case HORIZONTAL: // [0 .. B * M - 1]
 			return row * B + column;
 		case VERTICAL: // B * M + [0 .. N * H - 1]
@@ -174,7 +208,25 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 		return B * (M + H) + H * (N + B);
 	}
 
-	final private ObjectUtils objectUtils = new ObjectUtils();
+	private MNKGameState addMark(int row, int column, Alignment.Direction d) {
+		Alignment a = alignments.search(toKey(row, column, Alignment.Direction.HORIZONTAL));
+		if (a == null) {
+			a = new Alignment(new Position(this, row, column), d, K);
+			alignments.insert(a);
+		}
+		switch (a.addMark(player())) {
+		case EMPTY: // should never occur
+		case MIXED:
+			return state;
+		case P1:
+			return state = MNKGameState.WINP1;
+		case P2:
+			return state = MNKGameState.WINP2;
+		default:
+			throw new IllegalArgumentException("Unknown alignment state");
+		}
+	}
+
 	final private int B, H;
 	/** Stores the {@link Board}'s {@link mnkgame.MNKCell [cells]}. */
 	final private MNKCellState[][] cellStates;

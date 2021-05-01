@@ -57,7 +57,7 @@ public class Alignment {
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	public Alignment(Position firstCell, Direction direction, int legnth) {
+	public Alignment(Position firstCell, Direction direction, int length) {
 		FIRSTCELL = null; // TODO Constructor stub
 		DIRECTION = Direction.HORIZONTAL;
 		LENGTH = 0;
@@ -106,12 +106,13 @@ public class Alignment {
 	 *
 	 * @param p The {@link monkey.ai.Player [Player]} whose mark is to be added.
 	 * @throws IllegalCallerException No free cells to be marked.
+	 * @return The (eventually) updated {@link #state}.
 	 * @author Gaia Clerici
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	public void addMark(Player p) {
-		// TODO Method stub
+	public State addMark(Player p) {
+		return null; // TODO Method stub
 	}
 
 	/**
