@@ -3,6 +3,7 @@ package monkey.mnk;
 import java.lang.Iterable;
 import java.lang.Math;
 import java.util.Arrays;
+import java.util.function.Consumer;
 import java.util.LinkedList;
 import java.util.Stack;
 import mnkgame.MNKCellState;
@@ -105,31 +106,10 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 		if (cellStates[row][column] != MNKCellState.FREE)
 			throw new IllegalArgumentException("(" + row + ", " + column + ") is not free.");
 		cellStates[row][column] = player() == Player.P1 ? MNKCellState.P1 : MNKCellState.P2;
+		updateAlignments(a, x -> updateMark(x, true));
 		history.push(a);
-		if (history.size() == SIZE)
+		if (state == MNKGameState.OPEN && history.size() == SIZE)
 			state = MNKGameState.DRAW;
-		else {
-			// horizontal alignments
-			int max = Math.min(N - K, column);
-			for (int j = Math.max(0, column - K + 1); j <= max; ++j)
-				if (addMark(row, j, Alignment.Direction.HORIZONTAL) != MNKGameState.OPEN)
-					return this;
-			// vertical alignments
-			max = Math.min(M - K, row);
-			for (int i = Math.max(0, row - K + 1); i <= max; ++i)
-				if (addMark(i, column, Alignment.Direction.VERTICAL) != MNKGameState.OPEN)
-					return this;
-			// primary diagonal alignments
-			max = Math.min(N - K + row - column, Math.min(M - K, row));
-			for (int i = Math.max(0, Math.max(row - K + 1, row - column)), j = i + column - row; i <= max; ++i, ++j)
-				if (addMark(i, j, Alignment.Direction.PRIMARY_DIAGONAL) != MNKGameState.OPEN)
-					return this;
-			// secondary diagonal alignments
-			max = Math.max(column + row, Math.min(M - 1, row + K - 1));
-			for (int i = Math.min(N - K, Math.max(K - 1, row)), j = row + column - i; i <= max; ++i, --j)
-				if (addMark(i, j, Alignment.Direction.SECONDARY_DIAGONAL) != MNKGameState.OPEN)
-					return this;
-		}
 		return this;
 	}
 
@@ -142,7 +122,9 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 			final Position a = history.pop();
 			final int row = a.getRow(), column = a.getColumn();
 			cellStates[row][column] = MNKCellState.FREE;
-			// TODO Update alignments
+			updateAlignments(history.peek(), x -> updateMark(x, false));
+			history.pop();
+			state = MNKGameState.OPEN;
 		} catch (java.util.EmptyStackException e) {
 			throw new IllegalCallerException("No previous action to revert.");
 		}
@@ -181,6 +163,19 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	}
 
 	/**
+	 * Computes the number of possible {@link monkey.mnk.Alignment Alignment}s for
+	 * this {@link Board}.
+	 *
+	 * @return The number of possible {@link monkey.mnk.Alignment Alignment}s.
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	private int countAlignments() {
+		return B * (M + H) + H * (N + B);
+	}
+
+	/**
 	 * Maps a valid {@link monkey.mnk.Alignment Alignment} for this {@link Board} to
 	 * an appropriate integer key in [0 .. {@link #ALIGNMENTS} - 1].
 	 *
@@ -215,31 +210,21 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	}
 
 	/**
-	 * Computes the number of possible {@link monkey.mnk.Alignment Alignment}s for
-	 * this {@link Board}.
-	 *
-	 * @return The number of possible {@link monkey.mnk.Alignment Alignment}s.
-	 * @author Stefano Volpe
-	 * @version 1.0
-	 * @since 1.0
-	 */
-	private int countAlignments() {
-		return B * (M + H) + H * (N + B);
-	}
-
-	/**
-	 * Records a new mark for a certain {@link monkey.mnk.Alignment Alignment} based
+	 * (Un)records a mark for a certain {@link monkey.mnk.Alignment Alignment} based
 	 * on the current {@link monkey.ai.Player Player}.
 	 *
 	 * @param query Its coordinates are used to identify the element to update. May
 	 *              be dirtied after its use.
+	 * @param add   <code>true</code> just in case the cell has to be added instead
+	 *              of removed.
 	 * @throws IllegalArgumentException query is meant for another M-N-K tuple.
-	 * @return The updated object's {@link #state}.
+	 * @throws IllegalArgumentException Cannot add any more marks.
+	 * @throws IllegalCallerException   Unknown direction.
 	 * @author Stefano Volpe
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	private MNKGameState addMark(Alignment query) {
+	private void updateMark(Alignment query, boolean add) {
 		if (query.FIRSTCELL.ROWSNUMBER != M || query.FIRSTCELL.COLUMNSNUMBER != N || query.LENGTH != K)
 			throw new IllegalArgumentException("M-N-K incompatibility.");
 		Alignment result = alignments.search(toKey(query));
@@ -247,17 +232,65 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 			query.clear();
 			alignments.insert(result = query);
 		}
-		switch (result.addMark(player())) {
-		case EMPTY: // should never occur
-		case MIXED:
-			return state;
-		case P1:
-			return state = MNKGameState.WINP1;
-		case P2:
-			return state = MNKGameState.WINP2;
-		default:
-			throw new IllegalArgumentException("Unknown alignment state");
+		try {
+			if (add)
+				switch (result.addMark(player())) {
+				case EMPTY: // should never occure: you just added a mark!
+				case MIXED:
+					break;
+				case P1:
+					state = MNKGameState.WINP1;
+					break;
+				case P2:
+					state = MNKGameState.WINP2;
+					break;
+				default:
+					throw new IllegalCallerException("Unknown direction.");
+				}
+			else
+				result.removeMark(player());
+		} catch (IllegalCallerException e) {
+			throw new IllegalArgumentException("Cannot " + (add ? "add" : "remove") + " any more marks.");
 		}
+	}
+
+	/**
+	 * Applies a generic "update" function to every {@link monkey.mnk.Alignment
+	 * Alignment} containing a given cell. Takes O({@link #K} f) time, where f is
+	 * the cost of the "update" function.
+	 *
+	 * @param p      Location of the cell which has just been (un)marked.
+	 * @param update Functional argument invoked as an "update" function.
+	 * @throws IllegalArgumentException p caused an M-N-K incompatibility.
+	 * @throws NullPointerException     p, or update, or both are null.
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	private void updateAlignments(Position p, Consumer<Alignment> update) {
+		if (p == null)
+			throw new NullPointerException("p is null.");
+		if (update == null)
+			throw new NullPointerException("update is null.");
+		if (p.ROWSNUMBER != M || p.COLUMNSNUMBER != N)
+			throw new IllegalArgumentException("M-N-K incompatibility");
+		final int row = p.getRow(), column = p.getColumn();
+		// horizontal alignments
+		int max = Math.min(N - K, column);
+		for (int j = Math.max(0, column - K + 1); j <= max; ++j)
+			update.accept(new Alignment(new Position(this, row, j), Alignment.Direction.HORIZONTAL, K));
+		// vertical alignments
+		max = Math.min(M - K, row);
+		for (int i = Math.max(0, row - K + 1); i <= max; ++i)
+			update.accept(new Alignment(new Position(this, i, column), Alignment.Direction.VERTICAL, K));
+		// primary diagonal alignments
+		max = Math.min(N - K + row - column, Math.min(M - K, row));
+		for (int i = Math.max(0, Math.max(row - K + 1, row - column)), j = i + column - row; i <= max; ++i, ++j)
+			update.accept(new Alignment(new Position(this, i, j), Alignment.Direction.PRIMARY_DIAGONAL, K));
+		// secondary diagonal alignments
+		max = Math.max(column + row, Math.min(M - 1, row + K - 1));
+		for (int i = Math.min(N - K, Math.max(K - 1, row)), j = row + column - i; i <= max; ++i, --j)
+			update.accept(new Alignment(new Position(this, i, j), Alignment.Direction.SECONDARY_DIAGONAL, K));
 	}
 
 	/** See the study group's notes. */

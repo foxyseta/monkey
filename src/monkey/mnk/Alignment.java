@@ -120,12 +120,13 @@ public class Alignment {
 	 *
 	 * @param p The {@link monkey.ai.Player Player} whose mark is to be removed.
 	 * @throws IllegalCallerException No marked cells to be removed.
+	 * @return The (eventually) updated {@link #state}.
 	 * @author Gaia Clerici
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	public void removeMark(Player p) {
-		// TODO Method stub
+	public State removeMark(Player p) {
+		return null; // TODO Method stub
 	}
 
 	/**
