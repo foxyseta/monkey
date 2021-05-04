@@ -122,8 +122,7 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 			final Position a = history.pop();
 			final int row = a.getRow(), column = a.getColumn();
 			cellStates[row][column] = MNKCellState.FREE;
-			updateAlignments(history.peek(), x -> updateMark(x, false));
-			history.pop();
+			updateAlignments(a, x -> updateMark(x, false));
 			state = MNKGameState.OPEN;
 		} catch (java.util.EmptyStackException e) {
 			throw new IllegalCallerException("No previous action to revert.");
@@ -219,12 +218,15 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	 *              of removed.
 	 * @throws IllegalArgumentException query is meant for another M-N-K tuple.
 	 * @throws IllegalArgumentException Cannot add any more marks.
-	 * @throws IllegalCallerException   Unknown direction.
+	 * @throws IllegalCallerException   Unknown direction.history.peek()
+	 * @throws NullPointerException query is null
 	 * @author Stefano Volpe
 	 * @version 1.0
 	 * @since 1.0
 	 */
 	private void updateMark(Alignment query, boolean add) {
+		if (query == null)
+			throw new NullPointerException("query is null");
 		if (query.FIRSTCELL.ROWSNUMBER != M || query.FIRSTCELL.COLUMNSNUMBER != N || query.LENGTH != K)
 			throw new IllegalArgumentException("M-N-K incompatibility.");
 		Alignment result = alignments.search(toKey(query));
@@ -250,7 +252,8 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 			else
 				result.removeMark(player());
 		} catch (IllegalCallerException e) {
-			throw new IllegalArgumentException("Cannot " + (add ? "add" : "remove") + " any more marks.");
+			throw e.getMessage() == "Unknown direction." ? e
+					: new IllegalArgumentException("Cannot " + (add ? "add" : "remove") + " any more marks.");
 		}
 	}
 
