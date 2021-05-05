@@ -34,7 +34,7 @@ public class Alignment {
 	 * @since 1.0
 	 */
 	public enum State {
-		EMPTY, P1, P2, MIXED
+		EMPTY, P1PARTIAL, P2PARTIAL, MIXED, P1FULL, P2FULL
 	}
 
 	/** The {@link Position} of the top left cell of this {@link Alignment}. */
@@ -58,9 +58,33 @@ public class Alignment {
 	 * @since 1.0
 	 */
 	public Alignment(Position firstCell, Direction direction, int length) {
-		FIRSTCELL = null; // TODO Constructor stub
-		DIRECTION = Direction.HORIZONTAL;
-		LENGTH = 0;
+		if (length <= 0) {
+			throw new IllegalArgumentException("length can't be negative.");
+		}
+		if ((firstCell == null) || (direction == null)) {
+			throw new NullPointerException("firstCell or direction are null.");
+		}
+		switch (direction) {
+			case Direction.HORIZONTAL:
+				if (firstcell.COLUMNSNUMBER < firstCell.column + (length - 1)) 
+					throw new IndexOutOfBoundsException("Last cell out of firstCell's bounds.");
+				break;
+			case Direction.VERTICAL:
+				if (firstcell.ROWSNUMBER < firstCell.row + (length - 1)) 
+					throw new IndexOutOfBoundsException("Last cell out of firstCell's bounds.");
+				break;
+			case Direction.PRIMARY_DIAGONAL:
+				if (firstcell.ROWSNUMBER < firstCell.row + (length - 1))||(firstcell.COLUMNSNUMBER < firstCell.column + (length - 1))
+					throw new IndexOutOfBoundsException("Last cell out of firstCell's bounds.");
+				break;
+			case Direction.SECONDARY_DIAGONAL:
+				if (firstCell.row - (length - 1)<0)|| (f firstCell.column + (length - 1)<0)
+					throw new IndexOutOfBoundsException("Last cell out of firstCell's bounds.");
+				break;
+		}
+		FIRSTCELL=firstCell;
+		DIRECTION = direction;
+		LENGTH = length;
 	}
 
 	/**
@@ -74,7 +98,7 @@ public class Alignment {
 	 * @since 1.0
 	 */
 	public int score(Player p) {
-		return 0; // TODO Method stub
+		return p == Player.P1 ? p1Cells : p2Cells;
 	}
 
 	/**
@@ -86,7 +110,7 @@ public class Alignment {
 	 * @since 1.0
 	 */
 	public int getFreeCells() {
-		return 0; // TODO Method stub
+		return (LENGTH - (p1Cells + p2Cells));
 	}
 
 	/**
@@ -98,7 +122,7 @@ public class Alignment {
 	 * @since 1.0
 	 */
 	public State getState() {
-		return State.EMPTY; // TODO Method stub
+		return state;
 	}
 
 	/**
@@ -112,7 +136,28 @@ public class Alignment {
 	 * @since 1.0
 	 */
 	public State addMark(Player p) {
-		return null; // TODO Method stub
+		if (getFreeCells() == 0)
+			throw new IllegalCallerExeption("No free cells to be marked.");
+		if (p == Player.P1) {
+			p1Cells++;
+			if (p1Cells == LENGTH) {
+				state = State.P1FULL;
+			} else {
+				if (p2Cells == 0)
+					state = State.P1PARTIAL;
+			}
+		} else {
+			p2Cells++;
+			if (p2Cells == LENGTH) {
+				state = State.P2FULL;
+			} else {
+				if (p1Cells == 0)
+					state = State.P2PARTIAL;
+			}
+		}
+		if ((p1Cells != 0) && (p2Cells != 0))
+			state = State.MIXED;
+		return state;
 	}
 
 	/**
@@ -126,7 +171,22 @@ public class Alignment {
 	 * @since 1.0
 	 */
 	public State removeMark(Player p) {
-		return null; // TODO Method stub
+		if (getFreeCells() == LENGTH)
+			throw new IllegalCallerException("No marked cells to be removed");
+		if (p == Player.P1)&&(p1Cells!=0) {
+			p1Cells--;
+			if (p1Cells!=0)&&(p2Cells == 0) 
+				state = State.P1PARTIAL;
+		} else {
+			p2Cells--;
+			if (p2Cells!=0)&&(p1Cells == 0)
+				state = State.P2PARTIAL;
+		}
+		if (p1Cells == 0)&&(p2Cells==0) 
+			state = State.EMPTY;
+		if(p1Cells!=0)&&(p2Cells!=0)
+			state=State.MIXED;
+		return state;
 	}
 
 	/**
@@ -138,7 +198,9 @@ public class Alignment {
 	 * @since 1.0
 	 */
 	public void clear() {
-		// TODO Method stub
+		p1Cella = 0;
+		p2Cells = 0;
+		state = State.EMPTY;
 	}
 
 	/** Number of cells marked by the first {@link monkey.ai.Player Player}. */
