@@ -3,6 +3,9 @@ package monkey;
 import java.util.Random;
 import mnkgame.MNKCell;
 import mnkgame.MNKPlayer;
+import monkey.ai.AI;
+import monkey.mnk.Board;
+import monkey.mnk.Position;
 
 /**
  * Totally random software player.
@@ -22,4 +25,5 @@ public class MoNKey implements MNKPlayer {
 	}
 
 	private Random rand;
+	private AI<Board, Position, Integer> ai = null;
 }

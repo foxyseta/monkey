@@ -10,7 +10,6 @@ import mnkgame.MNKCellState;
 import mnkgame.MNKGameState;
 import monkey.ai.Player;
 import monkey.util.DirectAddressTable;
-import monkey.util.ObjectUtils;
 
 /**
  * A <code>Board</code> describes the {@link monkey.ai.State State} of a
