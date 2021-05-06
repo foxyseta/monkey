@@ -219,7 +219,7 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	 * @throws IllegalArgumentException query is meant for another M-N-K tuple.
 	 * @throws IllegalArgumentException Cannot add any more marks.
 	 * @throws IllegalCallerException   Unknown direction.history.peek()
-	 * @throws NullPointerException query is null
+	 * @throws NullPointerException     query is null
 	 * @author Stefano Volpe
 	 * @version 1.0
 	 * @since 1.0
@@ -237,17 +237,14 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 		try {
 			if (add)
 				switch (result.addMark(player())) {
-				case EMPTY: // should never occure: you just added a mark!
-				case MIXED:
-					break;
-				case P1:
+				case P1FULL:
 					state = MNKGameState.WINP1;
 					break;
-				case P2:
+				case P2FULL:
 					state = MNKGameState.WINP2;
 					break;
 				default:
-					throw new IllegalCallerException("Unknown direction.");
+					break;
 				}
 			else
 				result.removeMark(player());
