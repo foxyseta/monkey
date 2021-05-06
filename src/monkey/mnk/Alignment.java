@@ -50,7 +50,7 @@ public class Alignment {
 	 * @param firstCell An initializer for {@link #FIRSTCELL}
 	 * @param direction An initializer for {@link #DIRECTION}
 	 * @param length    An initializer for {@link #LENGTH}
-	 * @throws IllegalArgumentException  length is negative
+	 * @throws IllegalArgumentException  length is negative or zero
 	 * @throws IndexOutOfBoundsException last cell out of firstCell's bounds
 	 * @throws NullPointerException      firstCell, or direction, or both are null
 	 * @author Gaia Clerici
@@ -59,30 +59,31 @@ public class Alignment {
 	 */
 	public Alignment(Position firstCell, Direction direction, int length) {
 		if (length <= 0) {
-			throw new IllegalArgumentException("length can't be negative.");
+			throw new IllegalArgumentException("length can't be negative or zero.");
 		}
 		if ((firstCell == null) || (direction == null)) {
 			throw new NullPointerException("firstCell or direction are null.");
 		}
 		switch (direction) {
-			case Direction.HORIZONTAL:
-				if (firstcell.COLUMNSNUMBER < firstCell.column + (length - 1)) 
-					throw new IndexOutOfBoundsException("Last cell out of firstCell's bounds.");
-				break;
-			case Direction.VERTICAL:
-				if (firstcell.ROWSNUMBER < firstCell.row + (length - 1)) 
-					throw new IndexOutOfBoundsException("Last cell out of firstCell's bounds.");
-				break;
-			case Direction.PRIMARY_DIAGONAL:
-				if (firstcell.ROWSNUMBER < firstCell.row + (length - 1))||(firstcell.COLUMNSNUMBER < firstCell.column + (length - 1))
-					throw new IndexOutOfBoundsException("Last cell out of firstCell's bounds.");
-				break;
-			case Direction.SECONDARY_DIAGONAL:
-				if (firstCell.row - (length - 1)<0)|| (f firstCell.column + (length - 1)<0)
-					throw new IndexOutOfBoundsException("Last cell out of firstCell's bounds.");
-				break;
+		case HORIZONTAL:
+			if (firstCell.COLUMNSNUMBER <= firstCell.getColumn() + (length - 1))
+				throw new IndexOutOfBoundsException("Last cell out of firstCell's bounds.");
+			break;
+		case VERTICAL:
+			if (firstCell.ROWSNUMBER <= firstCell.getRow() + (length - 1))
+				throw new IndexOutOfBoundsException("Last cell out of firstCell's bounds.");
+			break;
+		case PRIMARY_DIAGONAL:
+			if (firstCell.ROWSNUMBER <= firstCell.getRow() + (length - 1)
+					|| firstCell.COLUMNSNUMBER <= firstCell.getColumn() + (length - 1))
+				throw new IndexOutOfBoundsException("Last cell out of firstCell's bounds.");
+			break;
+		case SECONDARY_DIAGONAL:
+			if (firstCell.getRow() - (length - 1) < 0 || firstCell.COLUMNSNUMBER <= firstCell.getColumn() + (length - 1))
+				throw new IndexOutOfBoundsException("Last cell out of firstCell's bounds.");
+			break;
 		}
-		FIRSTCELL=firstCell;
+		FIRSTCELL = firstCell;
 		DIRECTION = direction;
 		LENGTH = length;
 	}
@@ -92,12 +93,15 @@ public class Alignment {
 	 * {@link Alignment}.
 	 *
 	 * @param p The {@link monkey.ai.Player Player} whose score will be returned.
+	 * @throws NullPointerException p is null.
 	 * @return The specified {@link monkey.ai.Player Player}'s score.
 	 * @author Gaia Clerici
 	 * @version 1.0
 	 * @since 1.0
 	 */
 	public int score(Player p) {
+		if (p == null)
+			throw new NullPointerException("p is null.");
 		return p == Player.P1 ? p1Cells : p2Cells;
 	}
 
@@ -130,14 +134,17 @@ public class Alignment {
 	 *
 	 * @param p The {@link monkey.ai.Player Player} whose mark is to be added.
 	 * @throws IllegalCallerException No free cells to be marked.
+	 * @throws NullPointerException   p is null.
 	 * @return The (eventually) updated {@link #state}.
 	 * @author Gaia Clerici
 	 * @version 1.0
 	 * @since 1.0
 	 */
 	public State addMark(Player p) {
+		if (p == null)
+			throw new NullPointerException("p is null.");
 		if (getFreeCells() == 0)
-			throw new IllegalCallerExeption("No free cells to be marked.");
+			throw new IllegalCallerException("No free cells to be marked.");
 		if (p == Player.P1) {
 			p1Cells++;
 			if (p1Cells == LENGTH) {
@@ -165,27 +172,30 @@ public class Alignment {
 	 *
 	 * @param p The {@link monkey.ai.Player Player} whose mark is to be removed.
 	 * @throws IllegalCallerException No marked cells to be removed.
+	 * @throws NullPointerException   p is null.
 	 * @return The (eventually) updated {@link #state}.
 	 * @author Gaia Clerici
 	 * @version 1.0
 	 * @since 1.0
 	 */
 	public State removeMark(Player p) {
+		if (p == null)
+			throw new NullPointerException("p is null.");
 		if (getFreeCells() == LENGTH)
 			throw new IllegalCallerException("No marked cells to be removed");
-		if (p == Player.P1)&&(p1Cells!=0) {
+		if (p == Player.P1 && p1Cells != 0) {
 			p1Cells--;
-			if (p1Cells!=0)&&(p2Cells == 0) 
+			if (p1Cells != 0 && p2Cells == 0)
 				state = State.P1PARTIAL;
 		} else {
 			p2Cells--;
-			if (p2Cells!=0)&&(p1Cells == 0)
+			if (p2Cells != 0 && p1Cells == 0)
 				state = State.P2PARTIAL;
 		}
-		if (p1Cells == 0)&&(p2Cells==0) 
+		if (p1Cells == 0 && p2Cells == 0)
 			state = State.EMPTY;
-		if(p1Cells!=0)&&(p2Cells!=0)
-			state=State.MIXED;
+		if (p1Cells != 0 && p2Cells != 0)
+			state = State.MIXED;
 		return state;
 	}
 
@@ -198,7 +208,7 @@ public class Alignment {
 	 * @since 1.0
 	 */
 	public void clear() {
-		p1Cella = 0;
+		p1Cells = 0;
 		p2Cells = 0;
 		state = State.EMPTY;
 	}
