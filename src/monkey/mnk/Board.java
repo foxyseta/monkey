@@ -66,7 +66,8 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 		// states
 		state = SIZE > 0 ? MNKGameState.OPEN : MNKGameState.DRAW;
 		cellStates = new MNKCellState[M][N];
-		Arrays.fill(cellStates, MNKCellState.FREE);
+		for (MNKCellState[] row : cellStates)
+			Arrays.fill(row, MNKCellState.FREE);
 		// alignments
 		B = Math.max(0, N - K + 1);
 		H = Math.max(0, M - K + 1);
