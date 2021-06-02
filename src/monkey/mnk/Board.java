@@ -288,8 +288,8 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 		for (int i = Math.max(0, Math.max(row - K + 1, row - column)), j = i + column - row; i <= max; ++i, ++j)
 			update.accept(new Alignment(new Position(this, i, j), Alignment.Direction.PRIMARY_DIAGONAL, K));
 		// secondary diagonal alignments
-		max = Math.max(column + row, Math.min(M - 1, row + K - 1));
-		for (int i = Math.min(N - K, Math.max(K - 1, row)), j = row + column - i; i <= max; ++i, --j)
+		max = Math.min(column + row, Math.min(M - 1, row + K - 1));
+		for (int i = Math.max(row + column + K - N, Math.max(K - 1, row)), j = row + column - i; i <= max; ++i, --j)
 			update.accept(new Alignment(new Position(this, i, j), Alignment.Direction.SECONDARY_DIAGONAL, K));
 	}
 

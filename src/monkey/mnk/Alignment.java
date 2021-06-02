@@ -1,5 +1,7 @@
 package monkey.mnk;
 
+import javax.lang.model.util.ElementScanner6;
+
 import monkey.ai.Player;
 
 /**
@@ -147,23 +149,19 @@ public class Alignment {
 		if (getFreeCells() == 0)
 			throw new IllegalCallerException("No free cells to be marked.");
 		if (p == Player.P1) {
-			p1Cells++;
-			if (p1Cells == LENGTH) {
+			++p1Cells;
+			if (p1Cells == LENGTH)
 				state = State.P1FULL;
-			} else {
-				if (p2Cells == 0)
-					state = State.P1PARTIAL;
-			}
+			else if (p2Cells == 0)
+				state = State.P1PARTIAL;
 		} else {
-			p2Cells++;
-			if (p2Cells == LENGTH) {
+			++p2Cells;
+			if (p2Cells == LENGTH)
 				state = State.P2FULL;
-			} else {
-				if (p1Cells == 0)
-					state = State.P2PARTIAL;
-			}
+			else if (p1Cells == 0)
+				state = State.P2PARTIAL;
 		}
-		if ((p1Cells != 0) && (p2Cells != 0))
+		if (p1Cells != 0 && p2Cells != 0)
 			state = State.MIXED;
 		return state;
 	}
@@ -182,22 +180,17 @@ public class Alignment {
 	public State removeMark(Player p) {
 		if (p == null)
 			throw new NullPointerException("p is null.");
-		if (getFreeCells() == LENGTH)
-			throw new IllegalCallerException("No marked cells to be removed");
-		if (p == Player.P1 && p1Cells != 0) {
-			p1Cells--;
-			if (p1Cells != 0 && p2Cells == 0)
-				state = State.P1PARTIAL;
+		if (p == Player.P1) {
+			if (p1Cells == 0)
+				throw new IllegalCallerException("No marked cells to be removed");
+			--p1Cells;
 		} else {
-			p2Cells--;
-			if (p2Cells != 0 && p1Cells == 0)
-				state = State.P2PARTIAL;
+			if (p2Cells == 0)
+				throw new IllegalCallerException("No marked cells to be removed");
+			--p2Cells;
 		}
-		if (p1Cells == 0 && p2Cells == 0)
-			state = State.EMPTY;
-		if (p1Cells != 0 && p2Cells != 0)
-			state = State.MIXED;
-		return state;
+		state = p1Cells == 0 ? p2Cells == 0 ? State.EMPTY : State.P2PARTIAL
+							 : p2Cells == 0 ? State.P1PARTIAL : State.MIXED;
 	}
 
 	/**

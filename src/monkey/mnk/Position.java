@@ -235,4 +235,15 @@ public class Position {
 		return this;
 	}
 
+	@Override // inherit doc comment
+	public boolean equals(Object o) {
+		if (o == this)
+			return true;
+		if (!(o instanceof Position))
+			return false;
+		Position p = (Position) o;
+		return ROWSNUMBER == p.ROWSNUMBER && COLUMNSNUMBER == p.COLUMNSNUMBER &&
+			   row == p.row && column == p.column;
+	}
+
 }
