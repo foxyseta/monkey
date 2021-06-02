@@ -65,23 +65,24 @@ public class Alignment {
 			throw new NullPointerException("firstCell or direction are null.");
 		}
 		switch (direction) {
-		case HORIZONTAL:
-			if (firstCell.COLUMNSNUMBER <= firstCell.getColumn() + (length - 1))
-				throw new IndexOutOfBoundsException("Last cell out of firstCell's bounds.");
-			break;
-		case VERTICAL:
-			if (firstCell.ROWSNUMBER <= firstCell.getRow() + (length - 1))
-				throw new IndexOutOfBoundsException("Last cell out of firstCell's bounds.");
-			break;
-		case PRIMARY_DIAGONAL:
-			if (firstCell.ROWSNUMBER <= firstCell.getRow() + (length - 1)
-					|| firstCell.COLUMNSNUMBER <= firstCell.getColumn() + (length - 1))
-				throw new IndexOutOfBoundsException("Last cell out of firstCell's bounds.");
-			break;
-		case SECONDARY_DIAGONAL:
-			if (firstCell.getRow() - (length - 1) < 0 || firstCell.COLUMNSNUMBER <= firstCell.getColumn() + (length - 1))
-				throw new IndexOutOfBoundsException("Last cell out of firstCell's bounds.");
-			break;
+			case HORIZONTAL:
+				if (firstCell.COLUMNSNUMBER <= firstCell.getColumn() + (length - 1))
+					throw new IndexOutOfBoundsException("Last cell out of firstCell's bounds.");
+				break;
+			case VERTICAL:
+				if (firstCell.ROWSNUMBER <= firstCell.getRow() + (length - 1))
+					throw new IndexOutOfBoundsException("Last cell out of firstCell's bounds.");
+				break;
+			case PRIMARY_DIAGONAL:
+				if (firstCell.ROWSNUMBER <= firstCell.getRow() + (length - 1)
+						|| firstCell.COLUMNSNUMBER <= firstCell.getColumn() + (length - 1))
+					throw new IndexOutOfBoundsException("Last cell out of firstCell's bounds.");
+				break;
+			case SECONDARY_DIAGONAL:
+				if (firstCell.getRow() - (length - 1) < 0
+						|| firstCell.COLUMNSNUMBER <= firstCell.getColumn() + (length - 1))
+					throw new IndexOutOfBoundsException("Last cell out of firstCell's bounds.");
+				break;
 		}
 		FIRSTCELL = firstCell;
 		DIRECTION = direction;

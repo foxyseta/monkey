@@ -75,7 +75,7 @@ public class Position {
 	 * @param columnsNumber Number of columns in the grid.
 	 * @param row           Row index (starting from zero).
 	 * @param column        Column index (starting from zero).
-	 * @throws IllegalArgumentException  rowsNumber or columnsNumber is negative
+	 * @throws IllegalArgumentException  rowsNumber or columnsNumber is negative.
 	 * @throws IndexOutOfBoundsException Referring to a {@link Position} outside of
 	 *                                   <code>b</code>'s bounds.
 	 * @author Gaia Clerici
@@ -109,6 +109,23 @@ public class Position {
 	 */
 	public Position(Board b, int row, int column) {
 		this(b.M, b.N, row, column);
+	}
+
+	/**
+	 * Constructs a new {@link Position} given an {@link mnkgame.MNKCell [MNKCell]}.
+	 *
+	 * @param rowsNumber    Number of rows in the grid.
+	 * @param columnsNumber Number of columns in the grid.
+	 * @param cell          {@link mnkgame.MNKCell [MNKCell]} to be used.
+	 * @throws IllegalArgumentException  rowsNumber or columnsNumber is negative.
+	 * @throws IndexOutOfBoundsException Referring to a {@link Position} outside of
+	 *                                   <code>b</code>'s bounds.
+	 * @author Gaia Clerici
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	public Position(int rowsNumber, int columnsNumber, mnkgame.MNKCell cell) {
+		this(rowsNumber, columnsNumber, cell.i, cell.j);
 	}
 
 	/**
