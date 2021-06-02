@@ -1,6 +1,5 @@
 package monkey;
 
-import java.util.Random;
 import mnkgame.MNKCell;
 import mnkgame.MNKPlayer;
 import monkey.ai.AI;
