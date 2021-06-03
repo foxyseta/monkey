@@ -86,7 +86,7 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 		if (player != state.player())
 			throw new IllegalArgumentException("It's not your turn");
 		A a = null;
-		U alpha = state.initial_alpha(player), beta = state.initial_beta(player), v = alpha;
+		U alpha = state.initialAlpha(player), beta = state.initialBeta(player), v = alpha;
 		final Iterable<A> actions = state.actions();
 		for (A toChild : actions) {
 			final U minValue = minValue(state.result(toChild), alpha, beta);
@@ -114,12 +114,12 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	U maxValue(S s, U alpha, U beta) {
+	protected U maxValue(S s, U alpha, U beta) {
 		if (s == null)
 			throw new NullPointerException("s is null.");
 		if (s.terminalTest())
 			return s.utility(player);
-		U v = s.initial_alpha(player);
+		U v = s.initialAlpha(player);
 		final Iterable<A> actions = s.actions();
 		for (A toChild : actions) {
 			v = objectUtils.max(v, minValue(s.result(toChild), alpha, beta));
@@ -148,7 +148,7 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 			throw new NullPointerException("s is null.");
 		if (s.terminalTest())
 			return s.utility(player);
-		U v = s.initial_beta(player);
+		U v = s.initialBeta(player);
 		final Iterable<A> actions = s.actions();
 		for (A toChild : actions) {
 			v = objectUtils.min(v, maxValue(s.result(toChild), alpha, beta));

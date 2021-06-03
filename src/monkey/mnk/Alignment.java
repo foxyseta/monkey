@@ -58,32 +58,16 @@ public class Alignment {
 	 * @since 1.0
 	 */
 	public Alignment(Position firstCell, Direction direction, int length) {
-		if (length <= 0) {
+		if (length <= 0)
 			throw new IllegalArgumentException("length can't be negative or zero.");
-		}
-		if ((firstCell == null) || (direction == null)) {
+		if (firstCell == null || direction == null)
 			throw new NullPointerException("firstCell or direction are null.");
-		}
-		switch (direction) {
-			case HORIZONTAL:
-				if (firstCell.COLUMNSNUMBER <= firstCell.getColumn() + (length - 1))
-					throw new IndexOutOfBoundsException("Last cell out of firstCell's bounds.");
-				break;
-			case VERTICAL:
-				if (firstCell.ROWSNUMBER <= firstCell.getRow() + (length - 1))
-					throw new IndexOutOfBoundsException("Last cell out of firstCell's bounds.");
-				break;
-			case PRIMARY_DIAGONAL:
-				if (firstCell.ROWSNUMBER <= firstCell.getRow() + (length - 1)
-						|| firstCell.COLUMNSNUMBER <= firstCell.getColumn() + (length - 1))
-					throw new IndexOutOfBoundsException("Last cell out of firstCell's bounds.");
-				break;
-			case SECONDARY_DIAGONAL:
-				if (firstCell.getRow() - (length - 1) < 0
-						|| firstCell.COLUMNSNUMBER <= firstCell.getColumn() + (length - 1))
-					throw new IndexOutOfBoundsException("Last cell out of firstCell's bounds.");
-				break;
-		}
+		if (direction != Direction.VERTICAL && firstCell.getColumn() + length > firstCell.COLUMNSNUMBER)
+			throw new IndexOutOfBoundsException("Last cell out of firstCell's horizontal bounds.");
+		if ((direction == Direction.VERTICAL || direction == Direction.PRIMARY_DIAGONAL)
+				&& firstCell.getRow() + length > firstCell.ROWSNUMBER
+				|| direction == Direction.SECONDARY_DIAGONAL && firstCell.getRow() - length < -1)
+			throw new IndexOutOfBoundsException("Last cell out of firstCell's vertical bounds.");
 		FIRSTCELL = firstCell;
 		DIRECTION = direction;
 		LENGTH = length;
@@ -115,7 +99,7 @@ public class Alignment {
 	 * @since 1.0
 	 */
 	public int getFreeCells() {
-		return (LENGTH - (p1Cells + p2Cells));
+		return LENGTH - p1Cells - p2Cells;
 	}
 
 	/**
@@ -188,7 +172,7 @@ public class Alignment {
 			--p2Cells;
 		}
 		return state = p1Cells == 0 ? p2Cells == 0 ? State.EMPTY : State.P2PARTIAL
-							 : p2Cells == 0 ? State.P1PARTIAL : State.MIXED;
+				: p2Cells == 0 ? State.P1PARTIAL : State.MIXED;
 	}
 
 	/**

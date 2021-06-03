@@ -93,7 +93,7 @@ public interface State<Self extends State<Self, Action, Utility>, Action, Utilit
 	 * Defines the alpha value of the relative initial {@link State} for a certain
 	 * {@link Player}.
 	 *
-	 * @see #initial_beta
+	 * @see #initialBeta
 	 * @param p the {@link Player} whose initial alpha is to be returned.
 	 * @return The initial alpha of the relative initial {@link State} for
 	 *         <code>p</code>.
@@ -102,13 +102,13 @@ public interface State<Self extends State<Self, Action, Utility>, Action, Utilit
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	public Utility initial_alpha(Player p);
+	public Utility initialAlpha(Player p);
 
 	/**
 	 * Defines the beta value of the relative initial {@link State} for a certain
 	 * {@link Player}.
 	 *
-	 * @see #initial_alpha
+	 * @see #initialAlpha
 	 * @param p the {@link Player} whose initial beta is to be returned.
 	 * @return The initial beta of the relative initial {@link State} for
 	 *         <code>p</code>.
@@ -117,6 +117,6 @@ public interface State<Self extends State<Self, Action, Utility>, Action, Utilit
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	public Utility initial_beta(Player p);
+	public Utility initialBeta(Player p);
 
 }

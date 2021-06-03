@@ -17,16 +17,16 @@ PLAYER_FILE = monkey/MoNKey.java
 MNK = 3 3 3
 TEST = mnkgame.QuasiRandomPlayer -r 10 -v
 
-run: build
+run:
 	@echo "Running..."
 	@$(JR) -cp "$(LIB_DIR)/*:$(BUILD_DIR)/" $(MAIN_CLASS) $(MNK) $(PLAYER_CLASS)
 
-run-debug: build-debug
+run-debug:
 	@echo "Running..."
 	@$(JR) -Xdebug \
 	 -Xrunjdwp:transport=dt_socket,address=5000,server=y,suspend=y -cp "$(LIB_DIR)/*:$(BUILD_DIR)/" $(MAIN_CLASS) $(MNK) $(PLAYER_CLASS)
 
-test: build
+test:
 	@echo "Testing..."
 	@$(JR) -cp "$(LIB_DIR)/*:$(BUILD_DIR)/" $(TESTER_CLASS) $(MNK) $(PLAYER_CLASS) $(TEST)
 

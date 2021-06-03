@@ -152,12 +152,12 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	}
 
 	@Override // inherit doc comment
-	public Integer initial_alpha(Player p) {
+	public Integer initialAlpha(Player p) {
 		return LOSSUTILITY;
 	}
 
 	@Override // inherit doc comment
-	public Integer initial_beta(Player p) {
+	public Integer initialBeta(Player p) {
 		return VICTORYUTILITY;
 	}
 

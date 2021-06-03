@@ -9,8 +9,7 @@ import monkey.mnk.Position;
 
 /**
  * A <code>MoNKey</code> offers a possible implementation of
- * {@link mnkgame.MNKPlayer [MNKPlayer]} using an instance of {@link ai.AI
- * [AI]}.
+ * <code>MNKPlayer</code> using an instance of <code>AI</code>.
  *
  * @author Gaia Clerici
  * @version 1.0
@@ -39,7 +38,7 @@ public class MoNKey implements MNKPlayer {
 		return "🅼🐵🅽🅺ey";
 	}
 
-	/** Artificial intelligence used by <come>MoNKey</code>. */
+	/** Artificial intelligence used by <code>MoNKey</code>. */
 	private AI<Board, Position, Integer> ai = null;
 	/** Number of rows. */
 	private int m;

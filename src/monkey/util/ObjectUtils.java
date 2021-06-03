@@ -3,11 +3,9 @@ package monkey.util;
 import java.util.Comparator;
 
 /**
- * Operations on Object.
- * 
- * This class tries to handle null input gracefully. An exception will generally
- * not be thrown for a null input. Each method documents its behavior in more
- * detail.
+ * Operations on Object. This class tries to handle null input gracefully. An
+ * exception will generally not be thrown for a null input. Each method
+ * documents its behavior in more detail.
  * 
  * @author Gaia Clerici
  * @version 1.0
