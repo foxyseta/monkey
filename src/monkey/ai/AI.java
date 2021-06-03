@@ -153,7 +153,7 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 		for (A toChild : actions) {
 			v = objectUtils.min(v, maxValue(s.result(toChild), alpha, beta));
 			s.revert();
-			if (v.compareTo(beta) <= 0)
+			if (v.compareTo(alpha) <= 0)
 				return v;
 			beta = objectUtils.min(beta, v);
 		}

@@ -1,7 +1,5 @@
 package monkey.mnk;
 
-import javax.lang.model.util.ElementScanner6;
-
 import monkey.ai.Player;
 
 /**
@@ -189,7 +187,7 @@ public class Alignment {
 				throw new IllegalCallerException("No marked cells to be removed");
 			--p2Cells;
 		}
-		state = p1Cells == 0 ? p2Cells == 0 ? State.EMPTY : State.P2PARTIAL
+		return state = p1Cells == 0 ? p2Cells == 0 ? State.EMPTY : State.P2PARTIAL
 							 : p2Cells == 0 ? State.P1PARTIAL : State.MIXED;
 	}
 

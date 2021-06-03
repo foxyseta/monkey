@@ -202,7 +202,7 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 		case PRIMARY_DIAGONAL: // B * M + N * H + [0 .. B * H - 1]
 			return B * (M + row) + N * H + column;
 		case SECONDARY_DIAGONAL: // B * (M + H) + N * H + [0 .. B * H - 1]
-			return B * (M + 2 * H + row - N) + N * H + column;
+			return B * (2 * H + row) + N * H + column;
 		default:
 			throw new IllegalArgumentException("Unknown direction");
 		}
