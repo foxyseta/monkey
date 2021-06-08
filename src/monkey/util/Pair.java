@@ -12,9 +12,9 @@ package monkey.util;
  */
 public class Pair<K, V> {
 
-	/** key */
+	/** Key of the {@link Pair}. */
 	private K key;
-	/** value */
+	/** Value of the {@link Pair}. */
 	private V value;
 
 	/**

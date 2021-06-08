@@ -2,12 +2,22 @@ package monkey.util;
 
 import java.util.Comparator;
 
+/**
+ * Operations on Object. This class tries to handle null input gracefully. An
+ * exception will generally not be thrown for a null input. Each method
+ * documents its behavior in more detail.
+ * 
+ * @author Gaia Clerici
+ * @version 1.0
+ * @since 1.0
+ */
 public class ObjectUtils {
     /**
      * Null safe comparison of Comparables.
      *
-     * @param c1 The first comparable, may be null.
-     * @param c2 The second comparable, may be null.
+     * @param <C> Type of the elements to compare.
+     * @param c1  The first comparable, may be null.
+     * @param c2  The second comparable, may be null.
      * @return
      *         <ul>
      *         <li>If both objects are non-null and equal, c1.</li>
@@ -29,6 +39,7 @@ public class ObjectUtils {
     /**
      * Null safe comparison of Comparables.
      *
+     * @param <C>  Type of the elements to compare.
      * @param c1   The first comparable, may be null.
      * @param c2   The second comparable, may be null.
      * @param comp A comparator to compare c1 and c2.
@@ -53,8 +64,9 @@ public class ObjectUtils {
     /**
      * Null safe comparison of Comparables.
      *
-     * @param c1 The first comparable, may be null.
-     * @param c2 The second comparable, may be null.
+     * @param <C> Type of the elements to compare.
+     * @param c1  The first comparable, may be null.
+     * @param c2  The second comparable, may be null.
      * @return
      *         <ul>
      *         <li>If both objects are non-null and equal, c1.</li>
@@ -76,6 +88,7 @@ public class ObjectUtils {
     /**
      * Null safe comparison of Comparables.
      *
+     * @param <C>  Type of the elements to compare.
      * @param c1   The first comparable, may be null.
      * @param c2   The second comparable, may be null.
      * @param comp A comparator to compare c1 and c2.

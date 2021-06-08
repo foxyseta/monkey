@@ -1,5 +1,7 @@
 package monkey.ai;
 
+import java.lang.Iterable;
+
 /**
  * A <code>State</code> represents a single scenario between those which can be
  * encountered when playing a deterministic, turn-taking, two-player, zero-sum
@@ -29,19 +31,20 @@ public interface State<Self extends State<Self, Action, Utility>, Action, Utilit
 	/**
 	 * Defines the set of legal <code>Action</code>s.
 	 *
-	 * @return An array containing the legal <code>Action</code>s for the state.
+	 * @return An {@link java.lang.Iterable Iterable} containing the legal
+	 *         <code>Action</code>s for the state.
 	 * @author Stefano Volpe
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	public Action[] actions();
+	public Iterable<Action> actions();
 
 	/**
 	 * Defines the result of a certain move updating the {@link State} accordingly.
 	 *
 	 * @param a The <code>Action</code> to be applied.
-	 * @throws IllegalArgumentExeption Illegal move.
-	 * @throws NullPointerException    The action is null.
+	 * @throws IllegalArgumentException Illegal move.
+	 * @throws NullPointerException     The action is null.
 	 * @return A reference to this {@link State}.
 	 * @author Stefano Volpe
 	 * @version 1.0
@@ -90,7 +93,7 @@ public interface State<Self extends State<Self, Action, Utility>, Action, Utilit
 	 * Defines the alpha value of the relative initial {@link State} for a certain
 	 * {@link Player}.
 	 *
-	 * @see #initial_beta
+	 * @see #initialBeta
 	 * @param p the {@link Player} whose initial alpha is to be returned.
 	 * @return The initial alpha of the relative initial {@link State} for
 	 *         <code>p</code>.
@@ -99,13 +102,13 @@ public interface State<Self extends State<Self, Action, Utility>, Action, Utilit
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	public Utility initial_alpha(Player p);
+	public Utility initialAlpha(Player p);
 
 	/**
 	 * Defines the beta value of the relative initial {@link State} for a certain
 	 * {@link Player}.
 	 *
-	 * @see #initial_alpha
+	 * @see #initialAlpha
 	 * @param p the {@link Player} whose initial beta is to be returned.
 	 * @return The initial beta of the relative initial {@link State} for
 	 *         <code>p</code>.
@@ -114,6 +117,6 @@ public interface State<Self extends State<Self, Action, Utility>, Action, Utilit
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	public Utility initial_beta(Player p);
+	public Utility initialBeta(Player p);
 
 }

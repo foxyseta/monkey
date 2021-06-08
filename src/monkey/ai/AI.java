@@ -1,7 +1,5 @@
 package monkey.ai;
 
-import java.util.Comparator;
-import monkey.util.Pair;
 import monkey.util.ObjectUtils;
 
 /**
@@ -25,20 +23,11 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 	private S state;
 	/** The maximum number of milliseconds usable to select a move. */
 	final private long time;
-
-	/** Compare utilities */
-	final private Comparator<Pair<A, U>> alphaBetaComparator = new Comparator<Pair<A, U>>() {
-		@Override
-		public int compare(monkey.util.Pair<A, U> o1, monkey.util.Pair<A, U> o2) {
-			if (o1 == null || o2 == null)
-				throw new NullPointerException("o1 or o2 are null");
-			return o1.getValue().compareTo(o2.getValue());
-		};
-	};
+	/** Utilities instance for generic objects. */
 	final private ObjectUtils objectUtils = new ObjectUtils();
 
 	/**
-	 * Construct a new {@link AI} for a certain {@link Player} given an initial
+	 * Constructs a new {@link AI} for a certain {@link Player} given an initial
 	 * {@link State} and a timeout in milliseconds.
 	 *
 	 * @param p  The player the {@link AI} will play as.
@@ -70,7 +59,7 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 	 */
 	public void update(A a) {
 		if (a != null) {
-			final A[] actions = state.actions();
+			final Iterable<A> actions = state.actions();
 			for (A action : actions)
 				if (a.equals(action)) {
 					state.result(a);
@@ -84,7 +73,6 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 	 * Given a state in which the player has the move, selects one of the legal
 	 * actions to be played using alpa-beta pruning.
 	 *
-	 * @param s Current state of the game. It might be dirtied by the method.
 	 * @return A legal action to be played.
 	 * @throws IllegalArgumentException The player does not have the move or if the
 	 *                                  state is terminal.
@@ -97,73 +85,77 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 			throw new IllegalArgumentException("s is a terminal state");
 		if (player != state.player())
 			throw new IllegalArgumentException("It's not your turn");
-		return maxPair(state, state.initial_alpha(player), state.initial_beta(player)).getKey();
+		A a = null;
+		U alpha = state.initialAlpha(player), beta = state.initialBeta(player), v = alpha;
+		final Iterable<A> actions = state.actions();
+		for (A toChild : actions) {
+			final U minValue = minValue(state.result(toChild), alpha, beta);
+			if (a == null || v.compareTo(minValue) < 0) {
+				a = toChild;
+				v = minValue;
+			}
+			state.revert();
+			if (v.compareTo(beta) >= 0)
+				return a;
+			alpha = objectUtils.max(alpha, v);
+		}
+		return a;
 	}
 
 	/**
-	 * Executes a "max" alpha-beta pruning step. Unlike in Russel and Norvig's
-	 * implementation, here the whole action-utility {@link monkey.util.Pair [Pair]}
-	 * is returned instead. This is due to performance reasons.
+	 * Executes a "max" alpha-beta pruning step.
 	 *
 	 * @param s     The state to be considered.
-	 * @param alpha The current alpha value and it could be null.
-	 * @param beta  The current beta value and it could be null.
-	 * @return An action-utility {@link monkey.util.Pair [Pair]} describing the most
-	 *         ideal state among the results of applying one of the legal moves to
-	 *         the state <code>s</code>.
+	 * @param alpha The current alpha value. It may be null.
+	 * @param beta  The current beta value. It may be null.
+	 * @return The utility brought by the most useful action for the <code>AI</code> within <code>s</code>.
 	 * @throws NullPointerException The state is null.
 	 * @author Gaia Clerici
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	protected Pair<A, U> maxPair(S s, U alpha, U beta) {
+	protected U maxValue(S s, U alpha, U beta) {
 		if (s == null)
 			throw new NullPointerException("s is null.");
 		if (s.terminalTest())
-			return new Pair<A, U>(null, s.utility(player));
-		// There isn't the chance to return a null key because this isn't the base case
-		Pair<A, U> v = new Pair<A, U>(null, s.initial_alpha(player));
-		final A[] actions = s.actions().clone();
+			return s.utility(player);
+		U v = s.initialAlpha(player);
+		final Iterable<A> actions = s.actions();
 		for (A toChild : actions) {
-			v = objectUtils.max(v, minPair(s.result(toChild), alpha, beta), alphaBetaComparator);
+			v = objectUtils.max(v, minValue(s.result(toChild), alpha, beta));
 			s.revert();
-			if (v.getValue().compareTo(beta) >= 0)
+			if (v.compareTo(beta) >= 0)
 				return v;
-			alpha = objectUtils.max(alpha, v.getValue());
+			alpha = objectUtils.max(alpha, v);
 		}
 		return v;
 	}
 
 	/**
-	 * Executes a "min" alpha-beta pruning step. Unlike in Russel and Norvig's
-	 * implementation, here the whole action-utility {@link monkey.util.Pair [Pair]}
-	 * is returned instead. This is due to performance reasons.
+	 * Executes a "min" alpha-beta pruning step.
 	 *
 	 * @param s     The state to be considered.
-	 * @param alpha The current alpha value and it could be null.
-	 * @param beta  The current beta value and it could be null.
-	 * @return An action-utility {@link monkey.util.Pair [Pair]} describing the most
-	 *         ideal state among the results of applying one of the legal moves to
-	 *         the state <code>s</code>.
+	 * @param alpha The current alpha value. It may be null.
+	 * @param beta  The current beta value. It may be null.
+	 * @return The utility brought by the most useful action for the opponent within <code>s</code>.
 	 * @throws NullPointerException The state is null.
 	 * @author Gaia Clerici
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	protected Pair<A, U> minPair(S s, U alpha, U beta) {
+	protected U minValue(S s, U alpha, U beta) {
 		if (s == null)
 			throw new NullPointerException("s is null.");
 		if (s.terminalTest())
-			return new Pair<A, U>(null, s.utility(player));
-		// There isn't the chance to return a null key because this isn't the base case
-		Pair<A, U> v = new Pair<A, U>(null, s.initial_beta(player));
-		final A[] actions = s.actions().clone();
+			return s.utility(player);
+		U v = s.initialBeta(player);
+		final Iterable<A> actions = s.actions();
 		for (A toChild : actions) {
-			v = objectUtils.min(v, maxPair(s.result(toChild), alpha, beta), alphaBetaComparator);
+			v = objectUtils.min(v, maxValue(s.result(toChild), alpha, beta));
 			s.revert();
-			if (v.getValue().compareTo(beta) <= 0)
+			if (v.compareTo(alpha) <= 0)
 				return v;
-			beta = objectUtils.min(beta, v.getValue());
+			beta = objectUtils.min(beta, v);
 		}
 		return v;
 	}
