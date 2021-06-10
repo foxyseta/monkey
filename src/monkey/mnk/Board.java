@@ -14,7 +14,7 @@ import monkey.util.DirectAddressTable;
 /**
  * A <code>Board</code> describes the {@link monkey.ai.State State} of a
  * MNK-game. It supports backtracking and alpha-beta pruning. A single istance
- * of this class takes O({@link #SIZE}) memory.
+ * of this class takes Θ({@link #SIZE}) memory.
  *
  * @author Stefano Volpe
  * @version 1.0
@@ -41,7 +41,7 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 
 	/**
 	 * Constructs a new {@link Board} given its m, n and k parameters. Takes
-	 * O({@link #SIZE}) time.
+	 * Θ({@link #SIZE}) time.
 	 *
 	 * @param m Number of rows.
 	 * @param n Number of columns.
@@ -81,7 +81,7 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	}
 
 	/**
-	 * {@inheritDoc} Takes O({@link #SIZE}) time.
+	 * {@inheritDoc} Takes Ο({@link #SIZE}) time.
 	 */
 	@Override
 	public Iterable<Position> actions() {
@@ -94,7 +94,7 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	}
 
 	/**
-	 * {@inheritDoc} Takes O({@link #K}) time.
+	 * {@inheritDoc} Takes Θ({@link #K}) time.
 	 */
 	@Override
 	public Board result(Position a) {
@@ -114,7 +114,7 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	}
 
 	/**
-	 * {@inheritDoc} Takes O({@link #K}) time.
+	 * {@inheritDoc} Takes Θ({@link #K}) time.
 	 */
 	@Override
 	public Board revert() {
@@ -256,7 +256,7 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 
 	/**
 	 * Applies a generic "update" function to every {@link monkey.mnk.Alignment
-	 * Alignment} containing a given cell. Takes O({@link #K} f) time, where f is
+	 * Alignment} containing a given cell. Takes Θ({@link #K} f) time, where f is
 	 * the cost of the "update" function.
 	 *
 	 * @param p      Location of the cell which has just been (un)marked.
