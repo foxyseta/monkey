@@ -73,6 +73,11 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 		H = Math.max(0, M - K + 1);
 		ALIGNMENTS = countAlignments();
 		alignments = new DirectAddressTable<Alignment>(Alignment.class, a -> toKey(a), ALIGNMENTS);
+		// action candidates
+		actionsCandidates = new Position[SIZE];
+		for (int row = 0; row < M; ++row)
+			for (int column = 0; column < N; ++column)
+				actionsCandidates[M * row + column] = new Position(this, row, column);
 	}
 
 	@Override // inherit doc comment
@@ -86,10 +91,9 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	@Override
 	public Iterable<Position> actions() {
 		LinkedList<Position> res = new LinkedList<Position>();
-		for (int row = 0; row < M; ++row)
-			for (int column = 0; column < N; ++column)
-				if (cellStates[row][column] == MNKCellState.FREE)
-					res.add(new Position(this, row, column));
+		for (Position p : actionsCandidates)
+			if (cellStates[p.getRow()][p.getColumn()] == MNKCellState.FREE)
+				res.add(p);
 		return res;
 	}
 
@@ -305,5 +309,10 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	final private DirectAddressTable<Alignment> alignments;
 	/** The current game state. */
 	private MNKGameState state;
+	/**
+	 * Stores both currently legal and illegal actions ({@link #SIZE} in total),
+	 * sorted by decreasing quality.
+	 */
+	private Position[] actionsCandidates;
 
 }
