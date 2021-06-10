@@ -4,7 +4,7 @@ import java.lang.Iterable;
 import java.lang.Math;
 import java.util.Arrays;
 import java.util.function.Consumer;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.Stack;
 import mnkgame.MNKCellState;
 import mnkgame.MNKGameState;
@@ -74,10 +74,7 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 		ALIGNMENTS = countAlignments();
 		alignments = new DirectAddressTable<Alignment>(Alignment.class, a -> toKey(a), ALIGNMENTS);
 		// action candidates
-		actionsCandidates = new Position[SIZE];
-		for (int row = 0; row < M; ++row)
-			for (int column = 0; column < N; ++column)
-				actionsCandidates[M * row + column] = new Position(this, row, column);
+		actionsCandidates = generateActionCandidates();
 	}
 
 	@Override // inherit doc comment
@@ -90,7 +87,7 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	 */
 	@Override
 	public Iterable<Position> actions() {
-		LinkedList<Position> res = new LinkedList<Position>();
+		ArrayList<Position> res = new ArrayList<Position>(SIZE - history.size());
 		for (Position p : actionsCandidates)
 			if (cellStates[p.getRow()][p.getColumn()] == MNKCellState.FREE)
 				res.add(p);
@@ -297,6 +294,52 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 			update.accept(new Alignment(new Position(this, i, j), Alignment.Direction.SECONDARY_DIAGONAL, K));
 	}
 
+	/**
+	 * Generates a sequence containing all of the {@link Position}s of this
+	 * <code>Board</code>, sorted by decreasing heuristic value. See the project
+	 * report. Takes Θ({@link #SIZE}) time.
+	 *
+	 * @return The generated sequence.
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	Position[] generateActionCandidates() {
+		Position[] res = new Position[SIZE];
+		int firstRow = 0, lastRow = M - 1, firstColumn = 0, lastColumn = N - 1;
+		int i = SIZE - 1, row = firstRow, column = firstColumn;
+		// Escargot
+		while (i >= 0) {
+			// Top left to top right
+			while (column < lastColumn)
+				res[i--] = new Position(this, row, column++);
+			res[i--] = new Position(this, row++, column);
+			if (i < 0)
+				break;
+			++firstRow;
+			// Top right to bottom right
+			while (row < lastRow)
+				res[i--] = new Position(this, row++, column);
+			res[i--] = new Position(this, row, column--);
+			if (i < 0)
+				break;
+			--lastColumn;
+			// Bottom right to bottom left
+			while (column > firstColumn)
+				res[i--] = new Position(this, row, column--);
+			res[i--] = new Position(this, row--, column);
+			if (i < 0)
+				break;
+			--lastRow;
+			// Bottom left to top left
+			while (row > firstRow)
+				res[i--] = new Position(this, row--, column);
+			res[i--] = new Position(this, row, column++);
+			++firstColumn;
+		}
+		return res;
+	}
+
 	/** See the study group's notes. */
 	final private int B;
 	/** See the study group's notes. */
@@ -311,8 +354,8 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	private MNKGameState state;
 	/**
 	 * Stores both currently legal and illegal actions ({@link #SIZE} in total),
-	 * sorted by decreasing quality.
+	 * sorted by decreasing heuristic value.
 	 */
-	private Position[] actionsCandidates;
+	final private Position[] actionsCandidates;
 
 }
