@@ -108,7 +108,8 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 	 * @param s     The state to be considered.
 	 * @param alpha The current alpha value. It may be null.
 	 * @param beta  The current beta value. It may be null.
-	 * @return The utility brought by the most useful action for the <code>AI</code> within <code>s</code>.
+	 * @return The utility brought by the most useful action for the <code>AI</code>
+	 *         within <code>s</code>.
 	 * @throws NullPointerException The state is null.
 	 * @author Gaia Clerici
 	 * @version 1.0
@@ -137,7 +138,8 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 	 * @param s     The state to be considered.
 	 * @param alpha The current alpha value. It may be null.
 	 * @param beta  The current beta value. It may be null.
-	 * @return The utility brought by the most useful action for the opponent within <code>s</code>.
+	 * @return The utility brought by the most useful action for the opponent within
+	 *         <code>s</code>.
 	 * @throws NullPointerException The state is null.
 	 * @author Gaia Clerici
 	 * @version 1.0

@@ -52,22 +52,18 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	 * @since 1.0
 	 */
 	public Board(int m, int n, int k) {
-		// constants
 		if (m < 0)
 			throw new IllegalArgumentException("m < 0");
-		M = m;
 		if (n < 0)
 			throw new IllegalArgumentException("n < 0");
-		N = n;
 		if (k < 0)
 			throw new IllegalArgumentException("k < 0");
+		// constants
+		SIZE = (M = m) * (N = n);
 		K = k;
-		SIZE = m * n;
 		// states
 		state = SIZE > 0 ? MNKGameState.OPEN : MNKGameState.DRAW;
-		cellStates = new MNKCellState[M][N];
-		for (MNKCellState[] row : cellStates)
-			Arrays.fill(row, MNKCellState.FREE);
+		cellStates = initialCellStates();
 		// alignments
 		B = Math.max(0, N - K + 1);
 		H = Math.max(0, M - K + 1);
@@ -75,6 +71,13 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 		alignments = new DirectAddressTable<Alignment>(Alignment.class, a -> toKey(a), ALIGNMENTS);
 		// action candidates
 		actionsCandidates = generateActionCandidates();
+		// initial alpha and beta values
+		INITIALALPHAP1 = LOSSUTILITY;
+		Integer tgv = theoreticalGameValue();
+		INITIALBETAP1 = tgv == null ? VICTORYUTILITY : tgv;
+		// no m,n,k-game has theoreticalGameValue() == LOSSUTILITY anyway
+		INITIALALPHAP2 = INITIALBETAP1 == VICTORYUTILITY ? LOSSUTILITY : DRAWUTILITY;
+		INITIALBETAP2 = VICTORYUTILITY;
 	}
 
 	@Override // inherit doc comment
@@ -154,12 +157,27 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 
 	@Override // inherit doc comment
 	public Integer initialAlpha(Player p) {
-		return LOSSUTILITY;
+		return p == Player.P1 ? INITIALALPHAP1 : INITIALALPHAP2;
 	}
 
 	@Override // inherit doc comment
 	public Integer initialBeta(Player p) {
-		return VICTORYUTILITY;
+		return p == Player.P1 ? INITIALBETAP1 : INITIALBETAP2;
+	}
+
+	/**
+	 * Helper function to initialize cell states.
+	 *
+	 * @return A {@link #M} x {@link #N} matrix with the initial cell states.
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	private MNKCellState[][] initialCellStates() {
+		MNKCellState[][] res = new MNKCellState[M][N];
+		for (MNKCellState[] row : res)
+			Arrays.fill(row, MNKCellState.FREE);
+		return res;
 	}
 
 	/**
@@ -173,6 +191,37 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	 */
 	private int countAlignments() {
 		return B * (M + H) + H * (N + B);
+	}
+
+	/**
+	 * Computes the theoretical game value of the current configuration looking it
+	 * up in a small knowledge base. See J.W.H.M. Uiterwijk, H.J. van den Herik,
+	 * <i>The advantage of the initiative</i>, Information Sciences, Volume 122,
+	 * Issue 1, 2000, p. 46f.
+	 *
+	 * @return The theoretical game value, or <code>null</code> if it is unknown.
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	private Integer theoreticalGameValue() {
+		if (K == 1 || K == 2 && SIZE > 2 || K == 3 && (M >= 4 && N >= 3 || M >= 3 && N >= 4))
+			return VICTORYUTILITY;
+		if (K == 4) {
+			if (M <= 8 && N == 4 || M == 4 && N <= 8 || M == 5 && N == 5)
+				return DRAWUTILITY;
+			if (M >= 6 && N >= 5 || M >= 5 && N >= 6 || M == 4 && N >= 30 || M >= 30 && N == 4)
+				return VICTORYUTILITY;
+		}
+		if (K == 5) {
+			if (M <= 6 && N <= 6)
+				return DRAWUTILITY;
+			if (M == 19 && N == 19)
+				return VICTORYUTILITY;
+		}
+		if (K >= 8)
+			return DRAWUTILITY;
+		return null;
 	}
 
 	/**
@@ -340,10 +389,18 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 		return res;
 	}
 
-	/** See the study group's notes. */
+	/** See the project report. */
 	final private int B;
-	/** See the study group's notes. */
+	/** See the project report. */
 	final private int H;
+	/** A P1 alpha value valid after a generic first move of theirs. */
+	final private int INITIALALPHAP1;
+	/** A P1 beta value valid after a generic first move of theirs. */
+	final private int INITIALBETAP1;
+	/** A P2 alpha value valid after a generic first move of P1. */
+	final private int INITIALALPHAP2;
+	/** A P2 beta value valid after a generic first move of P1. */
+	final private int INITIALBETAP2;
 	/** Stores the {@link Board}'s {@link mnkgame.MNKCell cells}. */
 	final private MNKCellState[][] cellStates;
 	/** The moves played so far. */
