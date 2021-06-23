@@ -1,6 +1,7 @@
 package monkey.ai;
 
 import monkey.util.ObjectUtils;
+import monkey.util.Pair;
 
 /**
  * An <code>AI</code> is a generic, backtracking alpha-beta pruner for a
@@ -67,6 +68,57 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 				}
 			throw new IllegalArgumentException("Illegal action for the current state.");
 		}
+	}
+
+	/**
+	 * Given a state in which the player has the move, selects one of the legal
+	 * actions to be played using iterative deepening search. See S. Russell,
+	 * P.Norvig, <i>Artificial Intelligence: A Modern Approach</i>, 3rd ed.,
+	 * Prentice Hall, p. 88f.
+	 *
+	 * @return A legal action to be played.
+	 * @throws IllegalArgumentException The player does not have the move or if the
+	 *                                  state is terminal.
+	 * @author Gaia Clerici
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	public A iterativeDeepeningSearch() {
+		int depth = 0;
+		A a = null;
+		U v = state.initialAlpha(player);
+		while (true) {
+			// TODO
+			depth++;
+		}
+	}
+
+	/**
+	 * Given a state in which the player has the move, selects one of the legal
+	 * actions to be played using depth limited search. See S. Russell, P.Norvig,
+	 * <i>Artificial Intelligence: A Modern Approach</i>, 3rd ed., Prentice Hall, p.
+	 * 87f.
+	 *
+	 * @return A legal action to be played.
+	 * @throws IllegalArgumentException The player does not have the move or if the
+	 *                                  state is terminal.
+	 * @author Gaia Clerici
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	public S depthLimitedSearch(int limit) {
+		if (state.terminalTest())
+			return state;
+		if (limit == 0)
+			return null;
+		final Iterable<A> actions = state.actions();
+		for (A toChild : actions) {
+			state.result(toChild);
+			S result = depthLimitedSearch(limit - 1);
+			if (result != null)
+				return result;
+		}
+		return null;
 	}
 
 	/**
