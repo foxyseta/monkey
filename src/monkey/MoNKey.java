@@ -31,13 +31,27 @@ public class MoNKey implements MNKPlayer {
 			ai.update(new Position(m, n, MC[MC.length - 1]));
 		final Position p = ai.alphaBetaSearch();
 		ai.update(p);
-		System.out.println(System.currentTimeMillis() - startTime);
+		System.out.println(formatTimeInterval(System.currentTimeMillis() - startTime));
 		return new MNKCell(p.getRow(), p.getColumn());
 	}
 
 	@Override // inherit doc comment
 	public String playerName() {
 		return "🅼🐵🅽🅺ey";
+	}
+
+	/**
+	 * Formats a number of milliseconds converting it into seconds and milliseconds;
+	 *
+	 * @param milliseconds The number to convert and format.
+	 * @return A formatted <code>String</code>.
+	 * @author Gaia Clerici
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	protected static String formatTimeInterval(long milliseconds) {
+		final int ms_to_s = 1000;
+		return String.format("%2d\"%03d", milliseconds / ms_to_s, milliseconds % ms_to_s);
 	}
 
 	/** Artificial intelligence used by <code>MoNKey</code>. */

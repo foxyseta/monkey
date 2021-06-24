@@ -165,6 +165,11 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 		return p == Player.P1 ? INITIALBETAP1 : INITIALBETAP2;
 	}
 
+	@Override // inherit doc comment
+	public Integer eval(Player p) {
+		return null; // TODO missing implementation
+	}
+
 	/**
 	 * Helper function to initialize cell states.
 	 *
