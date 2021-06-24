@@ -26,10 +26,12 @@ public class MoNKey implements MNKPlayer {
 
 	@Override // inherit doc comment
 	public MNKCell selectCell(MNKCell[] FC, MNKCell[] MC) {
+		long startTime = System.currentTimeMillis();
 		if (MC.length != 0)
 			ai.update(new Position(m, n, MC[MC.length - 1]));
 		final Position p = ai.alphaBetaSearch();
 		ai.update(p);
+		System.out.println(System.currentTimeMillis() - startTime);
 		return new MNKCell(p.getRow(), p.getColumn());
 	}
 

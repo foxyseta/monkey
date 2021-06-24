@@ -95,7 +95,7 @@ public interface State<Self extends State<Self, Action, Utility>, Action, Utilit
 	 *
 	 * @see #initialBeta
 	 * @param p the {@link Player} whose initial alpha is to be returned.
-	 * @return The initial alpha of the relative initial {@link State} for
+	 * @return The non-null initial alpha of the relative initial {@link State} for
 	 *         <code>p</code>.
 	 * @throws NullPointerException The {@link Player} is null.
 	 * @author Stefano Volpe
@@ -110,7 +110,7 @@ public interface State<Self extends State<Self, Action, Utility>, Action, Utilit
 	 *
 	 * @see #initialAlpha
 	 * @param p the {@link Player} whose initial beta is to be returned.
-	 * @return The initial beta of the relative initial {@link State} for
+	 * @return The non-null initial beta of the relative initial {@link State} for
 	 *         <code>p</code>.
 	 * @throws NullPointerException The {@link Player} is null.
 	 * @author Stefano Volpe

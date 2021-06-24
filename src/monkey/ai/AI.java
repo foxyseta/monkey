@@ -1,7 +1,6 @@
 package monkey.ai;
 
 import monkey.util.ObjectUtils;
-import monkey.util.Pair;
 
 /**
  * An <code>AI</code> is a generic, backtracking alpha-beta pruner for a
@@ -23,7 +22,7 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 	/** The current {@link State} of the game. */
 	private S state;
 	/** The maximum number of milliseconds usable to select a move. */
-	final private long time;
+	final private long timeLimit;
 	/** Utilities instance for generic objects. */
 	final private ObjectUtils objectUtils = new ObjectUtils();
 
@@ -44,7 +43,7 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 			throw new NullPointerException("Some of the arguments are null.");
 		player = p;
 		state = s0;
-		time = t;
+		timeLimit = t;
 	}
 
 	/**
@@ -72,58 +71,9 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 
 	/**
 	 * Given a state in which the player has the move, selects one of the legal
-	 * actions to be played using iterative deepening search. See S. Russell,
-	 * P.Norvig, <i>Artificial Intelligence: A Modern Approach</i>, 3rd ed.,
-	 * Prentice Hall, p. 88f.
-	 *
-	 * @return A legal action to be played.
-	 * @throws IllegalArgumentException The player does not have the move or if the
-	 *                                  state is terminal.
-	 * @author Gaia Clerici
-	 * @version 1.0
-	 * @since 1.0
-	 */
-	public A iterativeDeepeningSearch() {
-		int depth = 0;
-		A a = null;
-		U v = state.initialAlpha(player);
-		while (true) {
-			// TODO
-			depth++;
-		}
-	}
-
-	/**
-	 * Given a state in which the player has the move, selects one of the legal
-	 * actions to be played using depth limited search. See S. Russell, P.Norvig,
-	 * <i>Artificial Intelligence: A Modern Approach</i>, 3rd ed., Prentice Hall, p.
-	 * 87f.
-	 *
-	 * @return A legal action to be played.
-	 * @throws IllegalArgumentException The player does not have the move or if the
-	 *                                  state is terminal.
-	 * @author Gaia Clerici
-	 * @version 1.0
-	 * @since 1.0
-	 */
-	public S depthLimitedSearch(int limit) {
-		if (state.terminalTest())
-			return state;
-		if (limit == 0)
-			return null;
-		final Iterable<A> actions = state.actions();
-		for (A toChild : actions) {
-			state.result(toChild);
-			S result = depthLimitedSearch(limit - 1);
-			if (result != null)
-				return result;
-		}
-		return null;
-	}
-
-	/**
-	 * Given a state in which the player has the move, selects one of the legal
-	 * actions to be played using alpa-beta pruning.
+	 * actions to be played using alpa-beta pruning and iterative deepening search.
+	 * See S. Russell, P. Norvig, <i>Artificial Intelligence: A Modern Approach</i>,
+	 * 3rd ed., Prentice Hall, p. 88f.
 	 *
 	 * @return A legal action to be played.
 	 * @throws IllegalArgumentException The player does not have the move or if the
@@ -133,6 +83,7 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 	 * @since 1.0
 	 */
 	public A alphaBetaSearch() {
+		long startTime = System.currentTimeMillis();
 		if (state.terminalTest())
 			throw new IllegalArgumentException("s is a terminal state");
 		if (player != state.player())
@@ -140,26 +91,33 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 		A a = null;
 		U alpha = state.initialAlpha(player), beta = state.initialBeta(player), v = alpha;
 		final Iterable<A> actions = state.actions();
-		for (A toChild : actions) {
-			final U minValue = minValue(state.result(toChild), alpha, beta);
-			if (a == null || v.compareTo(minValue) < 0) {
-				a = toChild;
-				v = minValue;
+		int depthLimit = 0;
+		while (System.currentTimeMillis() - startTime <= timeLimit * 0.8) {
+			for (A toChild : actions) {
+				final U minValue = minValue(state.result(toChild), alpha, beta, depthLimit);
+				if (a == null || minValue != null && (v == null || minValue.compareTo(v) > 0)) {
+					a = toChild;
+					v = minValue;
+				}
+				state.revert();
+				if (v != null && v.compareTo(beta) >= 0)
+					return a;
+				alpha = objectUtils.max(alpha, v);
 			}
-			state.revert();
-			if (v.compareTo(beta) >= 0)
-				return a;
-			alpha = objectUtils.max(alpha, v);
+			depthLimit++;
 		}
 		return a;
 	}
 
 	/**
-	 * Executes a "max" alpha-beta pruning step.
+	 * Executes a "max" alpha-beta pruning step using depth limited search. See S.
+	 * Russell, P. Norvig, <i>Artificial Intelligence: A Modern Approach</i>, 3rd
+	 * ed., Prentice Hall, p. 87f.
 	 *
-	 * @param s     The state to be considered.
-	 * @param alpha The current alpha value. It may be null.
-	 * @param beta  The current beta value. It may be null.
+	 * @param s          The state to be considered.
+	 * @param alpha      The current alpha value. It may be null.
+	 * @param beta       The current beta value. It may be null.
+	 * @param depthLimit Maximum depth to be inspected.
 	 * @return The utility brought by the most useful action for the <code>AI</code>
 	 *         within <code>s</code>.
 	 * @throws NullPointerException The state is null.
@@ -167,17 +125,19 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	protected U maxValue(S s, U alpha, U beta) {
+	protected U maxValue(S s, U alpha, U beta, int depthLimit) {
 		if (s == null)
 			throw new NullPointerException("s is null.");
 		if (s.terminalTest())
 			return s.utility(player);
+		if (depthLimit <= 0)
+			return null;
 		U v = s.initialAlpha(player);
 		final Iterable<A> actions = s.actions();
 		for (A toChild : actions) {
-			v = objectUtils.max(v, minValue(s.result(toChild), alpha, beta));
+			v = objectUtils.max(v, minValue(s.result(toChild), alpha, beta, depthLimit - 1));
 			s.revert();
-			if (v.compareTo(beta) >= 0)
+			if (v != null && v.compareTo(beta) >= 0)
 				return v;
 			alpha = objectUtils.max(alpha, v);
 		}
@@ -185,11 +145,14 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 	}
 
 	/**
-	 * Executes a "min" alpha-beta pruning step.
+	 * Executes a "min" alpha-beta pruning step using depth limited search. See S.
+	 * Russell, P. Norvig, <i>Artificial Intelligence: A Modern Approach</i>, 3rd
+	 * ed., Prentice Hall, p. 87f.
 	 *
-	 * @param s     The state to be considered.
-	 * @param alpha The current alpha value. It may be null.
-	 * @param beta  The current beta value. It may be null.
+	 * @param s          The state to be considered.
+	 * @param alpha      The current alpha value. It may be null.
+	 * @param beta       The current beta value. It may be null.
+	 * @param depthLimit Maximum depth to be inspected.
 	 * @return The utility brought by the most useful action for the opponent within
 	 *         <code>s</code>.
 	 * @throws NullPointerException The state is null.
@@ -197,17 +160,19 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	protected U minValue(S s, U alpha, U beta) {
+	protected U minValue(S s, U alpha, U beta, int depthLimit) {
 		if (s == null)
 			throw new NullPointerException("s is null.");
 		if (s.terminalTest())
 			return s.utility(player);
+		if (depthLimit <= 0)
+			return null;
 		U v = s.initialBeta(player);
 		final Iterable<A> actions = s.actions();
 		for (A toChild : actions) {
-			v = objectUtils.min(v, maxValue(s.result(toChild), alpha, beta));
+			v = objectUtils.min(v, maxValue(s.result(toChild), alpha, beta, depthLimit - 1));
 			s.revert();
-			if (v.compareTo(alpha) <= 0)
+			if (v != null && v.compareTo(alpha) <= 0)
 				return v;
 			beta = objectUtils.min(beta, v);
 		}
