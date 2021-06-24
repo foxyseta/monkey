@@ -119,4 +119,18 @@ public interface State<Self extends State<Self, Action, Utility>, Action, Utilit
 	 */
 	public Utility initialBeta(Player p);
 
+	/**
+	 * Returns an estimate of the expected utility of the game from the current
+	 * {@link Position} for a certain {@link Player}.
+	 *
+	 * @see #utility
+	 * @param p The {@link Player} whose estimated payoff is to be returned.
+	 * @return The estimated payoff for {@link Player} <code>p</code>.
+	 * @throws NullPointerException The {@link Player} is null.
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	public Utility eval(Player p);
+
 }
