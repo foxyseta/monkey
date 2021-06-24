@@ -19,7 +19,7 @@ public class MoNKey implements MNKPlayer {
 
 	@Override // inherit doc comment
 	public void initPlayer(int M, int N, int K, boolean first, int timeout_in_secs) {
-		ai = new AI<Board, Position, Integer>(first ? Player.P1 : Player.P2, new Board(M, N, K), timeout_in_secs);
+		ai = new AI<Board, Position, Integer>(first ? Player.P1 : Player.P2, new Board(M, N, K), timeout_in_secs * S_TO_MS);
 		m = M;
 		n = N;
 	}
@@ -50,8 +50,7 @@ public class MoNKey implements MNKPlayer {
 	 * @since 1.0
 	 */
 	protected static String formatTimeInterval(long milliseconds) {
-		final int ms_to_s = 1000;
-		return String.format("%2d\"%03d", milliseconds / ms_to_s, milliseconds % ms_to_s);
+		return String.format("%2d\"%03d", milliseconds / S_TO_MS, milliseconds % S_TO_MS);
 	}
 
 	/** Artificial intelligence used by <code>MoNKey</code>. */
@@ -60,4 +59,5 @@ public class MoNKey implements MNKPlayer {
 	private int m;
 	/** Number of columns. */
 	private int n;
+	final static private int S_TO_MS = 1000;
 }

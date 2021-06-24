@@ -157,12 +157,12 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 
 	@Override // inherit doc comment
 	public Integer initialAlpha(Player p) {
-		return p == Player.P1 ? INITIALALPHAP1 : INITIALALPHAP2;
+		return history.empty() ? p == Player.P1 ? INITIALALPHAP1 : INITIALALPHAP2 : LOSSUTILITY;
 	}
 
 	@Override // inherit doc comment
 	public Integer initialBeta(Player p) {
-		return p == Player.P1 ? INITIALBETAP1 : INITIALBETAP2;
+		return history.empty() ? p == Player.P1 ? INITIALBETAP1 : INITIALBETAP2 : VICTORYUTILITY;
 	}
 
 	@Override // inherit doc comment
@@ -209,9 +209,13 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	private Integer theoreticalGameValue() {
-		if (K == 1 || K == 2 && SIZE > 2 || K == 3 && (M >= 4 && N >= 3 || M >= 3 && N >= 4))
+	protected Integer theoreticalGameValue() {
+		if (K == 1)
 			return VICTORYUTILITY;
+		if (K == 2)
+			return SIZE > 2 ? VICTORYUTILITY : DRAWUTILITY;
+		if (K == 3)
+			return M >= 4 && N >= 3 || M >= 3 && N >= 4 ? VICTORYUTILITY : DRAWUTILITY;
 		if (K == 4) {
 			if (M <= 8 && N == 4 || M == 4 && N <= 8 || M == 5 && N == 5)
 				return DRAWUTILITY;

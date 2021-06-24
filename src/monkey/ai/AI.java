@@ -17,15 +17,6 @@ import monkey.util.ObjectUtils;
  */
 public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 
-	/** The player the {@link AI} will play as. */
-	final private Player player;
-	/** The current {@link State} of the game. */
-	private S state;
-	/** The maximum number of milliseconds usable to select a move. */
-	final private long timeLimit;
-	/** Utilities instance for generic objects. */
-	final private ObjectUtils objectUtils = new ObjectUtils();
-
 	/**
 	 * Constructs a new {@link AI} for a certain {@link Player} given an initial
 	 * {@link State} and a timeout in milliseconds.
@@ -90,9 +81,10 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 			throw new IllegalArgumentException("It's not your turn");
 		A a = null;
 		U alpha = state.initialAlpha(player), beta = state.initialBeta(player), v = alpha;
+		System.out.println(beta);
 		final Iterable<A> actions = state.actions();
 		int depthLimit = 0;
-		while (System.currentTimeMillis() - startTime <= timeLimit * 0.8) {
+		while (true) {
 			for (A toChild : actions) {
 				final U minValue = minValue(state.result(toChild), alpha, beta, depthLimit);
 				if (a == null || minValue != null && (v == null || minValue.compareTo(v) > 0)) {
@@ -100,13 +92,18 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 					v = minValue;
 				}
 				state.revert();
-				if (v != null && v.compareTo(beta) >= 0)
+				if (v != null && v.compareTo(beta) >= 0) {
+					System.out.println(":) l =" + depthLimit + ", v =" + v);
 					return a;
+				}
 				alpha = objectUtils.max(alpha, v);
+				if (System.currentTimeMillis() - startTime > timeLimit * RELAXATION) {
+					System.out.println(":( l =" + depthLimit);
+					return a;
+				}
 			}
-			depthLimit++;
+			++depthLimit;
 		}
-		return a;
 	}
 
 	/**
@@ -132,7 +129,7 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 			return s.utility(player);
 		if (depthLimit <= 0)
 			return null;
-		U v = s.initialAlpha(player);
+		U v = null;
 		final Iterable<A> actions = s.actions();
 		for (A toChild : actions) {
 			v = objectUtils.max(v, minValue(s.result(toChild), alpha, beta, depthLimit - 1));
@@ -168,15 +165,31 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 		if (depthLimit <= 0)
 			return null;
 		U v = s.initialBeta(player);
+		boolean cutoff = false;
 		final Iterable<A> actions = s.actions();
 		for (A toChild : actions) {
-			v = objectUtils.min(v, maxValue(s.result(toChild), alpha, beta, depthLimit - 1));
+			final U maxValue = maxValue(s.result(toChild), alpha, beta, depthLimit - 1);
+			if (maxValue == null)
+				cutoff = true;
+			else
+				v = objectUtils.min(v, maxValue);
 			s.revert();
 			if (v != null && v.compareTo(alpha) <= 0)
 				return v;
 			beta = objectUtils.min(beta, v);
 		}
-		return v;
+		return cutoff ? null : v;
 	}
+
+	/** The player the {@link AI} will play as. */
+	final private Player player;
+	/** The current {@link State} of the game. */
+	private S state;
+	/** The maximum number of milliseconds usable to select a move. */
+	final private long timeLimit;
+	/** Utilities instance for generic objects. */
+	final private ObjectUtils objectUtils = new ObjectUtils();
+	/** The higher, the more time is used at most for each search. */
+	final private float RELAXATION = 0.95f;
 
 }
