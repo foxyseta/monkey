@@ -50,7 +50,7 @@ public class MoNKey implements MNKPlayer {
 	 * @since 1.0
 	 */
 	protected static String formatTimeInterval(long milliseconds) {
-		return String.format("%2d\"%03d", milliseconds / S_TO_MS, milliseconds % S_TO_MS);
+		return String.format("⏱️ %2d\"%03d", milliseconds / S_TO_MS, milliseconds % S_TO_MS);
 	}
 
 	/** Artificial intelligence used by <code>MoNKey</code>. */

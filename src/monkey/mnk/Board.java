@@ -170,6 +170,11 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 		return null; // TODO missing implementation
 	}
 
+	@Override // inherit doc comment
+	public int overestimatedHeight() {
+		return SIZE - history.size();
+	}
+
 	/**
 	 * Helper function to initialize cell states.
 	 *

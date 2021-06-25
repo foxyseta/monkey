@@ -133,4 +133,15 @@ public interface State<Self extends State<Self, Action, Utility>, Action, Utilit
 	 */
 	public Utility eval(Player p);
 
+	/**
+	 * Computes an overestimate of the height of the game tree whose root is this
+	 * {@link State}.
+	 *
+	 * @return The overestimated height.
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	public int overestimatedHeight();
+
 }

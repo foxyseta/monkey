@@ -81,10 +81,9 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 			throw new IllegalArgumentException("It's not your turn");
 		A a = null;
 		U alpha = state.initialAlpha(player), beta = state.initialBeta(player), v = alpha;
-		System.out.println(beta);
+		final int maxLimit = state.overestimatedHeight();
 		final Iterable<A> actions = state.actions();
-		int depthLimit = 0;
-		while (true) {
+		for (int depthLimit = 0; depthLimit <= maxLimit; ++depthLimit)
 			for (A toChild : actions) {
 				final U minValue = minValue(state.result(toChild), alpha, beta, depthLimit);
 				if (a == null || minValue != null && (v == null || minValue.compareTo(v) > 0)) {
@@ -92,18 +91,15 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 					v = minValue;
 				}
 				state.revert();
-				if (v != null && v.compareTo(beta) >= 0) {
-					System.out.println(":) l =" + depthLimit + ", v =" + v);
+				if (v != null && v.compareTo(beta) >= 0)
 					return a;
-				}
 				alpha = objectUtils.max(alpha, v);
 				if (System.currentTimeMillis() - startTime > timeLimit * RELAXATION) {
-					System.out.println(":( l =" + depthLimit);
+					System.out.println("🙈 limit ≤ " + depthLimit);
 					return a;
 				}
 			}
-			++depthLimit;
-		}
+		return a;
 	}
 
 	/**
@@ -190,6 +186,6 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 	/** Utilities instance for generic objects. */
 	final private ObjectUtils objectUtils = new ObjectUtils();
 	/** The higher, the more time is used at most for each search. */
-	final private float RELAXATION = 0.95f;
+	final private float RELAXATION = 0.7f;
 
 }
