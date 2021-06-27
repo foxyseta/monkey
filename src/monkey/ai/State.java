@@ -121,7 +121,7 @@ public interface State<Self extends State<Self, Action, Utility>, Action, Utilit
 
 	/**
 	 * Returns an estimate of the expected utility of the game from the current
-	 * {@link Position} for a certain {@link Player}.
+	 * {@link Action} for a certain {@link Player}.
 	 *
 	 * @see #utility
 	 * @param p The {@link Player} whose estimated payoff is to be returned.
