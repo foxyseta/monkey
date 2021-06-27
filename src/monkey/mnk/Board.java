@@ -33,11 +33,11 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	/** Number of possible {@link Alignment}s. */
 	final public int ALIGNMENTS;
 	/** Quantifies the satisfaction earned by winning the game. */
-	final public static int VICTORYUTILITY = 1;
+	final public static int VICTORYUTILITY = 1000000;
 	/** Quantifies the satisfaction earned when the game ends in a draw. */
 	final public static int DRAWUTILITY = 0;
 	/** Quantifies the satisfaction earned by losing the game. */
-	final public static int LOSSUTILITY = -1;
+	final public static int LOSSUTILITY = -1000000;
 
 	/**
 	 * Constructs a new {@link Board} given its m, n and k parameters. Takes
@@ -167,7 +167,7 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 
 	@Override // inherit doc comment
 	public Integer eval(Player p) {
-		return null; // TODO missing implementation
+		return currentEval;
 	}
 
 	@Override // inherit doc comment
@@ -428,5 +428,7 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	 * sorted by decreasing heuristic value.
 	 */
 	final private Position[] actionsCandidates;
+	/** Heuristic evaluation of the current {@link Board}. */
+	int currentEval = 0;
 
 }
