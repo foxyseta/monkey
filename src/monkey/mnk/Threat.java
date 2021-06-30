@@ -61,7 +61,11 @@ public enum Threat {
 	 * @since 1.0
 	 */
 	public Category category() {
-		return null; // TODO missing implementation
+		if (this == Threat.ONE)
+			return Category.OPEN;
+		if (this == Threat.THREE)
+			return Category.CLOSED;
+		return Category.HALFOPEN;
 	}
 
 	/**
@@ -73,6 +77,6 @@ public enum Threat {
 	 * @since 1.0
 	 */
 	public boolean hasHole() {
-		return true; // TODO missing implementation
+		return this == Threat.FOUR || this == Threat.FIVE || this == Threat.SIX;
 	}
 }
