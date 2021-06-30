@@ -1,6 +1,9 @@
 package monkey.mnk;
 
+import mnkgame.MNKCellState;
 import monkey.ai.Player;
+
+// TODO rewrite class to accomodate extremities
 
 /**
  * In an MNK-game, an <code>Alignment</code> is one of the possible arrangements
@@ -115,6 +118,18 @@ public class Alignment {
 	}
 
 	/**
+	 * A getter for the current {@link Threat}.
+	 *
+	 * @return The current {@link Threat}, or <code>null</code> if there is none.
+	 * @author Gaia Clerici
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	public Threat getThreat() {
+		return null; // TODO missing implementation
+	}
+
+	/**
 	 * Adds a new mark for the specified {@link monkey.ai.Player Player}.
 	 *
 	 * @param p The {@link monkey.ai.Player Player} whose mark is to be added.
@@ -189,11 +204,59 @@ public class Alignment {
 		state = State.EMPTY;
 	}
 
+	/**
+	 * Sets the first extremity. Checks for weird behaviors, such as new cells
+	 * appearing from nowhere and cells already marked being overwritten.
+	 *
+	 * @see #setSecondExtremity
+	 * @param state The new state of the first extremity.
+	 * @throws IllegalCallerException   The extremity cannot be changed anymore.
+	 * @throws IllegalArgumentException {@link #setFirstExtremity} can be called,
+	 *                                  but the extremity cannot be set to this
+	 *                                  <code>state</code>.
+	 * @author Gaia Clerici
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	public void setFirstExtremity(MNKCellState state) {
+	} // TODO missing implementation
+
+	/**
+	 * Sets the second extremity. Checks for weird behaviors, such as new cells
+	 * appearing from nowhere and cells already marked being overwritten.
+	 *
+	 * @see #setFirstExtremity
+	 * @param state The new state of the second extremity.
+	 * @throws IllegalCallerException   The extremity cannot be changed anymore.
+	 * @throws IllegalArgumentException {@link #setSecondExtremity} can be called,
+	 *                                  but the extremity cannot be set to this
+	 *                                  <code>state</code>.
+	 * @author Gaia Clerici
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	public void setSecondExtremity(MNKCellState state) {
+	} // TODO missing implementation
+
 	/** Number of cells marked by the first {@link monkey.ai.Player Player}. */
 	private int p1Cells = 0;
 	/** Number of cells marked by the second {@link monkey.ai.Player Player}. */
 	private int p2Cells = 0;
-	/** Current state. */
+	/** Current {@link #State}. */
 	private State state = State.EMPTY;
+	/**
+	 * State of the cell at the first extremity, or <code>null</code> if such a cell
+	 * does not exist.
+	 */
+	private MNKCellState firstExtremity;
+	/**
+	 * State of the cell at the second extremity, or <code>null</code> if such a
+	 * cell does not exist.
+	 */
+	private MNKCellState secondExtremity;
+	/**
+	 * If there is one, the current {@link Threat}, or <code>null</code> otherwise.
+	 */
+	private Threat threat; // TODO missing initialization
 
 }

@@ -3,8 +3,12 @@ package monkey.mnk;
 /**
  * A <code>Threat</code> can refer to one of the six types of configurations.
  * See A. Abdoulaye, V. R. Houndji, E. C. Ezin, G. Aglin, <i>Generic Heuristic
- * for the mnk-games</i>, <i>African Conference on Research in Computer Science
- * and Applied Mathematics</i>, 266f.
+ * for the mnk-games</i>, in A. E. Badouel, N. Gmati, B. Watson (eds),
+ * <i>Proceedings of CARI 2018 (African Conference on Research in Computer
+ * Science and Applied Mathematics). Nabil Gmati; Eric Badouel; Bruce Watson.
+ * CARI 2018 - Colloque africain sur la recherche en informatique et
+ * mathématiques appliquées</i>, Oct 2018, Stellenbosch, South Africa. 2018, pp.
+ * 266-267. hal-01881376f
  *
  * @author Gaia Clerici
  * @version 1.0
