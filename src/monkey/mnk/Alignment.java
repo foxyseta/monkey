@@ -53,6 +53,8 @@ public class Alignment {
 	 * @param firstCell An initializer for {@link #FIRSTCELL}
 	 * @param direction An initializer for {@link #DIRECTION}
 	 * @param length    An initializer for {@link #LENGTH}
+	 * @param firstExt  An initializer for {@link #firstExtremity}
+	 * @param secondExt An initializer for {@link #secondExtremity}
 	 * @throws IllegalArgumentException  length is negative or zero
 	 * @throws IndexOutOfBoundsException last cell out of firstCell's bounds
 	 * @throws NullPointerException      firstCell, or direction, or both are null
@@ -60,7 +62,8 @@ public class Alignment {
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	public Alignment(Position firstCell, Direction direction, int length) {
+	public Alignment(Position firstCell, Direction direction, int length, MNKCellState firstExt,
+			MNKCellState secondExt) {
 		if (length <= 0)
 			throw new IllegalArgumentException("length can't be negative or zero.");
 		if (firstCell == null || direction == null)
@@ -74,6 +77,8 @@ public class Alignment {
 		FIRSTCELL = firstCell;
 		DIRECTION = direction;
 		LENGTH = length;
+		firstExtremity = firstExt;
+		secondExtremity = secondExt;
 	}
 
 	/**
@@ -126,7 +131,7 @@ public class Alignment {
 	 * @since 1.0
 	 */
 	public Threat getThreat() {
-		return null; // TODO missing implementation
+		return threat;
 	}
 
 	/**
@@ -219,7 +224,17 @@ public class Alignment {
 	 * @since 1.0
 	 */
 	public void setFirstExtremity(MNKCellState state) {
-	} // TODO missing implementation
+		if (state != firstExtremity) {
+			if (firstExtremity == null)
+				throw new IllegalCallerException("The first extremity is out of the board.");
+			if (state == null)
+				throw new IllegalArgumentException("The first extremity is not out of board.");
+			if (firstExtremity != MNKCellState.FREE && state != MNKCellState.FREE)
+				throw new IllegalArgumentException("Can not ovveride a marked cell.");
+
+			firstExtremity = state;
+		}
+	}
 
 	/**
 	 * Sets the second extremity. Checks for weird behaviors, such as new cells
@@ -257,6 +272,6 @@ public class Alignment {
 	/**
 	 * If there is one, the current {@link Threat}, or <code>null</code> otherwise.
 	 */
-	private Threat threat; // TODO missing initialization
+	private Threat threat = null;
 
 }

@@ -142,16 +142,16 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	@Override // inherit doc comment
 	public Integer utility(Player p) {
 		switch (state) {
-		case DRAW:
-			return DRAWUTILITY;
-		case OPEN:
-			throw new IllegalCallerException("The game is still open");
-		case WINP1:
-			return p == Player.P1 ? VICTORYUTILITY : LOSSUTILITY;
-		case WINP2:
-			return p == Player.P2 ? VICTORYUTILITY : LOSSUTILITY;
-		default:
-			throw new IllegalArgumentException("Unknown game state");
+			case DRAW:
+				return DRAWUTILITY;
+			case OPEN:
+				throw new IllegalCallerException("The game is still open");
+			case WINP1:
+				return p == Player.P1 ? VICTORYUTILITY : LOSSUTILITY;
+			case WINP2:
+				return p == Player.P2 ? VICTORYUTILITY : LOSSUTILITY;
+			default:
+				throw new IllegalArgumentException("Unknown game state");
 		}
 	}
 
@@ -259,16 +259,16 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 			throw new IllegalArgumentException("Incompatible grid extents.");
 		final int row = a.FIRSTCELL.getRow(), column = a.FIRSTCELL.getColumn();
 		switch (a.DIRECTION) {
-		case HORIZONTAL: // [0 .. B * M - 1]
-			return row * B + column;
-		case VERTICAL: // B * M + [0 .. N * H - 1]
-			return B * M + row * N + column;
-		case PRIMARY_DIAGONAL: // B * M + N * H + [0 .. B * H - 1]
-			return B * (M + row) + N * H + column;
-		case SECONDARY_DIAGONAL: // B * (M + H) + N * H + [0 .. B * H - 1]
-			return B * (2 * H + row) + N * H + column;
-		default:
-			throw new IllegalArgumentException("Unknown direction");
+			case HORIZONTAL: // [0 .. B * M - 1]
+				return row * B + column;
+			case VERTICAL: // B * M + [0 .. N * H - 1]
+				return B * M + row * N + column;
+			case PRIMARY_DIAGONAL: // B * M + N * H + [0 .. B * H - 1]
+				return B * (M + row) + N * H + column;
+			case SECONDARY_DIAGONAL: // B * (M + H) + N * H + [0 .. B * H - 1]
+				return B * (2 * H + row) + N * H + column;
+			default:
+				throw new IllegalArgumentException("Unknown direction");
 		}
 	}
 
@@ -301,14 +301,14 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 		try {
 			if (add)
 				switch (result.addMark(player())) {
-				case P1FULL:
-					state = MNKGameState.WINP1;
-					break;
-				case P2FULL:
-					state = MNKGameState.WINP2;
-					break;
-				default:
-					break;
+					case P1FULL:
+						state = MNKGameState.WINP1;
+						break;
+					case P2FULL:
+						state = MNKGameState.WINP2;
+						break;
+					default:
+						break;
 				}
 			else
 				result.removeMark(player());
@@ -342,19 +342,20 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 		// horizontal alignments
 		int max = Math.min(N - K, column);
 		for (int j = Math.max(0, column - K + 1); j <= max; ++j)
-			update.accept(new Alignment(new Position(this, row, j), Alignment.Direction.HORIZONTAL, K));
+			update.accept(new Alignment(new Position(this, row, j), Alignment.Direction.HORIZONTAL, K, null, null));
 		// vertical alignments
 		max = Math.min(M - K, row);
 		for (int i = Math.max(0, row - K + 1); i <= max; ++i)
-			update.accept(new Alignment(new Position(this, i, column), Alignment.Direction.VERTICAL, K));
+			update.accept(new Alignment(new Position(this, i, column), Alignment.Direction.VERTICAL, K, null, null));
 		// primary diagonal alignments
 		max = Math.min(N - K + row - column, Math.min(M - K, row));
 		for (int i = Math.max(0, Math.max(row - K + 1, row - column)), j = i + column - row; i <= max; ++i, ++j)
-			update.accept(new Alignment(new Position(this, i, j), Alignment.Direction.PRIMARY_DIAGONAL, K));
+			update.accept(new Alignment(new Position(this, i, j), Alignment.Direction.PRIMARY_DIAGONAL, K, null, null));
 		// secondary diagonal alignments
 		max = Math.min(column + row, Math.min(M - 1, row + K - 1));
 		for (int i = Math.max(row + column + K - N, Math.max(K - 1, row)), j = row + column - i; i <= max; ++i, --j)
-			update.accept(new Alignment(new Position(this, i, j), Alignment.Direction.SECONDARY_DIAGONAL, K));
+			update.accept(
+					new Alignment(new Position(this, i, j), Alignment.Direction.SECONDARY_DIAGONAL, K, null, null));
 	}
 
 	/**
