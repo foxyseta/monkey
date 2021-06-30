@@ -3,8 +3,6 @@ package monkey.mnk;
 import mnkgame.MNKCellState;
 import monkey.ai.Player;
 
-// TODO rewrite class to accomodate extremities
-
 /**
  * In an MNK-game, an <code>Alignment</code> is one of the possible arrangements
  * in a straight line and of length K. If a {@link monkey.ai.Player Player}
@@ -214,7 +212,7 @@ public class Alignment {
 	 * appearing from nowhere and cells already marked being overwritten.
 	 *
 	 * @see #setSecondExtremity
-	 * @param state The new state of the first extremity.
+	 * @param cell The new state of the first extremity.
 	 * @throws IllegalCallerException   The extremity cannot be changed anymore.
 	 * @throws IllegalArgumentException {@link #setFirstExtremity} can be called,
 	 *                                  but the extremity cannot be set to this
@@ -223,16 +221,35 @@ public class Alignment {
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	public void setFirstExtremity(MNKCellState state) {
-		if (state != firstExtremity) {
+	public void setFirstExtremity(MNKCellState cell, MNKCellState[][] cellStates) {
+		if (cell != firstExtremity) {
 			if (firstExtremity == null)
 				throw new IllegalCallerException("The first extremity is out of the board.");
-			if (state == null)
+			if (cell == null)
 				throw new IllegalArgumentException("The first extremity is not out of board.");
-			if (firstExtremity != MNKCellState.FREE && state != MNKCellState.FREE)
+			if (firstExtremity != MNKCellState.FREE && cell != MNKCellState.FREE)
 				throw new IllegalArgumentException("Can not ovveride a marked cell.");
+			// se l'allineamento è pieno (no celle vuote) di celle di un unico giocatore,
+			// abbiamo una minaccia k senza buco.
+			// Se l'allineamneto ha una sola cella vuota, tale cella è interna (nè prima nè
+			// ultima) e tutte le altre celle sono di un solo giocatore abbiamo una minaccia
+			// k-1 con buco
+			firstExtremity = cell;
+			if (state == State.P1FULL || state == State.P2FULL)
+				switch ((firstExtremity == MNKCellState.FREE ? 1 : 0)
+						+ (secondExtremity == MNKCellState.FREE ? 1 : 0)) {
+					case 0:
+						threat = Threat.THREE;
+						break;
+					case 1:
+						threat = Threat.TWO;
+						break;
+					case 2:
+						threat = Threat.ONE;
+				}
+			else if (getFreeCells() == 1 && (state == State.P1PARTIAL || state == State.P2PARTIAL))
+				;
 
-			firstExtremity = state;
 		}
 	}
 
