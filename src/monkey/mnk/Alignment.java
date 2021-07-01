@@ -212,7 +212,8 @@ public class Alignment {
 	 * appearing from nowhere and cells already marked being overwritten.
 	 *
 	 * @see #setSecondExtremity
-	 * @param cell The new state of the first extremity.
+	 * @param cell       The new state of the first extremity.
+	 * @param cellStates The current state of the board.
 	 * @throws IllegalCallerException   The extremity cannot be changed anymore.
 	 * @throws IllegalArgumentException {@link #setFirstExtremity} can be called,
 	 *                                  but the extremity cannot be set to this
@@ -229,27 +230,8 @@ public class Alignment {
 				throw new IllegalArgumentException("The first extremity is not out of board.");
 			if (firstExtremity != MNKCellState.FREE && cell != MNKCellState.FREE)
 				throw new IllegalArgumentException("Can not ovveride a marked cell.");
-			// se l'allineamento è pieno (no celle vuote) di celle di un unico giocatore,
-			// abbiamo una minaccia k senza buco.
-			// Se l'allineamneto ha una sola cella vuota, tale cella è interna (nè prima nè
-			// ultima) e tutte le altre celle sono di un solo giocatore abbiamo una minaccia
-			// k-1 con buco
 			firstExtremity = cell;
-			if (state == State.P1FULL || state == State.P2FULL)
-				switch ((firstExtremity == MNKCellState.FREE ? 1 : 0)
-						+ (secondExtremity == MNKCellState.FREE ? 1 : 0)) {
-					case 0:
-						threat = Threat.THREE;
-						break;
-					case 1:
-						threat = Threat.TWO;
-						break;
-					case 2:
-						threat = Threat.ONE;
-				}
-			else if (getFreeCells() == 1 && (state == State.P1PARTIAL || state == State.P2PARTIAL))
-				;
-
+			computeThreat(cellStates);
 		}
 	}
 
@@ -258,7 +240,8 @@ public class Alignment {
 	 * appearing from nowhere and cells already marked being overwritten.
 	 *
 	 * @see #setFirstExtremity
-	 * @param state The new state of the second extremity.
+	 * @param cell       The new state of the second extremity.
+	 * @param cellStates The current state of the board.
 	 * @throws IllegalCallerException   The extremity cannot be changed anymore.
 	 * @throws IllegalArgumentException {@link #setSecondExtremity} can be called,
 	 *                                  but the extremity cannot be set to this
@@ -267,8 +250,71 @@ public class Alignment {
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	public void setSecondExtremity(MNKCellState state) {
-	} // TODO missing implementation
+	public void setSecondExtremity(MNKCellState cell, MNKCellState[][] cellStates) {
+		if (cell != secondExtremity) {
+			if (secondExtremity == null)
+				throw new IllegalCallerException("The second extremity is out of the board.");
+			if (cell == null)
+				throw new IllegalArgumentException("The second extremity is not out of board.");
+			if (secondExtremity != MNKCellState.FREE && cell != MNKCellState.FREE)
+				throw new IllegalArgumentException("Can not ovveride a marked cell.");
+			secondExtremity = cell;
+			computeThreat(cellStates);
+		}
+	}
+
+	/**
+	 * Updates the current {@link Threat}.
+	 *
+	 * @param cellStates The current state of the board.
+	 * @author Gaia Clerici
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	private void computeThreat(MNKCellState[][] cellStates) {
+		// There is no hole
+		if (state == State.P1FULL || state == State.P2FULL)
+			switch ((firstExtremity == MNKCellState.FREE ? 1 : 0) + (secondExtremity == MNKCellState.FREE ? 1 : 0)) {
+				case 0:
+					threat = Threat.THREE;
+					break;
+				case 1:
+					threat = Threat.TWO;
+					break;
+				case 2:
+					threat = Threat.ONE;
+			}
+		// There is just one hole
+		else if (getFreeCells() == 1 && (state == State.P1PARTIAL || state == State.P2PARTIAL)) {
+			final Position lastCell = FIRSTCELL;
+			switch (DIRECTION) {
+				case HORIZONTAL:
+					lastCell.move(0, LENGTH - 1);
+					break;
+				case VERTICAL:
+					lastCell.move(LENGTH - 1, 0);
+					break;
+				case PRIMARY_DIAGONAL:
+					lastCell.move(LENGTH - 1, LENGTH - 1);
+					break;
+				case SECONDARY_DIAGONAL:
+					lastCell.move(1 - LENGTH, LENGTH - 1);
+			}
+			if (cellStates[FIRSTCELL.getColumn()][FIRSTCELL.getRow()] != MNKCellState.FREE
+					&& cellStates[lastCell.getColumn()][lastCell.getRow()] != MNKCellState.FREE)
+				switch ((firstExtremity == MNKCellState.FREE ? 1 : 0)
+						+ (secondExtremity == MNKCellState.FREE ? 1 : 0)) {
+					case 0:
+						threat = Threat.SIX;
+						break;
+					case 1:
+						threat = Threat.FIVE;
+						break;
+					case 2:
+						threat = Threat.FOUR;
+				}
+		}
+	}
 
 	/** Number of cells marked by the first {@link monkey.ai.Player Player}. */
 	private int p1Cells = 0;
