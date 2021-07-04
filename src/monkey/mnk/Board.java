@@ -30,6 +30,10 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	final public int K;
 	/** Number of cells of the {@link Board}. */
 	final public int SIZE;
+	/** See the project report. */
+	final public int B;
+	/** See the project report. */
+	final public int H;
 	/** Number of possible {@link Alignment}s. */
 	final public int ALIGNMENTS;
 	/** Quantifies the satisfaction earned by winning the game. */
@@ -142,16 +146,16 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	@Override // inherit doc comment
 	public Integer utility(Player p) {
 		switch (state) {
-			case DRAW:
-				return DRAWUTILITY;
-			case OPEN:
-				throw new IllegalCallerException("The game is still open");
-			case WINP1:
-				return p == Player.P1 ? VICTORYUTILITY : LOSSUTILITY;
-			case WINP2:
-				return p == Player.P2 ? VICTORYUTILITY : LOSSUTILITY;
-			default:
-				throw new IllegalArgumentException("Unknown game state");
+		case DRAW:
+			return DRAWUTILITY;
+		case OPEN:
+			throw new IllegalCallerException("The game is still open");
+		case WINP1:
+			return p == Player.P1 ? VICTORYUTILITY : LOSSUTILITY;
+		case WINP2:
+			return p == Player.P2 ? VICTORYUTILITY : LOSSUTILITY;
+		default:
+			throw new IllegalArgumentException("Unknown game state");
 		}
 	}
 
@@ -259,16 +263,16 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 			throw new IllegalArgumentException("Incompatible grid extents.");
 		final int row = a.FIRSTCELL.getRow(), column = a.FIRSTCELL.getColumn();
 		switch (a.DIRECTION) {
-			case HORIZONTAL: // [0 .. B * M - 1]
-				return row * B + column;
-			case VERTICAL: // B * M + [0 .. N * H - 1]
-				return B * M + row * N + column;
-			case PRIMARY_DIAGONAL: // B * M + N * H + [0 .. B * H - 1]
-				return B * (M + row) + N * H + column;
-			case SECONDARY_DIAGONAL: // B * (M + H) + N * H + [0 .. B * H - 1]
-				return B * (2 * H + row) + N * H + column;
-			default:
-				throw new IllegalArgumentException("Unknown direction");
+		case HORIZONTAL: // [0 .. B * M - 1]
+			return row * B + column;
+		case VERTICAL: // B * M + [0 .. N * H - 1]
+			return B * M + row * N + column;
+		case PRIMARY_DIAGONAL: // B * M + N * H + [0 .. B * H - 1]
+			return B * (M + row) + N * H + column;
+		case SECONDARY_DIAGONAL: // B * (M + H) + N * H + [0 .. B * H - 1]
+			return B * (2 * H + row) + N * H + column;
+		default:
+			throw new IllegalArgumentException("Unknown direction");
 		}
 	}
 
@@ -301,14 +305,14 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 		try {
 			if (add)
 				switch (result.addMark(player())) {
-					case P1FULL:
-						state = MNKGameState.WINP1;
-						break;
-					case P2FULL:
-						state = MNKGameState.WINP2;
-						break;
-					default:
-						break;
+				case P1FULL:
+					state = MNKGameState.WINP1;
+					break;
+				case P2FULL:
+					state = MNKGameState.WINP2;
+					break;
+				default:
+					break;
 				}
 			else
 				result.removeMark(player());
@@ -354,8 +358,7 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 		// secondary diagonal alignments
 		max = Math.min(column + row, Math.min(M - 1, row + K - 1));
 		for (int i = Math.max(row + column + K - N, Math.max(K - 1, row)), j = row + column - i; i <= max; ++i, --j)
-			update.accept(
-					new Alignment(new Position(this, i, j), Alignment.Direction.SECONDARY_DIAGONAL, K, null, null));
+			update.accept(new Alignment(new Position(this, i, j), Alignment.Direction.SECONDARY_DIAGONAL, K, null, null));
 	}
 
 	/**
@@ -404,10 +407,6 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 		return res;
 	}
 
-	/** See the project report. */
-	final private int B;
-	/** See the project report. */
-	final private int H;
 	/** A P1 alpha value valid after a generic first move of theirs. */
 	final private int INITIALALPHAP1;
 	/** A P1 beta value valid after a generic first move of theirs. */

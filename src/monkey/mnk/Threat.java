@@ -39,6 +39,9 @@ public enum Threat {
 	 */
 	SIX;
 
+	/** The number of types of {@link Threat}s. */
+	public final static int SIZE = SIX.ordinal() + 1;
+
 	/**
 	 * The types of configuration are partitioned so that each of them has its own
 	 * <code>Category</code>.
@@ -79,4 +82,5 @@ public enum Threat {
 	public boolean hasHole() {
 		return this == Threat.FOUR || this == Threat.FIVE || this == Threat.SIX;
 	}
+
 }

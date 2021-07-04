@@ -1,5 +1,6 @@
 package monkey.util;
 
+import java.util.Iterator;
 import java.util.function.ToIntFunction;
 
 /**
@@ -13,7 +14,7 @@ import java.util.function.ToIntFunction;
  * @version 1.0
  * @since 1.0
  */
-public class DirectAddressTable<T> {
+public class DirectAddressTable<T> implements Iterable<T> {
 
 	/**
 	 * A function associating each value to an integer key in the range [0 .. length
@@ -123,4 +124,51 @@ public class DirectAddressTable<T> {
 
 	private T[] table;
 
+	@Override // inherit doc comment
+	public Iterator<T> iterator() {
+		return new DirectAddressTableIterator<T>(table);
+	}
+
+}
+
+/**
+ * An <code>Iterator</code> class for {@link DirectAddressTable}. It does not
+ * implement <code>remove</code>.
+ *
+ * @author Stefano Volpe
+ * @version 1.0
+ * @since 1.0
+ */
+class DirectAddressTableIterator<T> implements Iterator<T> {
+
+	/**
+	 * 
+	 * @param t Table to iterate through.
+	 * @throws NullPointerException t is null.
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 **/
+	public DirectAddressTableIterator(T[] t) {
+		if (t == null)
+			throw new NullPointerException("t is null.");
+		table = t;
+	}
+
+	@Override // inherit doc comment
+	public boolean hasNext() {
+		return index < table.length;
+	}
+
+	@Override // inherit doc comment
+	public T next() {
+		if (hasNext())
+			return table[index++];
+		throw new java.util.NoSuchElementException("No next element.");
+	}
+
+	/** The table to iterate through. */
+	final private T[] table;
+	/** The index of the next element, or the length of the table if it is over. */
+	private int index = 0;
 }
