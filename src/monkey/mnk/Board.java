@@ -428,6 +428,20 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	 * sorted by decreasing heuristic value.
 	 */
 	final private Position[] actionsCandidates;
+	/**
+	 * Counter for both no-hole {@link #K}-threats and
+	 * {@link #K}<code>-1</code>-threats with a hole.
+	 */
+	final ThreatsCounter kCounter = null; // TODO
+	/**
+	 * Counter for both no-hole {@link #K}<code>-1</code>-threats and
+	 * {@link #K}<code>-2</code>-threats with a hole.
+	 */
+	final ThreatsCounter kMinusOneCounter = null; // TODO
+	/**
+	 * Counter for no-hole {@link #K}<code>-2</code>-threats.
+	 */
+	final ThreatsCounter kMinusTwoCounter = null; // TODO
 	/** Heuristic evaluation of the current {@link Board}. */
 	int currentEval = 0;
 

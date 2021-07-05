@@ -40,6 +40,8 @@ public class Alignment {
 
 	/** The {@link Position} of the top left cell of this {@link Alignment}. */
 	public final Position FIRSTCELL;
+	/** The {@link Position} of the bottom right cell of this {@link Alignment}. */
+	public final Position LASTCELL;
 	/** The {@link Alignment.Direction Direction} of this {@link Alignment}. */
 	public final Direction DIRECTION;
 	/** The length of this {@link Alignment}. */
@@ -60,8 +62,7 @@ public class Alignment {
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	public Alignment(Position firstCell, Direction direction, int length, MNKCellState firstExt,
-			MNKCellState secondExt) {
+	public Alignment(Position firstCell, Direction direction, int length, MNKCellState firstExt, MNKCellState secondExt) {
 		if (length <= 0)
 			throw new IllegalArgumentException("length can't be negative or zero.");
 		if (firstCell == null || direction == null)
@@ -75,6 +76,24 @@ public class Alignment {
 		FIRSTCELL = firstCell;
 		DIRECTION = direction;
 		LENGTH = length;
+		// LASTCELL
+		int lastRow = FIRSTCELL.getRow(), lastColumn = FIRSTCELL.getColumn();
+		switch (DIRECTION) {
+		case HORIZONTAL:
+			lastColumn += LENGTH - 1;
+			break;
+		case VERTICAL:
+			lastRow += LENGTH - 1;
+			break;
+		case PRIMARY_DIAGONAL:
+			lastRow += LENGTH - 1;
+			lastColumn += LENGTH - 1;
+			break;
+		case SECONDARY_DIAGONAL:
+			lastRow += 1 - LENGTH;
+			lastColumn += LENGTH - 1;
+		}
+		LASTCELL = new Position(FIRSTCELL.ROWSNUMBER, FIRSTCELL.COLUMNSNUMBER, lastRow, lastColumn);
 		firstExtremity = firstExt;
 		secondExtremity = secondExt;
 	}
@@ -275,43 +294,28 @@ public class Alignment {
 		// There is no hole
 		if (state == State.P1FULL || state == State.P2FULL)
 			switch ((firstExtremity == MNKCellState.FREE ? 1 : 0) + (secondExtremity == MNKCellState.FREE ? 1 : 0)) {
-				case 0:
-					threat = Threat.THREE;
-					break;
-				case 1:
-					threat = Threat.TWO;
-					break;
-				case 2:
-					threat = Threat.ONE;
+			case 0:
+				threat = Threat.THREE;
+				break;
+			case 1:
+				threat = Threat.TWO;
+				break;
+			case 2:
+				threat = Threat.ONE;
 			}
 		// There is just one hole
 		else if (getFreeCells() == 1 && (state == State.P1PARTIAL || state == State.P2PARTIAL)) {
-			final Position lastCell = FIRSTCELL;
-			switch (DIRECTION) {
-				case HORIZONTAL:
-					lastCell.move(0, LENGTH - 1);
-					break;
-				case VERTICAL:
-					lastCell.move(LENGTH - 1, 0);
-					break;
-				case PRIMARY_DIAGONAL:
-					lastCell.move(LENGTH - 1, LENGTH - 1);
-					break;
-				case SECONDARY_DIAGONAL:
-					lastCell.move(1 - LENGTH, LENGTH - 1);
-			}
 			if (cellStates[FIRSTCELL.getColumn()][FIRSTCELL.getRow()] != MNKCellState.FREE
-					&& cellStates[lastCell.getColumn()][lastCell.getRow()] != MNKCellState.FREE)
-				switch ((firstExtremity == MNKCellState.FREE ? 1 : 0)
-						+ (secondExtremity == MNKCellState.FREE ? 1 : 0)) {
-					case 0:
-						threat = Threat.SIX;
-						break;
-					case 1:
-						threat = Threat.FIVE;
-						break;
-					case 2:
-						threat = Threat.FOUR;
+					&& cellStates[LASTCELL.getColumn()][LASTCELL.getRow()] != MNKCellState.FREE)
+				switch ((firstExtremity == MNKCellState.FREE ? 1 : 0) + (secondExtremity == MNKCellState.FREE ? 1 : 0)) {
+				case 0:
+					threat = Threat.SIX;
+					break;
+				case 1:
+					threat = Threat.FIVE;
+					break;
+				case 2:
+					threat = Threat.FOUR;
 				}
 		}
 	}
