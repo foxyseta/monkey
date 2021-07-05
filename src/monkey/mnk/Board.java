@@ -429,19 +429,19 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	 */
 	final private Position[] actionsCandidates;
 	/**
-	 * Counter for both no-hole {@link #K}-threats and
+	 * Counters for both no-hole {@link #K}-threats and
 	 * {@link #K}<code>-1</code>-threats with a hole.
 	 */
-	final ThreatsCounter kCounter = null; // TODO
+	final ThreatsManager kCounter = null; // TODO
 	/**
-	 * Counter for both no-hole {@link #K}<code>-1</code>-threats and
+	 * Counters for both no-hole {@link #K}<code>-1</code>-threats and
 	 * {@link #K}<code>-2</code>-threats with a hole.
 	 */
-	final ThreatsCounter kMinusOneCounter = null; // TODO
+	final ThreatsManager kMinusOneCounter = null; // TODO
 	/**
-	 * Counter for no-hole {@link #K}<code>-2</code>-threats.
+	 * Counters for no-hole {@link #K}<code>-2</code>-threats.
 	 */
-	final ThreatsCounter kMinusTwoCounter = null; // TODO
+	final ThreatsManager kMinusTwoManager = null; // TODO
 	/** Heuristic evaluation of the current {@link Board}. */
 	int currentEval = 0;
 
