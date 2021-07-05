@@ -3,7 +3,6 @@ package monkey.mnk;
 import mnkgame.MNKCellState;
 import monkey.ai.Player;
 import monkey.util.DirectAddressTable;
-import monkey.util.Pair;
 
 /**
  * A <code>ThreatsManager</code> for a certain {@link #L} counts the
@@ -33,7 +32,7 @@ public class ThreatsManager {
 	 * @since 1.0
 	 */
 	public ThreatsManager(int l, Board b) {
-		if (l <= 0)
+		if (l <= 1)
 			throw new IllegalArgumentException("l is not greater than 1.");
 		if (b == null)
 			throw new NullPointerException("b is null.");

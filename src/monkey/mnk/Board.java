@@ -82,6 +82,10 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 		// no m,n,k-game has theoreticalGameValue() == LOSSUTILITY anyway
 		INITIALALPHAP2 = INITIALBETAP1 == VICTORYUTILITY ? LOSSUTILITY : DRAWUTILITY;
 		INITIALBETAP2 = VICTORYUTILITY;
+		// counters
+		KCOUNTER = K > 1 ? new ThreatsManager(K, this) : null;
+		KMINUSONECOUNTER = K > 2 ? new ThreatsManager(K - 1, this) : null;
+		KMINUSTWOCOUNTER = K > 3 ? new ThreatsManager(K - 2, this) : null;
 	}
 
 	@Override // inherit doc comment
@@ -432,16 +436,16 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	 * Counters for both no-hole {@link #K}-threats and
 	 * {@link #K}<code>-1</code>-threats with a hole.
 	 */
-	final ThreatsManager kCounter = null; // TODO
+	final ThreatsManager KCOUNTER;
 	/**
 	 * Counters for both no-hole {@link #K}<code>-1</code>-threats and
 	 * {@link #K}<code>-2</code>-threats with a hole.
 	 */
-	final ThreatsManager kMinusOneCounter = null; // TODO
+	final ThreatsManager KMINUSONECOUNTER;
 	/**
 	 * Counters for no-hole {@link #K}<code>-2</code>-threats.
 	 */
-	final ThreatsManager kMinusTwoManager = null; // TODO
+	final ThreatsManager KMINUSTWOCOUNTER;
 	/** Heuristic evaluation of the current {@link Board}. */
 	int currentEval = 0;
 
