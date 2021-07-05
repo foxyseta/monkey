@@ -122,6 +122,7 @@ public class DirectAddressTable<T> implements Iterable<T> {
 		}
 	}
 
+	/** Array used to store the data. */
 	private T[] table;
 
 	@Override // inherit doc comment
@@ -142,6 +143,8 @@ public class DirectAddressTable<T> implements Iterable<T> {
 class DirectAddressTableIterator<T> implements Iterator<T> {
 
 	/**
+	 * Constructs a new {@link DirectAddressTableIterator} from the underlying
+	 * array.
 	 * 
 	 * @param t Table to iterate through.
 	 * @throws NullPointerException t is null.
