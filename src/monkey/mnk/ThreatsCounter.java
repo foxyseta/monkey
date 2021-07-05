@@ -43,12 +43,34 @@ public class ThreatsCounter {
 	}
 
 	/**
+	 * (Un)records a mark for the whole {@link Board}.
+	 * 
+	 * @param position   {@link monkey.ai.Position Position} of the mark to
+	 *                   (un)record.
+	 * @param cellStates The updated state of the {@link Board}.
+	 * @throws IllegalArgumentException Either position or cellStates are meant for
+	 *                                  another M-N-K tuple.
+	 * @throws NullPointerException     Either position or cellStates are null.
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	public void updateAlignments(Position position, MNKCellState[][] cellStates) {
+		if (position == null || cellStates == null)
+			throw new NullPointerException("Either position or cellStates are null.");
+		if (position.ROWSNUMBER != board.M || position.COLUMNSNUMBER != board.N || cellStates.length != board.M
+				|| cellStates[0].length != board.N)
+			throw new IllegalArgumentException("M-N-K incompatibility.");
+		// TODO
+	}
+
+	/**
 	 * Sets a new {@link Board} whose dimensions must be the same for the previous
 	 * one. The actual <code>MNKCellState</code>s of the {@link Board} do not
 	 * matter.
 	 *
 	 * @param b The new {@link Board}.
-	 * @throw IllegalArgumentException The dimensions of the grid changed.
+	 * @throws IllegalArgumentException The dimensions of the grid changed.
 	 * @author Stefano Volpe
 	 * @version 1.0
 	 * @since 1.0
@@ -107,8 +129,6 @@ public class ThreatsCounter {
 		}
 	}
 
-	// TODO: updateAlignments
-
 	/**
 	 * (Un)records a mark for a certain {@link Alignment}.
 	 *
@@ -159,7 +179,8 @@ public class ThreatsCounter {
 	 *                   the first one.
 	 * @param state      The new state of the extremity. May be null.
 	 * @param cellStates The current state of the board.
-	 * @throws IllegalArgumentException query is meant for another M-N-K tuple.
+	 * @throws IllegalArgumentException query or cellState is meant for another
+	 *                                  M-N-K tuple.
 	 * @throws IllegalCallerException   The extremity cannot be changed anymore.
 	 * @throws IllegalArgumentException The extremity cannot be set to this
 	 *                                  particular state.
@@ -171,7 +192,8 @@ public class ThreatsCounter {
 			MNKCellState[][] cellStates) {
 		if (query == null)
 			throw new NullPointerException("query is null.");
-		if (query.FIRSTCELL.ROWSNUMBER != board.M || query.FIRSTCELL.COLUMNSNUMBER != board.N)
+		if (query.FIRSTCELL.ROWSNUMBER != board.M || query.FIRSTCELL.COLUMNSNUMBER != board.N
+				|| cellStates.length != board.M || cellStates[0].length != board.N)
 			throw new IllegalArgumentException("M-N-K incompatibility.");
 		Alignment result = alignments.search(toKey(query));
 		if (result == null) {
@@ -193,7 +215,7 @@ public class ThreatsCounter {
 	 * Updates the counter assigned to a certain {@link Threat} using the specified
 	 * offset.
 	 *
-	 * @param t      The {@link Threat whose counter is to be updated.
+	 * @param t      The {@link Threat} whose counter is to be updated.
 	 * @param offset The increment (or decrement) to use.
 	 * @throws IllegalArgumentException Negative counter value.
 	 * @author Stefano Volpe
