@@ -183,16 +183,20 @@ public class ThreatsManager {
 	}
 
 	/**
-	 * Returns the counter of {@link Threat}s of the specified nature.
+	 * Returns the number of {@link Threat}s of the specified nature and threatener.
 	 *
 	 * @param t Queried {@link Threat} type.
+	 * @param p The {@link monkey.ai.Player Player} to be used as threatener.
+	 * @throws NullPointerException Either t or p are <code>null</code>.
 	 * @return Current value of the counter.
 	 * @author Stefano Volpe
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	public int count(Threat t) {
-		return counters.search(t.ordinal()).getValue();
+	public int count(Threat t, Player p) {
+		if (t == null || p == null)
+			throw new NullPointerException("Either t or p are null.");
+		return counters.search(t.ordinal()).get(p);
 	}
 
 	/**
@@ -257,6 +261,7 @@ public class ThreatsManager {
 			alignments.insert(result = query);
 		}
 		final Threat oldThreat = result.getThreat();
+		final Player oldThreatener = result.getThreatener();
 		try {
 			if (add)
 				result.addMark(player);
@@ -265,9 +270,13 @@ public class ThreatsManager {
 		} catch (IllegalCallerException e) {
 			throw new IllegalArgumentException("Cannot " + (add ? "add" : "remove") + " any more marks.");
 		}
-		if (result.getThreat() != oldThreat) {
-			counters.search(oldThreat.ordinal()).decrement();
-			counters.search(result.getThreat().ordinal()).increment();
+		final Threat newThreat = result.getThreat();
+		final Player newThreatener = result.getThreatener();
+		if (newThreat != oldThreat || newThreatener != oldThreatener) {
+			if (oldThreat != null)
+				counters.search(oldThreat.ordinal()).decrement(oldThreatener);
+			if (result.getThreat() != null)
+				counters.search(result.getThreat().ordinal()).increment(result.getThreatener());
 		}
 	}
 
@@ -302,13 +311,18 @@ public class ThreatsManager {
 			alignments.insert(result = query);
 		}
 		final Threat oldThreat = result.getThreat();
+		final Player oldThreatener = result.getThreatener();
 		if (first)
 			result.setFirstExtremity(state, cellStates);
 		else
 			result.setSecondExtremity(state, cellStates);
-		if (result.getThreat() != oldThreat) {
-			counters.search(oldThreat.ordinal()).decrement();
-			counters.search(result.getThreat().ordinal()).increment();
+		final Threat newThreat = result.getThreat();
+		final Player newThreatener = result.getThreatener();
+		if (newThreat != oldThreat || newThreatener != oldThreatener) {
+			if (oldThreat != null)
+				counters.search(oldThreat.ordinal()).decrement(oldThreatener);
+			if (result.getThreat() != null)
+				counters.search(result.getThreat().ordinal()).increment(result.getThreatener());
 		}
 	}
 
@@ -320,5 +334,5 @@ public class ThreatsManager {
 	final private DirectAddressTable<Alignment> alignments;
 	/** Stores a counter for each type of {@link Threat}. */
 	final private DirectAddressTable<ThreatsCounter> counters = new DirectAddressTable<ThreatsCounter>(
-			ThreatsCounter.class, p -> p.getKey().ordinal(), Threat.SIZE);
+			ThreatsCounter.class, c -> c.THREAT.ordinal(), Threat.SIZE);
 }

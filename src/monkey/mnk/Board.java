@@ -116,9 +116,11 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 		final int row = a.getRow(), column = a.getColumn();
 		if (cellStates[row][column] != MNKCellState.FREE)
 			throw new IllegalArgumentException("(" + row + ", " + column + ") is not free.");
-		cellStates[row][column] = player() == Player.P1 ? MNKCellState.P1 : MNKCellState.P2;
+		final Player p = player();
+		cellStates[row][column] = p == Player.P1 ? MNKCellState.P1 : MNKCellState.P2;
 		updateThreatsManagers(a);
-		// TODO
+		if (KCOUNTER.count(Threat.ONE, p) + KCOUNTER.count(Threat.TWO, p) + KCOUNTER.count(Threat.THREE, p) > 0)
+			state = p == Player.P1 ? MNKGameState.WINP1 : MNKGameState.WINP2;
 		history.push(a);
 		if (state == MNKGameState.OPEN && history.size() == SIZE)
 			state = MNKGameState.DRAW;
@@ -173,9 +175,25 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 		return history.empty() ? p == Player.P1 ? INITIALBETAP1 : INITIALBETAP2 : VICTORYUTILITY;
 	}
 
-	@Override // inherit doc comment
+	/**
+	 * {@inheritDoc} It is implemented as a simplified (see project report) version
+	 * of the heuristic of Abdoulaye-Houndji-Ezin-Aglin. The coefficients are left
+	 * as unnamed constants because of their number and their experimental origin.
+	 * See A. Abdoulaye, V. R. Houndji, E. C. Ezin, G. Aglin, <i>Generic Heuristic
+	 * for the mnk-games</i>, in A. E. Badouel, N. Gmati, B. Watson (eds),
+	 * <i>Proceedings of CARI 2018 (African Conference on Research in Computer
+	 * Science and Applied Mathematics). Nabil Gmati; Eric Badouel; Bruce Watson.
+	 * CARI 2018 - Colloque africain sur la recherche en informatique et
+	 * mathématiques appliquées</i>, Oct 2018, Stellenbosch, South Africa. 2018, pp.
+	 * 268-269. hal-01881376f
+	 */
 	public Integer eval(Player p) {
-		return currentEval;
+		final int A = 100 * countThreats(K - 2, Threat.ONE, p) + 80 * countHalfOpenThreats(K - 1, p)
+				+ 250 * countThreats(K - 1, Threat.ONE, p) + 1000000 * countThreatsWithoutHole(K, p);
+		final Player q = p.not();
+		final int B = 1300 * countThreats(K - 2, Threat.ONE, q) + 2000 * countHalfOpenThreats(K - 1, q)
+				+ 5020 * countThreats(K - 1, Threat.ONE, q) + 1000000 * countThreatsWithoutHole(K, q);
+		return A - B;
 	}
 
 	@Override // inherit doc comment
@@ -311,6 +329,71 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 		}
 	}
 
+	/**
+	 * Retrieves the number of {@link Threat}s stored by this object, filtered by
+	 * length, type, and threatener.
+	 *
+	 * @param length     Length of the {@link Threat}s to count.
+	 * @param type       Nature of the {@link Threat}s to count.
+	 * @param threatener {@link monkey.ai.Player Player} doing the threatening.
+	 * @throws NullPointerException Type or threatener are <code>null</code> and
+	 *                              required to compute the result.
+	 * @return The current number of the {@link Threat}s queried.
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	protected int countThreats(int length, Threat type, Player threatener) {
+		final ThreatsManager threatsManager;
+		if (length == K)
+			threatsManager = type.hasHole() ? null : KCOUNTER;
+		else if (length == K - 1)
+			threatsManager = type.hasHole() ? KCOUNTER : KMINUSONECOUNTER;
+		else if (length == K - 2)
+			threatsManager = type.hasHole() ? KMINUSONECOUNTER : KMINUSTWOCOUNTER;
+		else if (length == K - 3)
+			threatsManager = type.hasHole() ? KMINUSTWOCOUNTER : null;
+		else
+			threatsManager = null;
+		return threatsManager == null ? 0 : threatsManager.count(type, threatener);
+	}
+
+	/**
+	 * Retrieves the number of half-open {@link Threat}s stored by this object,
+	 * filtered by length and threatener.
+	 *
+	 * @param length     Length of the {@link Threat}s to count.
+	 * @param threatener {@link monkey.ai.Player Player} doing the threatening.
+	 * @throws NullPointerException threatener is <code>null</code> and required to
+	 *                              compute the result.
+	 * @return The current number of the {@link Threat}s queried.
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	protected int countHalfOpenThreats(int length, Player threatener) {
+		return countThreats(length, Threat.TWO, threatener) + countThreats(length, Threat.FOUR, threatener)
+				+ countThreats(length, Threat.FIVE, threatener) + countThreats(length, Threat.SIX, threatener);
+	}
+
+	/**
+	 * Retrieves the number of {@link Threat}s without hole stored by this object,
+	 * filtered by length and threatener.
+	 *
+	 * @param length     Length of the {@link Threat}s to count.
+	 * @param threatener {@link monkey.ai.Player Player} doing the threatening.
+	 * @throws NullPointerException threatener is <code>null</code> and required to
+	 *                              compute the result.
+	 * @return The current number of the {@link Threat}s queried.
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	protected int countThreatsWithoutHole(int length, Player threatener) {
+		return countThreats(length, Threat.ONE, threatener) + countThreats(length, Threat.TWO, threatener)
+				+ countThreats(length, Threat.THREE, threatener);
+	}
+
 	/** A P1 alpha value valid after a generic first move of theirs. */
 	final private int INITIALALPHAP1;
 	/** A P1 beta value valid after a generic first move of theirs. */
@@ -344,7 +427,5 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	 * Counters for no-hole {@link #K}<code>-2</code>-threats.
 	 */
 	final private ThreatsManager KMINUSTWOCOUNTER;
-	/** Heuristic evaluation of the current {@link Board}. */
-	private int currentEval = 0; // TODO
 
 }

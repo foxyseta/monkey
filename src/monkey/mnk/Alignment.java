@@ -142,6 +142,7 @@ public class Alignment {
 	/**
 	 * A getter for the current {@link Threat}.
 	 *
+	 * @see #getThreatener
 	 * @return The current {@link Threat}, or <code>null</code> if there is none.
 	 * @author Gaia Clerici
 	 * @version 1.0
@@ -149,6 +150,23 @@ public class Alignment {
 	 */
 	public Threat getThreat() {
 		return threat;
+	}
+
+	/**
+	 * Computes the {@link monkey.ai.Player Player} who caused the current
+	 * {@link Threat}, if there is any.
+	 *
+	 * @see #getThreat
+	 * @return The current threatener {@link monkey.ai.Player Player}, or
+	 *         <code>null</code> if there is no {@link Threat} at all.
+	 * @author Gaia Clerici
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	public Player getThreatener() {
+		if (threat == null)
+			return null;
+		return state == State.P1PARTIAL || state == State.P1FULL ? Player.P1 : Player.P2;
 	}
 
 	/**
