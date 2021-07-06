@@ -3,13 +3,11 @@ package monkey.mnk;
 import java.lang.Iterable;
 import java.lang.Math;
 import java.util.Arrays;
-import java.util.function.Consumer;
 import java.util.ArrayList;
 import java.util.Stack;
 import mnkgame.MNKCellState;
 import mnkgame.MNKGameState;
 import monkey.ai.Player;
-import monkey.util.DirectAddressTable;
 
 /**
  * A <code>Board</code> describes the {@link monkey.ai.State State} of a
@@ -72,7 +70,6 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 		B = Math.max(0, N - K + 1);
 		H = Math.max(0, M - K + 1);
 		ALIGNMENTS = countAlignments();
-		alignments = new DirectAddressTable<Alignment>(Alignment.class, a -> toKey(a), ALIGNMENTS);
 		// action candidates
 		actionsCandidates = generateActionCandidates();
 		// initial alpha and beta values
@@ -98,6 +95,8 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	 */
 	@Override
 	public Iterable<Position> actions() {
+		if (terminalTest())
+			return new ArrayList<Position>();
 		ArrayList<Position> res = new ArrayList<Position>(SIZE - history.size());
 		for (Position p : actionsCandidates)
 			if (cellStates[p.getRow()][p.getColumn()] == MNKCellState.FREE)
@@ -118,7 +117,8 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 		if (cellStates[row][column] != MNKCellState.FREE)
 			throw new IllegalArgumentException("(" + row + ", " + column + ") is not free.");
 		cellStates[row][column] = player() == Player.P1 ? MNKCellState.P1 : MNKCellState.P2;
-		updateAlignments(a, x -> updateMark(x, true));
+		updateThreatsManagers(a);
+		// TODO
 		history.push(a);
 		if (state == MNKGameState.OPEN && history.size() == SIZE)
 			state = MNKGameState.DRAW;
@@ -134,7 +134,7 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 			final Position a = history.pop();
 			final int row = a.getRow(), column = a.getColumn();
 			cellStates[row][column] = MNKCellState.FREE;
-			updateAlignments(a, x -> updateMark(x, false));
+			updateThreatsManagers(a);
 			state = MNKGameState.OPEN;
 		} catch (java.util.EmptyStackException e) {
 			throw new IllegalCallerException("No previous action to revert.");
@@ -184,14 +184,14 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	}
 
 	/**
-	 * Helper function to initialize cell states.
+	 * Helper function to initialize cell states. Takes Θ({@link #SIZE}) time.
 	 *
 	 * @return A {@link #M} x {@link #N} matrix with the initial cell states.
 	 * @author Stefano Volpe
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	private MNKCellState[][] initialCellStates() {
+	protected MNKCellState[][] initialCellStates() {
 		MNKCellState[][] res = new MNKCellState[M][N];
 		for (MNKCellState[] row : res)
 			Arrays.fill(row, MNKCellState.FREE);
@@ -247,125 +247,6 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	}
 
 	/**
-	 * Maps a valid {@link monkey.mnk.Alignment Alignment} for this {@link Board} to
-	 * an appropriate integer key in [0 .. {@link #ALIGNMENTS} - 1].
-	 *
-	 * @see #alignments
-	 * @param a Value to be mapped.
-	 * @throws IllegalArgumentException a's grid extents are different from this
-	 *                                  {@link Board}'s.
-	 * @throws NullPointerException     a is <code>null</code>.
-	 * @return An integer key
-	 * @author Stefano Volpe
-	 * @version 1.0
-	 * @since 1.0
-	 */
-	private int toKey(Alignment a) {
-		if (a == null)
-			throw new NullPointerException("Null alignment.");
-		if (a.FIRSTCELL.ROWSNUMBER != M || a.FIRSTCELL.COLUMNSNUMBER != N)
-			throw new IllegalArgumentException("Incompatible grid extents.");
-		final int row = a.FIRSTCELL.getRow(), column = a.FIRSTCELL.getColumn();
-		switch (a.DIRECTION) {
-		case HORIZONTAL: // [0 .. B * M - 1]
-			return row * B + column;
-		case VERTICAL: // B * M + [0 .. N * H - 1]
-			return B * M + row * N + column;
-		case PRIMARY_DIAGONAL: // B * M + N * H + [0 .. B * H - 1]
-			return B * (M + row) + N * H + column;
-		case SECONDARY_DIAGONAL: // B * (M + H) + N * H + [0 .. B * H - 1]
-			return B * (2 * H + row) + N * H + column;
-		default:
-			throw new IllegalArgumentException("Unknown direction");
-		}
-	}
-
-	/**
-	 * (Un)records a mark for a certain {@link monkey.mnk.Alignment Alignment} based
-	 * on the current {@link monkey.ai.Player Player}.
-	 *
-	 * @param query Its coordinates are used to identify the element to update. May
-	 *              be dirtied after its use.
-	 * @param add   <code>true</code> just in case the cell has to be added instead
-	 *              of removed.
-	 * @throws IllegalArgumentException query is meant for another M-N-K tuple.
-	 * @throws IllegalArgumentException Cannot add any more marks.
-	 * @throws IllegalCallerException   Unknown direction.history.peek()
-	 * @throws NullPointerException     query is null
-	 * @author Stefano Volpe
-	 * @version 1.0
-	 * @since 1.0
-	 */
-	private void updateMark(Alignment query, boolean add) {
-		if (query == null)
-			throw new NullPointerException("query is null");
-		if (query.FIRSTCELL.ROWSNUMBER != M || query.FIRSTCELL.COLUMNSNUMBER != N || query.LENGTH != K)
-			throw new IllegalArgumentException("M-N-K incompatibility.");
-		Alignment result = alignments.search(toKey(query));
-		if (result == null) {
-			query.clear();
-			alignments.insert(result = query);
-		}
-		try {
-			if (add)
-				switch (result.addMark(player())) {
-				case P1FULL:
-					state = MNKGameState.WINP1;
-					break;
-				case P2FULL:
-					state = MNKGameState.WINP2;
-					break;
-				default:
-					break;
-				}
-			else
-				result.removeMark(player());
-		} catch (IllegalCallerException e) {
-			throw e.getMessage() == "Unknown direction." ? e
-					: new IllegalArgumentException("Cannot " + (add ? "add" : "remove") + " any more marks.");
-		}
-	}
-
-	/**
-	 * Applies a generic "update" function to every {@link monkey.mnk.Alignment
-	 * Alignment} containing a given cell. Takes Θ({@link #K} f) time, where f is
-	 * the cost of the "update" function.
-	 *
-	 * @param p      Location of the cell which has just been (un)marked.
-	 * @param update Functional argument invoked as an "update" function.
-	 * @throws IllegalArgumentException p caused an M-N-K incompatibility.
-	 * @throws NullPointerException     p, or update, or both are null.
-	 * @author Stefano Volpe
-	 * @version 1.0
-	 * @since 1.0
-	 */
-	private void updateAlignments(Position p, Consumer<Alignment> update) {
-		if (p == null)
-			throw new NullPointerException("p is null.");
-		if (update == null)
-			throw new NullPointerException("update is null.");
-		if (p.ROWSNUMBER != M || p.COLUMNSNUMBER != N)
-			throw new IllegalArgumentException("M-N-K incompatibility");
-		final int row = p.getRow(), column = p.getColumn();
-		// horizontal alignments
-		int max = Math.min(N - K, column);
-		for (int j = Math.max(0, column - K + 1); j <= max; ++j)
-			update.accept(new Alignment(new Position(this, row, j), Alignment.Direction.HORIZONTAL, K, null, null));
-		// vertical alignments
-		max = Math.min(M - K, row);
-		for (int i = Math.max(0, row - K + 1); i <= max; ++i)
-			update.accept(new Alignment(new Position(this, i, column), Alignment.Direction.VERTICAL, K, null, null));
-		// primary diagonal alignments
-		max = Math.min(N - K + row - column, Math.min(M - K, row));
-		for (int i = Math.max(0, Math.max(row - K + 1, row - column)), j = i + column - row; i <= max; ++i, ++j)
-			update.accept(new Alignment(new Position(this, i, j), Alignment.Direction.PRIMARY_DIAGONAL, K, null, null));
-		// secondary diagonal alignments
-		max = Math.min(column + row, Math.min(M - 1, row + K - 1));
-		for (int i = Math.max(row + column + K - N, Math.max(K - 1, row)), j = row + column - i; i <= max; ++i, --j)
-			update.accept(new Alignment(new Position(this, i, j), Alignment.Direction.SECONDARY_DIAGONAL, K, null, null));
-	}
-
-	/**
 	 * Generates a sequence containing all of the {@link Position}s of this
 	 * <code>Board</code>, sorted by decreasing heuristic value. See the project
 	 * report. Takes Θ({@link #SIZE}) time.
@@ -375,7 +256,7 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	Position[] generateActionCandidates() {
+	protected Position[] generateActionCandidates() {
 		Position[] res = new Position[SIZE];
 		int firstRow = 0, lastRow = M - 1, firstColumn = 0, lastColumn = N - 1;
 		int i = SIZE - 1, row = firstRow, column = firstColumn;
@@ -411,6 +292,25 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 		return res;
 	}
 
+	/**
+	 * Updates all of the non-<code>null</code> {@link ThreatsManager}s of this
+	 * {@link Board}.
+	 *
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	private void updateThreatsManagers(Position p) {
+		if (KCOUNTER != null) {
+			KCOUNTER.updateAlignments(p, player(), cellStates);
+			if (KMINUSONECOUNTER != null) {
+				KMINUSONECOUNTER.updateAlignments(p, player(), cellStates);
+				if (KMINUSTWOCOUNTER != null)
+					KMINUSTWOCOUNTER.updateAlignments(p, player(), cellStates);
+			}
+		}
+	}
+
 	/** A P1 alpha value valid after a generic first move of theirs. */
 	final private int INITIALALPHAP1;
 	/** A P1 beta value valid after a generic first move of theirs. */
@@ -423,8 +323,6 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	final private MNKCellState[][] cellStates;
 	/** The moves played so far. */
 	final private Stack<Position> history = new Stack<Position>();
-	/** Stores all of the {@link Board}'s possible {@link Alignment}s. */
-	final private DirectAddressTable<Alignment> alignments;
 	/** The current game state. */
 	private MNKGameState state;
 	/**
@@ -436,17 +334,17 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	 * Counters for both no-hole {@link #K}-threats and
 	 * {@link #K}<code>-1</code>-threats with a hole.
 	 */
-	final ThreatsManager KCOUNTER;
+	final private ThreatsManager KCOUNTER;
 	/**
 	 * Counters for both no-hole {@link #K}<code>-1</code>-threats and
 	 * {@link #K}<code>-2</code>-threats with a hole.
 	 */
-	final ThreatsManager KMINUSONECOUNTER;
+	final private ThreatsManager KMINUSONECOUNTER;
 	/**
 	 * Counters for no-hole {@link #K}<code>-2</code>-threats.
 	 */
-	final ThreatsManager KMINUSTWOCOUNTER;
+	final private ThreatsManager KMINUSTWOCOUNTER;
 	/** Heuristic evaluation of the current {@link Board}. */
-	int currentEval = 0;
+	private int currentEval = 0; // TODO
 
 }

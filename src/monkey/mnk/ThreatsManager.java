@@ -5,9 +5,9 @@ import monkey.ai.Player;
 import monkey.util.DirectAddressTable;
 
 /**
- * A <code>ThreatsManager</code> for a certain {@link #L} counts the
- * {@link #L}-long {@link Threat}s with no hole and the
- * <code>{@link #L}-1</code>-long {@link Threat}s with a hole in them.
+ * A <code>ThreatsManager</code> for a certain {@link #L L} counts the {@link #L
+ * L}-long {@link Threat}s with no hole and the <code>{@link #L L}-1</code>-long
+ * {@link Threat}s with a hole in them.
  *
  * @author Stefano Volpe
  * @version 1.0
@@ -19,12 +19,12 @@ public class ThreatsManager {
 	final public int L;
 
 	/**
-	 * Constructs a new {@link ThreatsManager} given the {@link #L} parameter and a
-	 * {@link Board}. The actual <code>MNKCellState</code>s of the {@link Board} do
-	 * not matter.
+	 * Constructs a new {@link ThreatsManager} given the {@link #L L} parameter and
+	 * a {@link Board}. The actual <code>MNKCellState</code>s of the {@link Board}
+	 * do not matter.
 	 *
-	 * @param l The {@link #L} parameter. Must be greater than 1.
-	 * @param b The {@Board} to consider.
+	 * @param l The {@link #L L} parameter. Must be greater than 1.
+	 * @param b The {@link Board} to consider.
 	 * @throws IllegalArgumentException l is not greater than 1.
 	 * @throws NullPointerException     b is null.
 	 * @author Stefano Volpe
