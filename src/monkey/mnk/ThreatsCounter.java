@@ -59,11 +59,11 @@ public class ThreatsCounter {
 		if (player == Player.P1) {
 			if (p1counter == 0)
 				throw new IllegalCallerException("P1's counter is already at 0");
-			++p1counter;
+			--p1counter;
 		} else {
 			if (p2counter == 0)
 				throw new IllegalCallerException("P2's counter is already at 0");
-			++p2counter;
+			--p2counter;
 		}
 	}
 

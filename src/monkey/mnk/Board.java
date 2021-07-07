@@ -48,23 +48,23 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	 * @param m Number of rows.
 	 * @param n Number of columns.
 	 * @param k Number of symbols to be aligned.
-	 * @throws IllegalArgumentException m or n or k is negative.
+	 * @throws IllegalArgumentException m or n or k is not positive.
 	 * @author Stefano Volpe
 	 * @version 1.0
 	 * @since 1.0
 	 */
 	public Board(int m, int n, int k) {
-		if (m < 0)
-			throw new IllegalArgumentException("m < 0");
-		if (n < 0)
-			throw new IllegalArgumentException("n < 0");
-		if (k < 0)
-			throw new IllegalArgumentException("k < 0");
+		if (m <= 0)
+			throw new IllegalArgumentException("m <= 0");
+		if (n <= 0)
+			throw new IllegalArgumentException("n <= 0");
+		if (k <= 0)
+			throw new IllegalArgumentException("k <= 0");
 		// constants
 		SIZE = (M = m) * (N = n);
 		K = k;
 		// states
-		state = SIZE > 0 ? MNKGameState.OPEN : MNKGameState.DRAW;
+		state = MNKGameState.OPEN;
 		cellStates = initialCellStates();
 		// alignments
 		B = Math.max(0, N - K + 1);
@@ -119,7 +119,7 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 		final Player p = player();
 		cellStates[row][column] = p == Player.P1 ? MNKCellState.P1 : MNKCellState.P2;
 		updateThreatsManagers(a);
-		if (KCOUNTER.count(Threat.ONE, p) + KCOUNTER.count(Threat.TWO, p) + KCOUNTER.count(Threat.THREE, p) > 0)
+		if (countThreatsWithoutHole(K, p) > 0)
 			state = p == Player.P1 ? MNKGameState.WINP1 : MNKGameState.WINP2;
 		history.push(a);
 		if (state == MNKGameState.OPEN && history.size() == SIZE)
