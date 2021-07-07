@@ -1,7 +1,6 @@
 package monkey.mnk;
 
 import java.lang.Iterable;
-import java.lang.Math;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Stack;
@@ -28,12 +27,6 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	final public int K;
 	/** Number of cells of the {@link Board}. */
 	final public int SIZE;
-	/** See the project report. */
-	final public int B;
-	/** See the project report. */
-	final public int H;
-	/** Number of possible {@link Alignment}s. */
-	final public int ALIGNMENTS;
 	/** Quantifies the satisfaction earned by winning the game. */
 	final public static int VICTORYUTILITY = 1000000;
 	/** Quantifies the satisfaction earned when the game ends in a draw. */
@@ -66,10 +59,6 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 		// states
 		state = MNKGameState.OPEN;
 		cellStates = initialCellStates();
-		// alignments
-		B = Math.max(0, N - K + 1);
-		H = Math.max(0, M - K + 1);
-		ALIGNMENTS = countAlignments();
 		// action candidates
 		actionsCandidates = generateActionCandidates();
 		// initial alpha and beta values
@@ -186,6 +175,13 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	 * CARI 2018 - Colloque africain sur la recherche en informatique et
 	 * mathématiques appliquées</i>, Oct 2018, Stellenbosch, South Africa. 2018, pp.
 	 * 268-269. hal-01881376f
+	 *
+	 * @param p The {@link monkey.ai.Player Player} from whose point of view the
+	 *          current {@link Board} is evaluated.
+	 * @return The result of the evaluation.
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
 	 */
 	public Integer eval(Player p) {
 		final int A = 100 * countThreats(K - 2, Threat.ONE, p) + 80 * countHalfOpenThreats(K - 1, p)
@@ -214,19 +210,6 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 		for (MNKCellState[] row : res)
 			Arrays.fill(row, MNKCellState.FREE);
 		return res;
-	}
-
-	/**
-	 * Computes the number of possible {@link monkey.mnk.Alignment Alignment}s for
-	 * this {@link Board}.
-	 *
-	 * @return The number of possible {@link monkey.mnk.Alignment Alignment}s.
-	 * @author Stefano Volpe
-	 * @version 1.0
-	 * @since 1.0
-	 */
-	private int countAlignments() {
-		return B * (M + H) + H * (N + B);
 	}
 
 	/**

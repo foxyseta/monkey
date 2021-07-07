@@ -17,6 +17,12 @@ public class ThreatsManager {
 
 	/** See {@link ThreatsManager}. */
 	final public int L;
+	/** See the project report. */
+	final public int B;
+	/** See the project report. */
+	final public int H;
+	/** Number of possible {@link Alignment}s. */
+	final public int ALIGNMENTS;
 
 	/**
 	 * Constructs a new {@link ThreatsManager} given the {@link #L L} parameter and
@@ -38,7 +44,11 @@ public class ThreatsManager {
 			throw new NullPointerException("b is null.");
 		L = l;
 		board = b;
-		alignments = new DirectAddressTable<Alignment>(Alignment.class, a -> toKey(a), b.ALIGNMENTS);
+		// alignments
+		B = Math.max(0, board.N - L + 1);
+		H = Math.max(0, board.M - L + 1);
+		ALIGNMENTS = countAlignments();
+		alignments = new DirectAddressTable<Alignment>(Alignment.class, a -> toKey(a), ALIGNMENTS);
 		final Threat[] threats = Threat.values();
 		for (Threat t : threats)
 			counters.insert(new ThreatsCounter(t));
@@ -200,6 +210,19 @@ public class ThreatsManager {
 	}
 
 	/**
+	 * Computes the number of possible {@link monkey.mnk.Alignment Alignment}s for
+	 * this {@link Board}.
+	 *
+	 * @return The number of possible {@link monkey.mnk.Alignment Alignment}s.
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	private int countAlignments() {
+		return B * (board.M + H) + H * (board.N + B);
+	}
+
+	/**
 	 * Maps a valid {@link monkey.mnk.Alignment Alignment} for the previouslt
 	 * specified {@link Board} to an appropriate integer key in [0 ..
 	 * {@link Board#ALIGNMENTS} - 1].
@@ -222,13 +245,13 @@ public class ThreatsManager {
 		final int row = a.FIRSTCELL.getRow(), column = a.FIRSTCELL.getColumn();
 		switch (a.DIRECTION) {
 		case HORIZONTAL: // [0 .. B * M - 1]
-			return row * board.B + column;
+			return row * B + column;
 		case VERTICAL: // B * M + [0 .. N * H - 1]
-			return board.B * board.M + row * board.N + column;
+			return B * board.M + row * board.N + column;
 		case PRIMARY_DIAGONAL: // B * M + N * H + [0 .. B * H - 1]
-			return board.B * (board.M + row) + board.N * board.H + column;
+			return B * (board.M + row) + board.N * H + column;
 		case SECONDARY_DIAGONAL: // B * (M + H) + N * H + [0 .. B * H - 1]
-			return board.B * (2 * board.H + row) + board.N * board.H + column;
+			return B * (2 * H + row) + board.N * H + column;
 		default:
 			throw new IllegalArgumentException("Unknown direction");
 		}
