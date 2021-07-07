@@ -7,7 +7,8 @@ import monkey.util.DirectAddressTable;
 /**
  * A <code>ThreatsManager</code> for a certain {@link #L L} counts the {@link #L
  * L}-long {@link Threat}s with no hole and the <code>{@link #L L}-1</code>-long
- * {@link Threat}s with a hole in them.
+ * {@link Threat}s with a hole in them. A single istance of this class takes
+ * Θ({@link #SIZE}) memory.
  *
  * @author Stefano Volpe
  * @version 1.0
@@ -27,7 +28,7 @@ public class ThreatsManager {
 	/**
 	 * Constructs a new {@link ThreatsManager} given the {@link #L L} parameter and
 	 * a {@link Board}. The actual <code>MNKCellState</code>s of the {@link Board}
-	 * do not matter.
+	 * do not matter. Takes Θ({@link #SIZE}) time.
 	 *
 	 * @param l The {@link #L L} parameter. Must be greater than 1.
 	 * @param b The {@link Board} to consider.
@@ -55,7 +56,7 @@ public class ThreatsManager {
 	}
 
 	/**
-	 * (Un)records a mark for the whole {@link Board}.
+	 * (Un)records a mark for the whole {@link Board}. Takes Θ({@link #K}) time.
 	 * 
 	 * @param pos        {@link Position} of the mark to (un)record.
 	 * @param pl         The {@link monkey.ai.Player Player} responsible for the

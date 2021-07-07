@@ -80,7 +80,7 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	}
 
 	/**
-	 * {@inheritDoc} Takes Ο({@link #SIZE}) time.
+	 * {@inheritDoc} Takes Θ({@link #SIZE}) time.
 	 */
 	@Override
 	public Iterable<Position> actions() {
@@ -295,7 +295,7 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 
 	/**
 	 * Updates all of the non-<code>null</code> {@link ThreatsManager}s of this
-	 * {@link Board}.
+	 * {@link Board}. Takes Θ({@link #K}) time.
 	 *
 	 * @author Stefano Volpe
 	 * @version 1.0

@@ -23,7 +23,8 @@ public class DirectAddressTable<T> implements Iterable<T> {
 	final public ToIntFunction<T> KEYFUNCTION;
 
 	/**
-	 * Constructs a new {@link DirectAddressTable}.
+	 * Constructs a new {@link DirectAddressTable}.Takes Θ(<code>length</code>)
+	 * time.
 	 *
 	 * @param type        Type token to allocate the underlying
 	 *                    {@link java.lang.reflect.Array Array}.
