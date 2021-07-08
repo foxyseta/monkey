@@ -6,7 +6,7 @@ import monkey.ai.Player;
  * A <code>ThreatsCounter</code> keeps track of the number of {@link Threat}s of
  * a certain type.
  *
- * @author Stefano Volpe
+ * @author Gaia Clerici
  * @version 1.0
  * @since 1.0
  */
@@ -24,7 +24,7 @@ public class ThreatsCounter {
 	 * @since 1.0
 	 */
 	public ThreatsCounter(Threat threat) {
-		THREAT = null; // TODO missing implementation
+		THREAT = threat;
 	}
 
 	/**
@@ -33,12 +33,18 @@ public class ThreatsCounter {
 	 * null</code>.
 	 *
 	 * @param player Specifies whose counter is to be incremented.
+	 * @throws NullPointerException The player is <code>null</code>.
 	 * @author Gaia Clerici
 	 * @version 1.0
 	 * @since 1.0
 	 */
 	public void increment(Player player) {
-		// TODO missing implementation
+		if (player == null)
+			throw new NullPointerException("The player can't be null.");
+		if (Player.P1 == player)
+			p1counter++;
+		else
+			p2counter++;
 	}
 
 	/**
@@ -48,12 +54,23 @@ public class ThreatsCounter {
 	 *
 	 * @param player Specifies whose counter is to be decremented.
 	 * @throws IllegalCallerException The counter is already at 0.
+	 * @throws NullPointerException   The player is <code>null</code>.
 	 * @author Gaia Clerici
 	 * @version 1.0
 	 * @since 1.0
 	 */
 	public void decrement(Player player) {
-		// TODO missing implementation
+		if (player == null)
+			throw new NullPointerException("The player can't be null.");
+		if (Player.P1 == player) {
+			if (p1counter == 0)
+				throw new IllegalCallerException("The counter can't be negative.");
+			p1counter--;
+		} else {
+			if (p2counter == 0)
+				throw new IllegalCallerException("The counter can't be negative.");
+			p2counter--;
+		}
 	}
 
 	/**
@@ -62,19 +79,21 @@ public class ThreatsCounter {
 	 *
 	 * @param player Specifies whose counter is to be decremented. Cannot be
 	 *               <code>null</code>.
-	 * @throws IllegalArgumentException player is <code>null</code>.
+	 * @throws NullPointerException The player is <code>null</code>.
 	 * @return The current value of the desired counter.
 	 * @author Gaia Clerici
 	 * @version 1.0
 	 * @since 1.0
 	 */
 	public int get(Player player) {
-		return 0;// TODO missing implementation
+		if (player == null)
+			throw new NullPointerException("The player can't be null.");
+		return Player.P1 == player ? p1counter : p2counter;
 	}
 
 	/** Number of {@link Threat}s by the first {@link monkey.ai.Player Player}. */
-	private int p1counter = -1; // TODO missing inizialization
+	private int p1counter = 0;
 	/** Number of {@link Threat}s by the second {@link monkey.ai.Player Player}. */
-	private int p2counter = -1; // TODO missing inizialization
+	private int p2counter = 0;
 
 }
