@@ -338,6 +338,11 @@ public class Alignment {
 		}
 	}
 
+	@Override // inherit doc comment
+	public String toString() {
+		return firstExtremity + "{" + p1Cells + " - " + p2Cells + "}" + secondExtremity;
+	}
+
 	/** Number of cells marked by the first {@link monkey.ai.Player Player}. */
 	private int p1Cells = 0;
 	/** Number of cells marked by the second {@link monkey.ai.Player Player}. */

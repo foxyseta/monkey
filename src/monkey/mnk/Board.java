@@ -197,6 +197,19 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 		return SIZE - history.size();
 	}
 
+	@Override // inherit doc comment
+	public String toString() {
+		String res = "";
+		// cellStates
+		for (MNKCellState[] row : cellStates) {
+			for (MNKCellState cell : row)
+				res += cell;
+			res += String.format("%n");
+		}
+		// threatsManagers
+		return res + KCOUNTER + KMINUSONECOUNTER + KMINUSTWOCOUNTER;
+	}
+
 	/**
 	 * Helper function to initialize cell states. Takes Θ({@link #SIZE}) time.
 	 *

@@ -55,4 +55,8 @@ public class Pair<K, V> {
 		return value;
 	}
 
+	@Override // inherit doc comment
+	public String toString() {
+		return "(" + key + ", " + value + ")";
+	}
 }

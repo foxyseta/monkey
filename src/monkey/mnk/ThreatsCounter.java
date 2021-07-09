@@ -65,11 +65,11 @@ public class ThreatsCounter {
 		if (Player.P1 == player) {
 			if (p1counter == 0)
 				throw new IllegalCallerException("The counter can't be negative.");
-			p1counter--;
+			--p1counter;
 		} else {
 			if (p2counter == 0)
 				throw new IllegalCallerException("The counter can't be negative.");
-			p2counter--;
+			--p2counter;
 		}
 	}
 
@@ -89,6 +89,11 @@ public class ThreatsCounter {
 		if (player == null)
 			throw new NullPointerException("The player can't be null.");
 		return Player.P1 == player ? p1counter : p2counter;
+	}
+
+	@Override // inherit doc comment
+	public String toString() {
+		return THREAT + ": " + p1counter + " - " + p2counter;
 	}
 
 	/** Number of {@link Threat}s by the first {@link monkey.ai.Player Player}. */

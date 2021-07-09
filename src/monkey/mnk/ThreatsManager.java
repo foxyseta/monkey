@@ -350,6 +350,11 @@ public class ThreatsManager {
 		}
 	}
 
+	@Override // inherit doc comment
+	public String toString() {
+		return String.format("<" + L + ">%n" + alignments + "%n" + counters);
+	}
+
 	/**
 	 * The non-<code>null</code> {@link Board} whose {@link Threat}s are counted.
 	 */
