@@ -325,8 +325,8 @@ public class Alignment {
 			}
 		// There is just one hole
 		else if (getFreeCells() == 1 && (state == State.P1PARTIAL || state == State.P2PARTIAL)
-				&& cellStates[FIRSTCELL.getColumn()][FIRSTCELL.getRow()] != MNKCellState.FREE
-				&& cellStates[LASTCELL.getColumn()][LASTCELL.getRow()] != MNKCellState.FREE)
+				&& cellStates[FIRSTCELL.getRow()][FIRSTCELL.getColumn()] != MNKCellState.FREE
+				&& cellStates[LASTCELL.getRow()][LASTCELL.getColumn()] != MNKCellState.FREE)
 			switch ((firstExtremity == MNKCellState.FREE ? 1 : 0) + (secondExtremity == MNKCellState.FREE ? 1 : 0)) {
 			case 0:
 				threat = Threat.SIX;
