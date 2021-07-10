@@ -207,7 +207,7 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 			res += String.format("%n");
 		}
 		// threatsManagers
-		return res + KCOUNTER + KMINUSONECOUNTER + KMINUSTWOCOUNTER;
+		return res + String.format(KCOUNTER + "%n" + KMINUSONECOUNTER + "%n" + KMINUSTWOCOUNTER);
 	}
 
 	/**

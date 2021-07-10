@@ -8,7 +8,7 @@ import monkey.util.DirectAddressTable;
  * A <code>ThreatsManager</code> for a certain {@link #L L} counts the {@link #L
  * L}-long {@link Threat}s with no hole and the <code>{@link #L L}-1</code>-long
  * {@link Threat}s with a hole in them. A single istance of this class takes
- * Θ({@link #SIZE}) memory.
+ * Θ({@link #ALIGNMENTS}) memory.
  *
  * @author Stefano Volpe
  * @version 1.0
@@ -56,7 +56,7 @@ public class ThreatsManager {
 	}
 
 	/**
-	 * (Un)records a mark for the whole {@link Board}. Takes Θ({@link #K}) time.
+	 * (Un)records a mark for the whole {@link Board}. Takes Θ({@link #L}) time.
 	 * 
 	 * @param pos        {@link Position} of the mark to (un)record.
 	 * @param pl         The {@link monkey.ai.Player Player} responsible for the
@@ -84,7 +84,7 @@ public class ThreatsManager {
 			final MNKCellState firstExt = j == 0 ? null : cellStates[row][j - 1],
 					secondExt = j + L == board.N ? null : cellStates[row][j + L];
 			final Alignment a = new Alignment(position, Alignment.Direction.HORIZONTAL, L, firstExt, secondExt);
-			updateAlignmentContent(a, add, pl);
+			updateAlignmentContent(a, add, pl, cellStates);
 		}
 		// vertical alignments
 		max = Math.min(board.M - L, row);
@@ -93,7 +93,7 @@ public class ThreatsManager {
 			final MNKCellState firstExt = i == 0 ? null : cellStates[i - 1][column],
 					secondExt = i + L == board.M ? null : cellStates[i + L][column];
 			final Alignment a = new Alignment(position, Alignment.Direction.VERTICAL, L, firstExt, secondExt);
-			updateAlignmentContent(a, add, pl);
+			updateAlignmentContent(a, add, pl, cellStates);
 		}
 		// primary diagonal alignments
 		max = Math.min(board.N - L + row - column, Math.min(board.M - board.K, row));
@@ -102,7 +102,7 @@ public class ThreatsManager {
 			final MNKCellState firstExt = i == 0 || j == 0 ? null : cellStates[i - 1][j - 1],
 					secondExt = i + L == board.M || j + L == board.N ? null : cellStates[i + L][j + L];
 			final Alignment a = new Alignment(position, Alignment.Direction.PRIMARY_DIAGONAL, L, firstExt, secondExt);
-			updateAlignmentContent(a, add, pl);
+			updateAlignmentContent(a, add, pl, cellStates);
 		}
 		// secondary diagonal alignments
 		max = Math.min(column + row, Math.min(board.M - 1, row + L - 1));
@@ -111,7 +111,7 @@ public class ThreatsManager {
 			final MNKCellState firstExt = i == board.M - 1 || j == 0 ? null : cellStates[i + 1][j - 1],
 					secondExt = i - L == -1 || j + L == board.N ? null : cellStates[i - L][j + L];
 			final Alignment a = new Alignment(position, Alignment.Direction.SECONDARY_DIAGONAL, L, firstExt, secondExt);
-			updateAlignmentContent(a, add, pl);
+			updateAlignmentContent(a, add, pl, cellStates);
 		}
 		// horizontal extremities
 		if (column + L < board.N) {
@@ -261,12 +261,13 @@ public class ThreatsManager {
 	/**
 	 * (Un)records a mark for a certain {@link Alignment}.
 	 *
-	 * @param query  Its coordinates are used to identify the element to update. May
-	 *               be dirtied after its use.
-	 * @param add    <code>true</code> just in case the cell has to be added instead
-	 *               of removed.
-	 * @param player The {@link monkey.ai.Player Player} whose symbol is to be
-	 *               added/removed.
+	 * @param query      Its coordinates are used to identify the element to update.
+	 *                   May be dirtied after its use.
+	 * @param add        <code>true</code> just in case the cell has to be added
+	 *                   instead of removed.
+	 * @param player     The {@link monkey.ai.Player Player} whose symbol is to be
+	 *                   added/removed.
+	 * @param cellStates The current state of the board.
 	 * @throws IllegalArgumentException query is meant for another M-N-K tuple.
 	 * @throws IllegalArgumentException Cannot add any more marks.
 	 * @throws NullPointerException     either query or player are null
@@ -274,7 +275,7 @@ public class ThreatsManager {
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	private void updateAlignmentContent(Alignment query, boolean add, Player player) {
+	private void updateAlignmentContent(Alignment query, boolean add, Player player, MNKCellState[][] cellStates) {
 		if (query == null || player == null)
 			throw new NullPointerException("Either query or player are null");
 		if (query.FIRSTCELL.ROWSNUMBER != board.M || query.FIRSTCELL.COLUMNSNUMBER != board.N)
@@ -288,9 +289,9 @@ public class ThreatsManager {
 		final Player oldThreatener = result.getThreatener();
 		try {
 			if (add)
-				result.addMark(player);
+				result.addMark(player, cellStates);
 			else
-				result.removeMark(player);
+				result.removeMark(player, cellStates);
 		} catch (IllegalCallerException e) {
 			throw new IllegalArgumentException("Cannot " + (add ? "add" : "remove") + " any more marks.");
 		}

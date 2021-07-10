@@ -172,15 +172,16 @@ public class Alignment {
 	/**
 	 * Adds a new mark for the specified {@link monkey.ai.Player Player}.
 	 *
-	 * @param p The {@link monkey.ai.Player Player} whose mark is to be added.
+	 * @param p          The {@link monkey.ai.Player Player} whose mark is to be
+	 *                   added.
+	 * @param cellStates The current state of the board.
 	 * @throws IllegalCallerException No free cells to be marked.
 	 * @throws NullPointerException   p is null.
-	 * @return The (eventually) updated {@link #state}.
 	 * @author Gaia Clerici
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	public State addMark(Player p) {
+	public void addMark(Player p, MNKCellState[][] cellStates) {
 		if (p == null)
 			throw new NullPointerException("p is null.");
 		if (getFreeCells() == 0)
@@ -200,21 +201,22 @@ public class Alignment {
 		}
 		if (p1Cells != 0 && p2Cells != 0)
 			state = State.MIXED;
-		return state;
+		computeThreat(cellStates);
 	}
 
 	/**
 	 * Removes an old mark for the specified {@link monkey.ai.Player Player}.
 	 *
-	 * @param p The {@link monkey.ai.Player Player} whose mark is to be removed.
+	 * @param p          The {@link monkey.ai.Player Player} whose mark is to be
+	 *                   removed.
+	 * @param cellStates The current state of the board.
 	 * @throws IllegalCallerException No marked cells to be removed.
 	 * @throws NullPointerException   p is null.
-	 * @return The (eventually) updated {@link #state}.
 	 * @author Gaia Clerici
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	public State removeMark(Player p) {
+	public void removeMark(Player p, MNKCellState[][] cellStates) {
 		if (p == null)
 			throw new NullPointerException("p is null.");
 		if (p == Player.P1) {
@@ -226,8 +228,8 @@ public class Alignment {
 				throw new IllegalCallerException("No marked cells to be removed");
 			--p2Cells;
 		}
-		return state = p1Cells == 0 ? p2Cells == 0 ? State.EMPTY : State.P2PARTIAL
-				: p2Cells == 0 ? State.P1PARTIAL : State.MIXED;
+		state = p1Cells == 0 ? p2Cells == 0 ? State.EMPTY : State.P2PARTIAL : p2Cells == 0 ? State.P1PARTIAL : State.MIXED;
+		computeThreat(cellStates);
 	}
 
 	/**
@@ -322,25 +324,26 @@ public class Alignment {
 				threat = Threat.ONE;
 			}
 		// There is just one hole
-		else if (getFreeCells() == 1 && (state == State.P1PARTIAL || state == State.P2PARTIAL)) {
-			if (cellStates[FIRSTCELL.getColumn()][FIRSTCELL.getRow()] != MNKCellState.FREE
-					&& cellStates[LASTCELL.getColumn()][LASTCELL.getRow()] != MNKCellState.FREE)
-				switch ((firstExtremity == MNKCellState.FREE ? 1 : 0) + (secondExtremity == MNKCellState.FREE ? 1 : 0)) {
-				case 0:
-					threat = Threat.SIX;
-					break;
-				case 1:
-					threat = Threat.FIVE;
-					break;
-				case 2:
-					threat = Threat.FOUR;
-				}
-		}
+		else if (getFreeCells() == 1 && (state == State.P1PARTIAL || state == State.P2PARTIAL)
+				&& cellStates[FIRSTCELL.getColumn()][FIRSTCELL.getRow()] != MNKCellState.FREE
+				&& cellStates[LASTCELL.getColumn()][LASTCELL.getRow()] != MNKCellState.FREE)
+			switch ((firstExtremity == MNKCellState.FREE ? 1 : 0) + (secondExtremity == MNKCellState.FREE ? 1 : 0)) {
+			case 0:
+				threat = Threat.SIX;
+				break;
+			case 1:
+				threat = Threat.FIVE;
+				break;
+			case 2:
+				threat = Threat.FOUR;
+			}
+		else
+			threat = null;
 	}
 
 	@Override // inherit doc comment
 	public String toString() {
-		return firstExtremity + "{" + p1Cells + " - " + p2Cells + "}" + secondExtremity;
+		return firstExtremity + "{" + p1Cells + " - " + threat + " - " + p2Cells + "}" + secondExtremity;
 	}
 
 	/** Number of cells marked by the first {@link monkey.ai.Player Player}. */
