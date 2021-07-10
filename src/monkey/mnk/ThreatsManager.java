@@ -28,7 +28,7 @@ public class ThreatsManager {
 	/**
 	 * Constructs a new {@link ThreatsManager} given the {@link #L L} parameter and
 	 * a {@link Board}. The actual <code>MNKCellState</code>s of the {@link Board}
-	 * do not matter. Takes Θ({@link #SIZE}) time.
+	 * do not matter. Takes Θ({@link #ALIGNMENTS}) time.
 	 *
 	 * @param l The {@link #L L} parameter. Must be greater than 1.
 	 * @param b The {@link Board} to consider.
