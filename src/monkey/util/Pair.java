@@ -13,9 +13,9 @@ package monkey.util;
 public class Pair<K, V> {
 
 	/** Key of the {@link Pair}. */
-	private K key;
+	protected K key;
 	/** Value of the {@link Pair}. */
-	private V value;
+	protected V value;
 
 	/**
 	 * Creates a new {@link Pair}.
@@ -55,4 +55,8 @@ public class Pair<K, V> {
 		return value;
 	}
 
+	@Override // inherit doc comment
+	public String toString() {
+		return "(" + key + ", " + value + ")";
+	}
 }
