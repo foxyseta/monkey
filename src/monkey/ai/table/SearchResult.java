@@ -1,13 +1,14 @@
-package monkey.ai;
+package monkey.ai.table;
 
 /**
  * A <code>SearchResult</code> stores the aftermath of a brute-force search.
- * That is, the best/refutation move, the computed score, its nature, and the
- * number of nodes searched in the process. The last field replaces the depth of
- * the search, which can be found in "traditional" transposition tables. See D.
- * M. Breuker, J. W. H. M. Uiterwijk, H. J. van den Herik, <i>Information in
- * Transposition Tables</i>, in H. J. van den Herik, J. W. H. M. Uiterwijk
- * (eds), <i>Advances in Computer Chess 8</i>, Computer Science Department,
+ * That is, the best/refutation move, the computed score, its nature, the depth
+ * of the search and the number of nodes visited in the process. The last field
+ * is an addition to the data usually found "traditional" transposition tables.
+ * It is meant to support the <code>TWOBIG1</code> replacement scheme. See D.M.
+ * Breuker, J.W.H.M. Uiterwijk, H.J. van den Herik, <i>Information in
+ * Transposition Tables</i>, in H.J. van den Herik, J.W.H.M. Uiterwijk (eds),
+ * <i>Advances in Computer Chess 8</i>, Computer Science Department,
  * Universiteit Maastricht. 1997, pp. 2-3, 4.
  *
  * @param <Action>  The type of the moves of the game.
@@ -46,6 +47,8 @@ public class SearchResult<Action, Utility extends Comparable<Utility>>
 	 * Indicates whether the score is a true value, an upper bound or a lower bound.
 	 */
 	public final ScoreType FLAG;
+	/** Contains the actual depth of the search. */
+	public final int SEARCHDEPTH;
 	/** Contains the number of nodes of the subtree searched. */
 	public final int SEARCHEDNODES;
 
@@ -55,11 +58,13 @@ public class SearchResult<Action, Utility extends Comparable<Utility>>
 	 * @param move          Non-<code>null</code> initializer for {@link #MOVE}.
 	 * @param score         Non-<code>null</code> initializer for {@link #SCORE}.
 	 * @param flag          Non-<code>null</code> initializer for {@link FLAG}.
+	 * @param searchDepth   Strictly positive initializer for {@link #SEARCHDEPTH}.
 	 * @param searchedNodes Strictly positive initializer for
 	 *                      {@link #SEARCHEDNODES}.
 	 * @throws NullPointerException     At least one of the arguments is
 	 *                                  <code>null</code>.
-	 * @throws IllegalArgumentException searchedNodes is negative or zero.
+	 * @throws IllegalArgumentException searchDepth or searchedNodes are negative or
+	 *                                  zero.
 	 * @author Gaia Clerici
 	 * @version 1.0
 	 * @since 1.0
@@ -68,7 +73,8 @@ public class SearchResult<Action, Utility extends Comparable<Utility>>
 
 	/**
 	 * Compares to another {@link SearchResult} by considering their
-	 * {@link #SEARCHEDNODES}. Note: this class has a natural ordering that is
+	 * {@link #SEARCHEDNODES}. This is coherent with the <code>TWOBIG1</code>
+	 * replacement scheme. Note: this class has a natural ordering that is
 	 * inconsistent with equals.
 	 * 
 	 * @throws NullPointerException {@inheritDoc}
@@ -78,5 +84,8 @@ public class SearchResult<Action, Utility extends Comparable<Utility>>
 	 * @since 1.0
 	 */
 	// TODO compareTo
+
+	@Override // inherit doc comment
+	// TODO toString
 
 }
