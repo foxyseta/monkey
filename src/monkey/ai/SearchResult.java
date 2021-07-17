@@ -59,7 +59,7 @@ public class SearchResult<Action, Utility extends Comparable<Utility>>
 	 *                      {@link #SEARCHEDNODES}.
 	 * @throws NullPointerException     At least one of the arguments is
 	 *                                  <code>null</code>.
-	 * @throws IllegalArgumentException The depth is negative or zero.
+	 * @throws IllegalArgumentException searchedNodes is negative or zero.
 	 * @author Gaia Clerici
 	 * @version 1.0
 	 * @since 1.0
