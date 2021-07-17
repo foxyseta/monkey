@@ -211,6 +211,21 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	}
 
 	/**
+	 * {@inheritDoc}. <br />
+	 * Zobrist hashing is used (transposition will return the same hash code. See A.
+	 * L. Zobrist, <i>A New Hashing Method with Application for Game Playing</i>. 1
+	 * Jan. 1990, pp. 5-7.
+	 * 
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	@Override
+	public int hashCode() {
+		return 0; // TODO Zobrist
+	}
+
+	/**
 	 * Helper function to initialize cell states. Takes Θ({@link #SIZE}) time.
 	 *
 	 * @return A {@link #M} x {@link #N} matrix with the initial cell states.

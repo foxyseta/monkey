@@ -29,6 +29,7 @@ public class Entry<A, U extends Comparable<U>> {
 	/**
 	 * A getter for the first {@link SearchResult}.
 	 *
+	 * @see #getSecond
 	 * @return The (non-<code>null</code>) first {@link SearchResult}.
 	 * @author Gaia Clerici
 	 * @version 1.0
@@ -39,6 +40,7 @@ public class Entry<A, U extends Comparable<U>> {
 	/**
 	 * A getter for the second {@link SearchResult}.
 	 *
+	 * @see #getFirst
 	 * @return The second {@link SearchResult}, or <code>null</code> if it does not
 	 *         exist.
 	 * @author Gaia Clerici
