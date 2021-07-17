@@ -59,6 +59,9 @@ public class Entry<A, U extends Comparable<U>> {
 	 */
 	// TODO add
 
+	@Override // inherit doc comment
+	// TODO toString
+
 	/** First position of the {@link Entry}. */
 	private SearchResult<A, U> first;
 	/**
