@@ -1,5 +1,5 @@
 # 🅼🐵🅽🅺ey
-Project for the Unibo course on algorithms and data structures (a.y. 2020-21).
+Project for the University of Bologna Algorithms and Data Structures course (a.y. 2020-21).
 
 ## Prerequisites
 - any Java Development Kit
