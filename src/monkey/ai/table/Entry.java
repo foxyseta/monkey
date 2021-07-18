@@ -1,5 +1,7 @@
 package monkey.ai.table;
 
+import jdk.internal.icu.impl.Utility;
+
 /**
  * An <code>Entry</code> for two-level transposition tables. It can store one to
  * two {@link SearchResult}s. The two-level replacement scheme used is <code>
@@ -24,7 +26,11 @@ public class Entry<A, U extends Comparable<U>> {
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	// TODO constructor
+	public Entry(SearchResult<A, U> searchResult) {
+		if (searchResult == null)
+			throw new NullPointerException("searchResult can't be null.");
+		first = searchResult;
+	}
 
 	/**
 	 * A getter for the first {@link SearchResult}.
@@ -35,7 +41,9 @@ public class Entry<A, U extends Comparable<U>> {
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	// TODO getFirst
+	public SearchResult<A, U> getFirst() {
+		return first;
+	}
 
 	/**
 	 * A getter for the second {@link SearchResult}.
@@ -47,7 +55,9 @@ public class Entry<A, U extends Comparable<U>> {
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	// TODO getSecond
+	public SearchResult<A, U> getSecond() {
+		return second;
+	}
 
 	/**
 	 * Adds a new {@link SearchResult} using the <code>TWOBIG1</code> replacement
@@ -59,10 +69,16 @@ public class Entry<A, U extends Comparable<U>> {
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	// TODO add
+	public void Add(SearchResult<A, U> searchResult) {
+		if (searchResult == null)
+			throw new NullPointerException("searchResult can't be null.");
+		second = searchResult;
+	}
 
 	@Override // inherit doc comment
-	// TODO toString
+	public String toString() {
+		return first + " " + second;
+	}
 
 	/** First position of the {@link Entry}. */
 	private SearchResult<A, U> first;

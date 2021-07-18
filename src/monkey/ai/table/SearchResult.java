@@ -69,7 +69,18 @@ public class SearchResult<Action, Utility extends Comparable<Utility>>
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	// TODO constructor
+	public SearchResult(Action move, Utility score, ScoreType flag, int searchDepth, int searchNodes) {
+		if (move == null || score == null || flag == null)
+			throw new NullPointerException("move, result and flag can't be null.");
+		if (searchDepth < 0 || searchNodes < 0)
+			throw new IllegalArgumentException("searchDepth and searchNodes can't be negative values.");
+		MOVE = move;
+		SCORE = score;
+		FLAG = flag;
+		SEARCHDEPTH = searchDepth;
+		SEARCHEDNODES = searchNodes;
+
+	}
 
 	/**
 	 * Compares to another {@link SearchResult} by considering their
@@ -83,9 +94,14 @@ public class SearchResult<Action, Utility extends Comparable<Utility>>
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	// TODO compareTo
+	public int compareTo(SearchResult<Action, Utility> s) {
+		if (SEARCHEDNODES >= s.SEARCHEDNODES)
+			return SEARCHEDNODES;
+		return s.SEARCHEDNODES;
+	}
 
 	@Override // inherit doc comment
-	// TODO toString
-
+	public String toString() {
+		return MOVE + " " + SCORE + " " + FLAG + " " + SEARCHDEPTH + " " + SEARCHEDNODES;
+	}
 }
