@@ -125,12 +125,12 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	@Override
 	public Board revert() {
 		try {
-			zobristHashCode ^= zobristHasher.getDisjunct(history.peek(), player());
 			final Position a = history.pop();
 			final int row = a.getRow(), column = a.getColumn();
 			cellStates[row][column] = MNKCellState.FREE;
 			updateThreatsManagers(a);
 			state = MNKGameState.OPEN;
+			zobristHashCode ^= zobristHasher.getDisjunct(a, player());
 		} catch (java.util.EmptyStackException e) {
 			throw new IllegalCallerException("No previous action to revert.");
 		}
