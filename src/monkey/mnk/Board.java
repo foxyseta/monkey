@@ -69,9 +69,9 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 		INITIALALPHAP2 = INITIALBETAP1 == VICTORYUTILITY ? LOSSUTILITY : DRAWUTILITY;
 		INITIALBETAP2 = VICTORYUTILITY;
 		// counters
-		KCOUNTER = K > 1 ? new ThreatsManager(K, this) : null;
-		KMINUSONECOUNTER = K > 2 ? new ThreatsManager(K - 1, this) : null;
-		KMINUSTWOCOUNTER = K > 3 ? new ThreatsManager(K - 2, this) : null;
+		kCounter = K > 1 ? new ThreatsManager(K, this) : null;
+		kMinusOneCounter = K > 2 ? new ThreatsManager(K - 1, this) : null;
+		kMinusTwoCounter = K > 3 ? new ThreatsManager(K - 2, this) : null;
 		// hashing
 		zobristHasher = new ZobristHasher(M, N);
 	}
@@ -219,7 +219,7 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 			res += String.format("%n");
 		}
 		// threatsManagers
-		return res + String.format(KCOUNTER + "%n" + KMINUSONECOUNTER + "%n" + KMINUSTWOCOUNTER);
+		return res + String.format(kCounter + "%n" + kMinusOneCounter + "%n" + kMinusTwoCounter);
 	}
 
 	/**
@@ -342,12 +342,12 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	 * @since 1.0
 	 */
 	private void updateThreatsManagers(Position p) {
-		if (KCOUNTER != null) {
-			KCOUNTER.updateAlignments(p, player(), cellStates);
-			if (KMINUSONECOUNTER != null) {
-				KMINUSONECOUNTER.updateAlignments(p, player(), cellStates);
-				if (KMINUSTWOCOUNTER != null)
-					KMINUSTWOCOUNTER.updateAlignments(p, player(), cellStates);
+		if (kCounter != null) {
+			kCounter.updateAlignments(p, player(), cellStates);
+			if (kMinusOneCounter != null) {
+				kMinusOneCounter.updateAlignments(p, player(), cellStates);
+				if (kMinusTwoCounter != null)
+					kMinusTwoCounter.updateAlignments(p, player(), cellStates);
 			}
 		}
 	}
@@ -369,13 +369,13 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	protected int countThreats(int length, Threat type, Player threatener) {
 		final ThreatsManager threatsManager;
 		if (length == K)
-			threatsManager = type.hasHole() ? null : KCOUNTER;
+			threatsManager = type.hasHole() ? null : kCounter;
 		else if (length == K - 1)
-			threatsManager = type.hasHole() ? KCOUNTER : KMINUSONECOUNTER;
+			threatsManager = type.hasHole() ? kCounter : kMinusOneCounter;
 		else if (length == K - 2)
-			threatsManager = type.hasHole() ? KMINUSONECOUNTER : KMINUSTWOCOUNTER;
+			threatsManager = type.hasHole() ? kMinusOneCounter : kMinusTwoCounter;
 		else if (length == K - 3)
-			threatsManager = type.hasHole() ? KMINUSTWOCOUNTER : null;
+			threatsManager = type.hasHole() ? kMinusTwoCounter : null;
 		else
 			threatsManager = null;
 		return threatsManager == null ? 0 : threatsManager.count(type, threatener);
@@ -440,16 +440,16 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	 * Counters for both no-hole {@link #K}-threats and
 	 * {@link #K}<code>-1</code>-threats with a hole.
 	 */
-	final private ThreatsManager KCOUNTER;
+	final private ThreatsManager kCounter;
 	/**
 	 * Counters for both no-hole {@link #K}<code>-1</code>-threats and
 	 * {@link #K}<code>-2</code>-threats with a hole.
 	 */
-	final private ThreatsManager KMINUSONECOUNTER;
+	final private ThreatsManager kMinusOneCounter;
 	/**
 	 * Counters for no-hole {@link #K}<code>-2</code>-threats.
 	 */
-	final private ThreatsManager KMINUSTWOCOUNTER;
+	final private ThreatsManager kMinusTwoCounter;
 	/** Zobrist hash code for this object. */
 	private int zobristHashCode = 0;
 	/** Utility for Zobrist hashing. */
