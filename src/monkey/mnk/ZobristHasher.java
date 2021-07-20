@@ -1,5 +1,8 @@
 package monkey.mnk;
 
+import java.util.Random;
+import monkey.ai.Player;
+
 /**
  * A <code>ZobristHasher</code> stores the data needed for Zobrist hashing. It
  * is specifically designed for m,n,k-games. See A. L. Zobrist, <i>A New Hashing
@@ -25,7 +28,35 @@ public class ZobristHasher {
 	 * @since 1.0
 	 */
 	public ZobristHasher(int m, int n) {
-
+		if (m <= 0)
+			throw new IllegalArgumentException("m <= 0");
+		if (n <= 0)
+			throw new IllegalArgumentException("n <= 0");
+		final int players = 2;
+		disjuncts = new int[m][n][players];
+		Random r = new Random(0l);
+		for (int[][] grid : disjuncts)
+			for (int[] row : grid)
+				for (int i = 0; i < n; ++i)
+					row[i] = r.nextInt();
 	}
+
+	/**
+	 * Retrieves the disjunct for a given {@link Position}-{@link mnk.ai.Player
+	 * Player} couple.
+	 */
+	public int getDisjunct(Position position, Player player) {
+		if (position == null || player == null)
+			throw new NullPointerException("Both arguments must be non-null.");
+		if (position.ROWSNUMBER != disjuncts.length || position.COLUMNSNUMBER != disjuncts[0].length)
+			throw new IllegalArgumentException("Incompatible extents.");
+		return disjuncts[position.getRow()][position.getColumn()][player.ordinal()];
+	}
+
+	/**
+	 * Random generated values for every {@link Position}-{@link mnk.ai.Player
+	 * Player} couple.
+	 */
+	private int disjuncts[][][];
 
 }
