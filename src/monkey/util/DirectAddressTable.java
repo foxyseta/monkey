@@ -131,7 +131,14 @@ public class DirectAddressTable<T> implements Iterable<T> {
 		return new DirectAddressTableIterator<T>(table);
 	}
 
-	@Override // inherit doc comment
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	@Override
 	public String toString() {
 		String res = "[";
 		Iterator<T> it = iterator();

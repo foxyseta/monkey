@@ -72,6 +72,8 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 		KCOUNTER = K > 1 ? new ThreatsManager(K, this) : null;
 		KMINUSONECOUNTER = K > 2 ? new ThreatsManager(K - 1, this) : null;
 		KMINUSTWOCOUNTER = K > 3 ? new ThreatsManager(K - 2, this) : null;
+		// hashing
+		zobristHasher = new ZobristHasher(M, N);
 	}
 
 	@Override // inherit doc comment
@@ -113,6 +115,7 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 		history.push(a);
 		if (state == MNKGameState.OPEN && history.size() == SIZE)
 			state = MNKGameState.DRAW;
+		zobristHashCode ^= zobristHasher.getDisjunct(a, p);
 		return this;
 	}
 
@@ -122,6 +125,7 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	@Override
 	public Board revert() {
 		try {
+			zobristHashCode ^= zobristHasher.getDisjunct(history.peek(), player());
 			final Position a = history.pop();
 			final int row = a.getRow(), column = a.getColumn();
 			cellStates[row][column] = MNKCellState.FREE;
@@ -197,6 +201,14 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 		return SIZE - history.size();
 	}
 
+	/**
+	 * {@inheritDoc} <br />
+	 * Takes Θ({@link #SIZE}) time.
+	 *
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
 	@Override // inherit doc comment
 	public String toString() {
 		String res = "";
@@ -222,7 +234,7 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	 */
 	@Override
 	public int hashCode() {
-		return 0; // TODO Zobrist
+		return zobristHashCode;
 	}
 
 	/**
@@ -438,5 +450,8 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	 * Counters for no-hole {@link #K}<code>-2</code>-threats.
 	 */
 	final private ThreatsManager KMINUSTWOCOUNTER;
-
+	/** Zobrist hash code for this object. */
+	private int zobristHashCode = 0;
+	/** Utility for Zobrist hashing. */
+	final ZobristHasher zobristHasher;
 }

@@ -351,7 +351,14 @@ public class ThreatsManager {
 		}
 	}
 
-	@Override // inherit doc comment
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	@Override
 	public String toString() {
 		return String.format("<" + L + ">%n" + alignments + "%n" + counters);
 	}

@@ -100,7 +100,14 @@ public class SearchResult<Action, Utility extends Comparable<Utility>>
 		return s.SEARCHEDNODES;
 	}
 
-	@Override // inherit doc comment
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @author Gaia Clerici
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	@Override
 	public String toString() {
 		return MOVE + " " + SCORE + " " + FLAG + " " + SEARCHDEPTH + " " + SEARCHEDNODES;
 	}

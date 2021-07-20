@@ -341,7 +341,14 @@ public class Alignment {
 			threat = null;
 	}
 
-	@Override // inherit doc comment
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @author Gaia Clerici
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	@Override
 	public String toString() {
 		return firstExtremity + "{" + p1Cells + " - " + threat + " - " + p2Cells + "}" + secondExtremity;
 	}

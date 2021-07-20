@@ -44,6 +44,15 @@ public class ZobristHasher {
 	/**
 	 * Retrieves the disjunct for a given {@link Position}-{@link mnk.ai.Player
 	 * Player} couple.
+	 *
+	 * @param position The {@link Position} of the mark.
+	 * @param player   The {@link} Player} who could add/remove the mark.
+	 * @throws NullPointerException     At least one argument is <code>null</code>.
+	 * @throws IllegalArgumentException position does not have the right extents.
+	 * @return The desired disjunct.
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
 	 */
 	public int getDisjunct(Position position, Player player) {
 		if (position == null || player == null)

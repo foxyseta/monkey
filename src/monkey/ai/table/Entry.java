@@ -75,7 +75,14 @@ public class Entry<A, U extends Comparable<U>> {
 		second = searchResult;
 	}
 
-	@Override // inherit doc comment
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @author Gaia Clerici
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	@Override
 	public String toString() {
 		return first + " " + second;
 	}

@@ -55,7 +55,14 @@ public class Pair<K, V> {
 		return value;
 	}
 
-	@Override // inherit doc comment
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @author Gaia Clerici
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	@Override
 	public String toString() {
 		return "(" + key + ", " + value + ")";
 	}
