@@ -72,8 +72,8 @@ public class SearchResult<Action, Utility extends Comparable<Utility>>
 	public SearchResult(Action move, Utility score, ScoreType flag, int searchDepth, int searchNodes) {
 		if (move == null || score == null || flag == null)
 			throw new NullPointerException("move, result and flag can't be null.");
-		if (searchDepth < 0 || searchNodes < 0)
-			throw new IllegalArgumentException("searchDepth and searchNodes can't be negative values.");
+		if (searchDepth <= 0 || searchNodes <= 0)
+			throw new IllegalArgumentException("searchDepth and searchNodes can't be negative values or zeros.");
 		MOVE = move;
 		SCORE = score;
 		FLAG = flag;
@@ -95,9 +95,13 @@ public class SearchResult<Action, Utility extends Comparable<Utility>>
 	 * @since 1.0
 	 */
 	public int compareTo(SearchResult<Action, Utility> s) {
-		if (SEARCHEDNODES >= s.SEARCHEDNODES)
-			return SEARCHEDNODES;
-		return s.SEARCHEDNODES;
+		if (s == null)
+			throw new NullPointerException("s can't be null.");
+		if (SEARCHEDNODES < s.SEARCHEDNODES)
+			return -1;
+		if (SEARCHEDNODES == s.SEARCHEDNODES)
+			return 0;
+		return 1;
 	}
 
 	/**

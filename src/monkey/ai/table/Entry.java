@@ -1,7 +1,5 @@
 package monkey.ai.table;
 
-import jdk.internal.icu.impl.Utility;
-
 /**
  * An <code>Entry</code> for two-level transposition tables. It can store one to
  * two {@link SearchResult}s. The two-level replacement scheme used is <code>
@@ -69,10 +67,14 @@ public class Entry<A, U extends Comparable<U>> {
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	public void Add(SearchResult<A, U> searchResult) {
+	public void add(SearchResult<A, U> searchResult) {
 		if (searchResult == null)
 			throw new NullPointerException("searchResult can't be null.");
-		second = searchResult;
+		if (searchResult.compareTo(first) >= 0) {
+			second = first;
+			first = searchResult;
+		} else
+			second = searchResult;
 	}
 
 	/**

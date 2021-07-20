@@ -19,7 +19,8 @@ public class MoNKey implements MNKPlayer {
 
 	@Override // inherit doc comment
 	public void initPlayer(int M, int N, int K, boolean first, int timeout_in_secs) {
-		ai = new AI<Board, Position, Integer>(first ? Player.P1 : Player.P2, new Board(M, N, K), timeout_in_secs * S_TO_MS);
+		ai = new AI<Board, Position, Integer>(first ? Player.P1 : Player.P2, new Board(M, N, K),
+				timeout_in_secs * S_TO_MS);
 		m = M;
 		n = N;
 	}
@@ -37,7 +38,7 @@ public class MoNKey implements MNKPlayer {
 
 	@Override // inherit doc comment
 	public String playerName() {
-		return "🅼🐵🅽🅺ey";
+		return "MoNKey";
 	}
 
 	/**
