@@ -16,6 +16,11 @@ import monkey.ai.Player;
  */
 public class ZobristHasher {
 
+	/** Number of {@link monkey.ai.Player Player}s to be considered. */
+	final public static int PLAYERS = 2;
+	/** Seed to be used for the generated pseudo-random sequence. */
+	final public static long SEED = 0l;
+
 	/**
 	 * Constructs a new {@link ZobristHasher} from the board's extents. Takes
 	 * Θ({@link Board#SIZE}) time.
@@ -32,9 +37,8 @@ public class ZobristHasher {
 			throw new IllegalArgumentException("m <= 0");
 		if (n <= 0)
 			throw new IllegalArgumentException("n <= 0");
-		final int players = 2;
-		disjuncts = new int[m][n][players];
-		Random r = new Random(0l);
+		disjuncts = new int[m][n][PLAYERS];
+		Random r = new Random(SEED);
 		for (int[][] grid : disjuncts)
 			for (int[] row : grid)
 				for (int i = 0; i < n; ++i)
@@ -60,6 +64,33 @@ public class ZobristHasher {
 		if (position.ROWSNUMBER != disjuncts.length || position.COLUMNSNUMBER != disjuncts[0].length)
 			throw new IllegalArgumentException("Incompatible extents.");
 		return disjuncts[position.getRow()][position.getColumn()][player.ordinal()];
+	}
+
+	/**
+	 * Checks whether the pseudo-random disjuncts generated for a {@link Board} are
+	 * distinct or not.
+	 *
+	 * @param m Strictly positive number of rows.
+	 * @param n Strictly positive number of columns.
+	 * @throws IllegalArgumentException At least one of the arguments is not
+	 *                                  strictly positive.
+	 * @return <code>true</code> just in case the disjuncts are distinct.
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	public static boolean distincDisjuncts(int m, int n) {
+		int[] test = new int[m * n * 2];
+		Random r = new Random(SEED);
+		for (int i = 0; i < test.length; ++i) {
+			test[i] = r.nextInt();
+			for (int j = 0; j < i; ++j)
+				if (test[j] == test[i]) {
+					System.out.println("Failed: #" + j + " and #" + i + " have the same value.");
+					return false;
+				}
+		}
+		return true;
 	}
 
 	/**
