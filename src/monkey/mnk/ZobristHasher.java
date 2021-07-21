@@ -68,7 +68,8 @@ public class ZobristHasher {
 
 	/**
 	 * Checks whether the pseudo-random disjuncts generated for a {@link Board} are
-	 * distinct or not.
+	 * distinct or not. Takes Θ(1) in the best case and Θ({@link Board#SIZE^2}) time
+	 * in the average and worst cases.
 	 *
 	 * @param m Strictly positive number of rows.
 	 * @param n Strictly positive number of columns.
