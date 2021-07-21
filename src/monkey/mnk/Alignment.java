@@ -172,16 +172,15 @@ public class Alignment {
 	/**
 	 * Adds a new mark for the specified {@link monkey.ai.Player Player}.
 	 *
-	 * @param p          The {@link monkey.ai.Player Player} whose mark is to be
-	 *                   added.
-	 * @param cellStates The current state of the board.
+	 * @param p The {@link monkey.ai.Player Player} whose mark is to be added.
+	 * @param b The current state of the board.
 	 * @throws IllegalCallerException No free cells to be marked.
-	 * @throws NullPointerException   p is null.
+	 * @throws NullPointerException   p or b are null.
 	 * @author Gaia Clerici
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	public void addMark(Player p, MNKCellState[][] cellStates) {
+	public void addMark(Player p, Board b) {
 		if (p == null)
 			throw new NullPointerException("p is null.");
 		if (getFreeCells() == 0)
@@ -201,22 +200,21 @@ public class Alignment {
 		}
 		if (p1Cells != 0 && p2Cells != 0)
 			state = State.MIXED;
-		computeThreat(cellStates);
+		computeThreat(b);
 	}
 
 	/**
 	 * Removes an old mark for the specified {@link monkey.ai.Player Player}.
 	 *
-	 * @param p          The {@link monkey.ai.Player Player} whose mark is to be
-	 *                   removed.
-	 * @param cellStates The current state of the board.
+	 * @param p The {@link monkey.ai.Player Player} whose mark is to be removed.
+	 * @param b The current state of the board.
 	 * @throws IllegalCallerException No marked cells to be removed.
-	 * @throws NullPointerException   p is null.
+	 * @throws NullPointerException   p or b are null.
 	 * @author Gaia Clerici
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	public void removeMark(Player p, MNKCellState[][] cellStates) {
+	public void removeMark(Player p, Board b) {
 		if (p == null)
 			throw new NullPointerException("p is null.");
 		if (p == Player.P1) {
@@ -229,7 +227,7 @@ public class Alignment {
 			--p2Cells;
 		}
 		state = p1Cells == 0 ? p2Cells == 0 ? State.EMPTY : State.P2PARTIAL : p2Cells == 0 ? State.P1PARTIAL : State.MIXED;
-		computeThreat(cellStates);
+		computeThreat(b);
 	}
 
 	/**
@@ -251,8 +249,8 @@ public class Alignment {
 	 * appearing from nowhere and cells already marked being overwritten.
 	 *
 	 * @see #setSecondExtremity
-	 * @param cell       The new state of the first extremity.
-	 * @param cellStates The current state of the board.
+	 * @param cell The new state of the first extremity.
+	 * @param b    The current state of the board.
 	 * @throws IllegalCallerException   The extremity cannot be changed anymore.
 	 * @throws IllegalArgumentException {@link #setFirstExtremity} can be called,
 	 *                                  but the extremity cannot be set to this
@@ -261,7 +259,7 @@ public class Alignment {
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	public void setFirstExtremity(MNKCellState cell, MNKCellState[][] cellStates) {
+	public void setFirstExtremity(MNKCellState cell, Board b) {
 		if (cell != firstExtremity) {
 			if (firstExtremity == null)
 				throw new IllegalCallerException("The first extremity is out of the board.");
@@ -270,7 +268,7 @@ public class Alignment {
 			if (firstExtremity != MNKCellState.FREE && cell != MNKCellState.FREE)
 				throw new IllegalArgumentException("Can not ovveride a marked cell.");
 			firstExtremity = cell;
-			computeThreat(cellStates);
+			computeThreat(b);
 		}
 	}
 
@@ -279,8 +277,8 @@ public class Alignment {
 	 * appearing from nowhere and cells already marked being overwritten.
 	 *
 	 * @see #setFirstExtremity
-	 * @param cell       The new state of the second extremity.
-	 * @param cellStates The current state of the board.
+	 * @param cell The new state of the second extremity.
+	 * @param b    The current state of the board.
 	 * @throws IllegalCallerException   The extremity cannot be changed anymore.
 	 * @throws IllegalArgumentException {@link #setSecondExtremity} can be called,
 	 *                                  but the extremity cannot be set to this
@@ -289,7 +287,7 @@ public class Alignment {
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	public void setSecondExtremity(MNKCellState cell, MNKCellState[][] cellStates) {
+	public void setSecondExtremity(MNKCellState cell, Board b) {
 		if (cell != secondExtremity) {
 			if (secondExtremity == null)
 				throw new IllegalCallerException("The second extremity is out of the board.");
@@ -298,19 +296,20 @@ public class Alignment {
 			if (secondExtremity != MNKCellState.FREE && cell != MNKCellState.FREE)
 				throw new IllegalArgumentException("Can not ovveride a marked cell.");
 			secondExtremity = cell;
-			computeThreat(cellStates);
+			computeThreat(b);
 		}
 	}
 
 	/**
 	 * Updates the current {@link Threat}.
 	 *
-	 * @param cellStates The current state of the board.
+	 * @param b The current state of the board.
+	 * @throws NullPointerException b is <code>null</code>.
 	 * @author Gaia Clerici
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	private void computeThreat(MNKCellState[][] cellStates) {
+	private void computeThreat(Board b) {
 		// There is no hole
 		if (state == State.P1FULL || state == State.P2FULL)
 			switch ((firstExtremity == MNKCellState.FREE ? 1 : 0) + (secondExtremity == MNKCellState.FREE ? 1 : 0)) {
@@ -325,8 +324,7 @@ public class Alignment {
 			}
 		// There is just one hole
 		else if (getFreeCells() == 1 && (state == State.P1PARTIAL || state == State.P2PARTIAL)
-				&& cellStates[FIRSTCELL.getRow()][FIRSTCELL.getColumn()] != MNKCellState.FREE
-				&& cellStates[LASTCELL.getRow()][LASTCELL.getColumn()] != MNKCellState.FREE)
+				&& b.getCellState(FIRSTCELL) != MNKCellState.FREE && b.getCellState(LASTCELL) != MNKCellState.FREE)
 			switch ((firstExtremity == MNKCellState.FREE ? 1 : 0) + (secondExtremity == MNKCellState.FREE ? 1 : 0)) {
 			case 0:
 				threat = Threat.SIX;

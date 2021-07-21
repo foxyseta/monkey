@@ -1,7 +1,6 @@
 package monkey.mnk;
 
 import java.util.Arrays;
-import java.util.ArrayList;
 import java.util.Stack;
 import java.util.Iterator;
 import mnkgame.MNKCellState;
@@ -254,6 +253,21 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	}
 
 	/**
+	 * A getter for the cells of the grid.
+	 *
+	 * @param row    The row of the cell to inspect.
+	 * @param column The column of the cell to inspect.
+	 * @throws IndexOutOfBoundsException (row, column) is not part of the grid.
+	 * @return The state of the inspected cell.
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	public MNKCellState getCellState(int row, int column) {
+		return cellStates[row][column];
+	}
+
+	/**
 	 * Helper function to initialize cell states. Takes Θ({@link #SIZE}) time.
 	 *
 	 * @return A {@link #M} x {@link #N} matrix with the initial cell states.
@@ -359,11 +373,11 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	 */
 	private void updateThreatsManagers(Position p) {
 		if (kCounter != null) {
-			kCounter.updateAlignments(p, player(), cellStates);
+			kCounter.updateAlignments(p, player());
 			if (kMinusOneCounter != null) {
-				kMinusOneCounter.updateAlignments(p, player(), cellStates);
+				kMinusOneCounter.updateAlignments(p, player());
 				if (kMinusTwoCounter != null)
-					kMinusTwoCounter.updateAlignments(p, player(), cellStates);
+					kMinusTwoCounter.updateAlignments(p, player());
 			}
 		}
 	}
