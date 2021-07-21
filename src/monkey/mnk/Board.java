@@ -1,9 +1,9 @@
 package monkey.mnk;
 
-import java.lang.Iterable;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Stack;
+import java.util.Iterator;
 import mnkgame.MNKCellState;
 import mnkgame.MNKGameState;
 import monkey.ai.Player;
@@ -82,17 +82,13 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	}
 
 	/**
-	 * {@inheritDoc} Takes Θ({@link #SIZE}) time.
+	 * {@inheritDoc} <br />
+	 * Takes Θ(1) time in the best and average cases, but Θ(@link SIZE} in the worst
+	 * case.
 	 */
 	@Override
-	public Iterable<Position> actions() {
-		if (terminalTest())
-			return new ArrayList<Position>();
-		ArrayList<Position> res = new ArrayList<Position>(SIZE - history.size());
-		for (Position p : actionsCandidates)
-			if (cellStates[p.getRow()][p.getColumn()] == MNKCellState.FREE)
-				res.add(p);
-		return res;
+	public Iterator<Position> actions() {
+		return new BoardIterator();
 	}
 
 	/**
@@ -178,7 +174,7 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	 * Science and Applied Mathematics). Nabil Gmati; Eric Badouel; Bruce Watson.
 	 * CARI 2018 - Colloque africain sur la recherche en informatique et
 	 * mathématiques appliquées</i>, Oct 2018, Stellenbosch, South Africa. 2018, pp.
-	 * 268-269. hal-01881376f
+	 * 268-269. hal-01881376f.
 	 *
 	 * @param p The {@link monkey.ai.Player Player} from whose point of view the
 	 *          current {@link Board} is evaluated.
@@ -187,6 +183,7 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	 * @version 1.0
 	 * @since 1.0
 	 */
+	@Override
 	public Integer eval(Player p) {
 		final int A = 100 * countThreats(K - 2, Threat.ONE, p) + 80 * countHalfOpenThreats(K - 1, p)
 				+ 250 * countThreats(K - 1, Threat.ONE, p) + 1000000 * countThreatsWithoutHole(K, p);
@@ -235,6 +232,25 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	@Override
 	public int hashCode() {
 		return zobristHashCode;
+	}
+
+	/**
+	 * A getter for the cells of the grid.
+	 *
+	 * @param p The {@link Position} to inspect.
+	 * @throws IllegalArgumentException p does not have correct extents.
+	 * @return The state of the inspected cell, or <code>null</code> if p is
+	 *         <code>null</code>.
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	public MNKCellState getCellState(Position p) {
+		if (p == null)
+			return null;
+		if (p.ROWSNUMBER != M || p.COLUMNSNUMBER != N)
+			throw new IllegalArgumentException("This Position is meant for a different grid.");
+		return cellStates[p.getRow()][p.getColumn()];
 	}
 
 	/**
@@ -454,4 +470,70 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	private int zobristHashCode = 0;
 	/** Utility for Zobrist hashing. */
 	final ZobristHasher zobristHasher;
+
+	/**
+	 * An <code>Iterator</code> class for {@link Board} which iterates by decreasing
+	 * heuristic values. It does not implement <code>remove</code>.
+	 *
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @version 1.0
+	 */
+	class BoardIterator implements Iterator<Position> {
+
+		/**
+		 * Constructs a new {@link #BoardIterator}. Takes Θ(1) time in the best and
+		 * average cases, but Θ(@link Board#SIZE} in the worst case.
+		 *
+		 * @author Stefano Volpe
+		 * @version 1.0
+		 * @since 1.0
+		 */
+		public BoardIterator() {
+			if (terminalTest())
+				index = actionsCandidates.length;
+			else
+				while (index < actionsCandidates.length && getCellState(actionsCandidates[index]) != MNKCellState.FREE)
+					++index;
+		}
+
+		/**
+		 * {@inheritDoc}
+		 *
+		 * @author Stefano Volpe
+		 * @version 1.0
+		 * @since 1.0
+		 */
+		@Override
+		public boolean hasNext() {
+			return index < actionsCandidates.length;
+		}
+
+		/**
+		 * {@inheritDoc} <br />
+		 * Takes Θ(1) time in the best and average cases, but Θ(@link Board#SIZE} in the
+		 * worst case.
+		 *
+		 * @throws NoSuchElementException {@inheritDoc}
+		 * @author Stefano Volpe
+		 * @version 1.0
+		 * @since 1.0
+		 */
+		@Override
+		public Position next() {
+			if (hasNext()) {
+				final int oldIndex = index;
+				do
+					++index;
+				while (index < actionsCandidates.length && getCellState(actionsCandidates[index]) != MNKCellState.FREE);
+				return actionsCandidates[oldIndex];
+			}
+			throw new java.util.NoSuchElementException("No next element.");
+		}
+
+		/** The index of the next element, or the length of the table if it is over. */
+		private int index = 0;
+
+	}
+
 }

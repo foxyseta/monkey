@@ -1,5 +1,6 @@
 package monkey.ai;
 
+import java.util.Iterator;
 import monkey.util.ObjectUtils;
 
 /**
@@ -50,9 +51,9 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 	 */
 	public void update(A a) {
 		if (a != null) {
-			final Iterable<A> actions = state.actions();
-			for (A action : actions)
-				if (a.equals(action)) {
+			Iterator<A> actions = state.actions();
+			while (actions.hasNext())
+				if (a.equals(actions.next())) {
 					state.result(a);
 					return;
 				}
@@ -82,9 +83,10 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 		A a = null;
 		U alpha = state.initialAlpha(player), beta = state.initialBeta(player), v = alpha;
 		final int maxLimit = state.overestimatedHeight();
-		final Iterable<A> actions = state.actions();
-		for (int depthLimit = 0; depthLimit <= maxLimit; ++depthLimit)
-			for (A toChild : actions) {
+		for (int depthLimit = 0; depthLimit <= maxLimit; ++depthLimit) {
+			Iterator<A> actions = state.actions();
+			while (actions.hasNext()) {
+				final A toChild = actions.next();
 				final U minValue = minValue(state.result(toChild), alpha, beta, depthLimit);
 				if (a == null || minValue != null && (v == null || minValue.compareTo(v) > 0)) {
 					a = toChild;
@@ -99,6 +101,7 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 					return a;
 				}
 			}
+		}
 		return a;
 	}
 
@@ -126,8 +129,9 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 		if (depthLimit <= 0)
 			return null;
 		U v = null;
-		final Iterable<A> actions = s.actions();
-		for (A toChild : actions) {
+		final Iterator<A> actions = s.actions();
+		while (actions.hasNext()) {
+			final A toChild = actions.next();
 			v = objectUtils.max(v, minValue(s.result(toChild), alpha, beta, depthLimit - 1));
 			s.revert();
 			if (v != null && v.compareTo(beta) >= 0)
@@ -162,8 +166,9 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 			return null;
 		U v = s.initialBeta(player);
 		boolean cutoff = false;
-		final Iterable<A> actions = s.actions();
-		for (A toChild : actions) {
+		final Iterator<A> actions = s.actions();
+		while (actions.hasNext()) {
+			final A toChild = actions.next();
 			final U maxValue = maxValue(s.result(toChild), alpha, beta, depthLimit - 1);
 			if (maxValue == null)
 				cutoff = true;

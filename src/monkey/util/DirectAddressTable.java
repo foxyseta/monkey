@@ -175,12 +175,27 @@ class DirectAddressTableIterator<T> implements Iterator<T> {
 		table = t;
 	}
 
-	@Override // inherit doc comment
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	@Override
 	public boolean hasNext() {
 		return index < table.length;
 	}
 
-	@Override // inherit doc comment
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @throws NoSuchElementException {@inheritDoc}
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	@Override
 	public T next() {
 		if (hasNext())
 			return table[index++];
