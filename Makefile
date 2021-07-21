@@ -32,7 +32,6 @@ run-debug:
 test:
 	@echo "Testing..."
 	@$(JR) -cp "$(LIB_DIR)/*:$(BUILD_DIR)/" $(TESTER_CLASS)
-	@$(JR) -cp "$(LIB_DIR)/*:$(BUILD_DIR)/" $(PLAYER_TESTER_CLASS) $(MNK) $(PLAYER_CLASS) $(TEST)
 
 build: clean-build
 	@echo "Building..."

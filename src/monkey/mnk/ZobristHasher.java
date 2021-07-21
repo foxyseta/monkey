@@ -41,7 +41,7 @@ public class ZobristHasher {
 		Random r = new Random(SEED);
 		for (int[][] grid : disjuncts)
 			for (int[] row : grid)
-				for (int i = 0; i < n; ++i)
+				for (int i = 0; i < PLAYERS; ++i)
 					row[i] = r.nextInt();
 	}
 

@@ -1,7 +1,7 @@
 package monkey;
 
 /**
- * An internal tester class for the whole {@link monkey} package.
+ * A tester class for the whole {@link monkey} package.
  *
  * @author Stefano Volpe
  * @version 1.0
@@ -21,6 +21,9 @@ public class Tester {
 		System.out.println("MoNKey internal tests");
 		final int MAXROWS = 70, MAXCOLUMNS = 70;
 		printTest(monkey.mnk.ZobristHasher.distincDisjuncts(MAXROWS, MAXCOLUMNS), "distinct Zobrist disjuncts");
+		System.out.println("MNKPlayerTester tests");
+		mnkgame.MNKPlayerTester
+				.main(new String[] { "-r", "4", "7", "4", "4", "monkey.MoNKey", "mnkgame.QuasiRandomPlayer" });
 	}
 
 	/**
