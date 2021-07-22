@@ -1,6 +1,8 @@
 package monkey.ai;
 
+import java.util.HashMap;
 import java.util.Iterator;
+import monkey.ai.table.Entry;
 import monkey.util.ObjectUtils;
 
 /**
@@ -36,6 +38,7 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 		player = p;
 		state = s0;
 		timeLimit = t;
+		transpositionTable = new HashMap<Integer, Entry<A, U>>();
 	}
 
 	/**
@@ -192,5 +195,7 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 	final private ObjectUtils objectUtils = new ObjectUtils();
 	/** The higher, the more time is used at most for each search. */
 	final private float RELAXATION = 0.7f;
+	/** A transposition table for this instance of the {@link AI}. */
+	final private HashMap<Integer, Entry<A, U>> transpositionTable;
 
 }
