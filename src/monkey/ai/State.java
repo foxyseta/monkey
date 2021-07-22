@@ -142,4 +142,15 @@ public interface State<Self extends State<Self, Action, Utility>, Action, Utilit
 	 */
 	public int overestimatedHeight();
 
+	/**
+	 * Suggests a reasonable transposition table capacity assuming this instance is
+	 * used as initial {@link State}.
+	 *
+	 * @return The suggested capacity.
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	public int ttSuggestedCapacity();
+
 }

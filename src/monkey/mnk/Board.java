@@ -550,4 +550,20 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 
 	}
 
+	/**
+	 * {@inheritDoc} <br />
+	 * See the project report. Takes Θ(1) (sic).
+	 */
+	@Override
+	public int ttSuggestedCapacity() {
+		int sum = 1, lastTerm = 1;
+		for (int p = 1; p < SIZE; ++p) {
+			lastTerm *= (SIZE - p + 1) * (p % 2 == 0 ? p / 2 : 1);
+			sum += lastTerm;
+			// if (sum > max)
+			// return max;
+		}
+		return sum;
+	}
+
 }
