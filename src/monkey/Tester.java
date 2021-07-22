@@ -23,7 +23,9 @@ public class Tester {
 		printTest(monkey.mnk.ZobristHasher.distincDisjuncts(MAXROWS, MAXCOLUMNS), "distinct Zobrist disjuncts");
 		System.out.println("MNKPlayerTester tests");
 		mnkgame.MNKPlayerTester
-				.main(new String[] { "-r", "4", "7", "4", "4", "monkey.MoNKey", "mnkgame.QuasiRandomPlayer" });
+				.main(new String[] { "-r", "2", "7", "4", "4", "monkey.MoNKey", "mnkgame.QuasiRandomPlayer" });
+		mnkgame.MNKPlayerTester
+				.main(new String[] { "-r", "2", "7", "4", "4", "mnkgame.QuasiRandomPlayer", "monkey.MoNKey" });
 	}
 
 	/**
