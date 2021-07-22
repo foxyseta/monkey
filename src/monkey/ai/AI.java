@@ -1,5 +1,8 @@
 package monkey.ai;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import monkey.ai.table.Entry;
 import monkey.util.ObjectUtils;
 
 /**
@@ -17,9 +20,12 @@ import monkey.util.ObjectUtils;
  */
 public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 
+	/** RAM limit (in bytes): 1 GB. */
+	final public static int MAXRAM = 1073741824;
+
 	/**
 	 * Constructs a new {@link AI} for a certain {@link Player} given an initial
-	 * {@link State} and a timeout in milliseconds.
+	 * {@link State} and a timeout in milliseconds. Takes O(SIZE*(SIZE)!).
 	 *
 	 * @param p  The player the {@link AI} will play as.
 	 * @param s0 The initial {@link State} of the game.
@@ -29,12 +35,14 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 	 * @version 1.0
 	 * @since 1.0
 	 */
+	// TODO be more precise with the cost class.
 	public AI(Player p, S s0, long t) {
 		if (p == null || s0 == null)
 			throw new NullPointerException("Some of the arguments are null.");
 		player = p;
 		state = s0;
 		timeLimit = t;
+		transpositionTable = new HashMap<Integer, Entry<A, U>>(state.ttSuggestedCapacity());
 	}
 
 	/**
@@ -50,9 +58,9 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 	 */
 	public void update(A a) {
 		if (a != null) {
-			final Iterable<A> actions = state.actions();
-			for (A action : actions)
-				if (a.equals(action)) {
+			Iterator<A> actions = state.actions();
+			while (actions.hasNext())
+				if (a.equals(actions.next())) {
 					state.result(a);
 					return;
 				}
@@ -82,9 +90,10 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 		A a = null;
 		U alpha = state.initialAlpha(player), beta = state.initialBeta(player), v = alpha;
 		final int maxLimit = state.overestimatedHeight();
-		final Iterable<A> actions = state.actions();
-		for (int depthLimit = 0; depthLimit <= maxLimit; ++depthLimit)
-			for (A toChild : actions) {
+		for (int depthLimit = 0; depthLimit <= maxLimit; ++depthLimit) {
+			Iterator<A> actions = state.actions();
+			while (actions.hasNext()) {
+				final A toChild = actions.next();
 				final U minValue = minValue(state.result(toChild), alpha, beta, depthLimit);
 				if (a == null || minValue != null && (v == null || minValue.compareTo(v) > 0)) {
 					a = toChild;
@@ -99,6 +108,7 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 					return a;
 				}
 			}
+		}
 		return a;
 	}
 
@@ -126,8 +136,9 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 		if (depthLimit <= 0)
 			return null;
 		U v = null;
-		final Iterable<A> actions = s.actions();
-		for (A toChild : actions) {
+		final Iterator<A> actions = s.actions();
+		while (actions.hasNext()) {
+			final A toChild = actions.next();
 			v = objectUtils.max(v, minValue(s.result(toChild), alpha, beta, depthLimit - 1));
 			s.revert();
 			if (v != null && v.compareTo(beta) >= 0)
@@ -162,8 +173,9 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 			return null;
 		U v = s.initialBeta(player);
 		boolean cutoff = false;
-		final Iterable<A> actions = s.actions();
-		for (A toChild : actions) {
+		final Iterator<A> actions = s.actions();
+		while (actions.hasNext()) {
+			final A toChild = actions.next();
 			final U maxValue = maxValue(s.result(toChild), alpha, beta, depthLimit - 1);
 			if (maxValue == null)
 				cutoff = true;
@@ -187,5 +199,7 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 	final private ObjectUtils objectUtils = new ObjectUtils();
 	/** The higher, the more time is used at most for each search. */
 	final private float RELAXATION = 0.7f;
+	/** A transposition table for this instance of the {@link AI}. */
+	final private HashMap<Integer, Entry<A, U>> transpositionTable;
 
 }

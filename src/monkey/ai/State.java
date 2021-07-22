@@ -1,7 +1,5 @@
 package monkey.ai;
 
-import java.lang.Iterable;
-
 /**
  * A <code>State</code> represents a single scenario between those which can be
  * encountered when playing a deterministic, turn-taking, two-player, zero-sum
@@ -31,13 +29,13 @@ public interface State<Self extends State<Self, Action, Utility>, Action, Utilit
 	/**
 	 * Defines the set of legal <code>Action</code>s.
 	 *
-	 * @return An {@link java.lang.Iterable Iterable} containing the legal
+	 * @return An {@link java.lang.Iterable Iterator} containing the legal
 	 *         <code>Action</code>s for the state.
 	 * @author Stefano Volpe
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	public Iterable<Action> actions();
+	public java.util.Iterator<Action> actions();
 
 	/**
 	 * Defines the result of a certain move updating the {@link State} accordingly.
@@ -143,5 +141,16 @@ public interface State<Self extends State<Self, Action, Utility>, Action, Utilit
 	 * @since 1.0
 	 */
 	public int overestimatedHeight();
+
+	/**
+	 * Suggests a reasonable transposition table capacity assuming this instance is
+	 * used as initial {@link State}.
+	 *
+	 * @return The suggested capacity.
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	public int ttSuggestedCapacity();
 
 }

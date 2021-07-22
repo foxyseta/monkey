@@ -37,7 +37,7 @@ public class MoNKey implements MNKPlayer {
 
 	@Override // inherit doc comment
 	public String playerName() {
-		return "🅼🐵🅽🅺ey";
+		return "MoNKey";
 	}
 
 	/**

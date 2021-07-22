@@ -20,7 +20,7 @@ public class DirectAddressTable<T> implements Iterable<T> {
 	 * A function associating each value to an integer key in the range [0 .. length
 	 * - 1].
 	 */
-	final public ToIntFunction<T> KEYFUNCTION;
+	final public ToIntFunction<T> toKey;
 
 	/**
 	 * Constructs a new {@link DirectAddressTable}.Takes Θ(<code>length</code>)
@@ -28,7 +28,7 @@ public class DirectAddressTable<T> implements Iterable<T> {
 	 *
 	 * @param type        Type token to allocate the underlying
 	 *                    {@link java.lang.reflect.Array Array}.
-	 * @param keyFunction Initializer for {@link #KEYFUNCTION}.
+	 * @param keyFunction Initializer for {@link #toKey}.
 	 * @param length      Number of possible keys.
 	 * @throws IllegalArgumentException length is negative
 	 * @throws NullPointerException     type, or keyFunction, or both are null.
@@ -45,7 +45,7 @@ public class DirectAddressTable<T> implements Iterable<T> {
 		if (keyFunction == null)
 			throw new NullPointerException("keyFunction is null");
 		table = (T[]) java.lang.reflect.Array.newInstance(type, length);
-		KEYFUNCTION = keyFunction;
+		toKey = keyFunction;
 	}
 
 	/**
@@ -94,7 +94,7 @@ public class DirectAddressTable<T> implements Iterable<T> {
 	 * @since 1.0
 	 */
 	public void insert(T element) {
-		final int key = KEYFUNCTION.applyAsInt(element);
+		final int key = toKey.applyAsInt(element);
 		try {
 			table[key] = element;
 		} catch (IndexOutOfBoundsException e) {
@@ -114,7 +114,7 @@ public class DirectAddressTable<T> implements Iterable<T> {
 	 * @since 1.0
 	 */
 	public void delete(T element) {
-		final int key = KEYFUNCTION.applyAsInt(element);
+		final int key = toKey.applyAsInt(element);
 		try {
 			table[key] = null;
 		} catch (IndexOutOfBoundsException e) {
@@ -131,7 +131,14 @@ public class DirectAddressTable<T> implements Iterable<T> {
 		return new DirectAddressTableIterator<T>(table);
 	}
 
-	@Override // inherit doc comment
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	@Override
 	public String toString() {
 		String res = "[";
 		Iterator<T> it = iterator();
@@ -168,12 +175,27 @@ class DirectAddressTableIterator<T> implements Iterator<T> {
 		table = t;
 	}
 
-	@Override // inherit doc comment
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	@Override
 	public boolean hasNext() {
 		return index < table.length;
 	}
 
-	@Override // inherit doc comment
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @throws NoSuchElementException {@inheritDoc}
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	@Override
 	public T next() {
 		if (hasNext())
 			return table[index++];

@@ -1,11 +1,11 @@
 package monkey.mnk;
 
-import java.lang.Iterable;
 import java.util.Arrays;
-import java.util.ArrayList;
 import java.util.Stack;
+import java.util.Iterator;
 import mnkgame.MNKCellState;
 import mnkgame.MNKGameState;
+import monkey.ai.AI;
 import monkey.ai.Player;
 
 /**
@@ -69,9 +69,11 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 		INITIALALPHAP2 = INITIALBETAP1 == VICTORYUTILITY ? LOSSUTILITY : DRAWUTILITY;
 		INITIALBETAP2 = VICTORYUTILITY;
 		// counters
-		KCOUNTER = K > 1 ? new ThreatsManager(K, this) : null;
-		KMINUSONECOUNTER = K > 2 ? new ThreatsManager(K - 1, this) : null;
-		KMINUSTWOCOUNTER = K > 3 ? new ThreatsManager(K - 2, this) : null;
+		kCounter = K > 1 ? new ThreatsManager(K, this) : null;
+		kMinusOneCounter = K > 2 ? new ThreatsManager(K - 1, this) : null;
+		kMinusTwoCounter = K > 3 ? new ThreatsManager(K - 2, this) : null;
+		// hashing
+		zobristHasher = new ZobristHasher(M, N);
 	}
 
 	@Override // inherit doc comment
@@ -80,17 +82,13 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	}
 
 	/**
-	 * {@inheritDoc} Takes Θ({@link #SIZE}) time.
+	 * {@inheritDoc} <br />
+	 * Takes Θ(1) time in the best and average cases, but Θ(@link SIZE} in the worst
+	 * case.
 	 */
 	@Override
-	public Iterable<Position> actions() {
-		if (terminalTest())
-			return new ArrayList<Position>();
-		ArrayList<Position> res = new ArrayList<Position>(SIZE - history.size());
-		for (Position p : actionsCandidates)
-			if (cellStates[p.getRow()][p.getColumn()] == MNKCellState.FREE)
-				res.add(p);
-		return res;
+	public Iterator<Position> actions() {
+		return new BoardIterator();
 	}
 
 	/**
@@ -113,6 +111,7 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 		history.push(a);
 		if (state == MNKGameState.OPEN && history.size() == SIZE)
 			state = MNKGameState.DRAW;
+		zobristHashCode ^= zobristHasher.getDisjunct(a, p);
 		return this;
 	}
 
@@ -127,6 +126,7 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 			cellStates[row][column] = MNKCellState.FREE;
 			updateThreatsManagers(a);
 			state = MNKGameState.OPEN;
+			zobristHashCode ^= zobristHasher.getDisjunct(a, player());
 		} catch (java.util.EmptyStackException e) {
 			throw new IllegalCallerException("No previous action to revert.");
 		}
@@ -141,16 +141,16 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	@Override // inherit doc comment
 	public Integer utility(Player p) {
 		switch (state) {
-		case DRAW:
-			return DRAWUTILITY;
-		case OPEN:
-			throw new IllegalCallerException("The game is still open");
-		case WINP1:
-			return p == Player.P1 ? VICTORYUTILITY : LOSSUTILITY;
-		case WINP2:
-			return p == Player.P2 ? VICTORYUTILITY : LOSSUTILITY;
-		default:
-			throw new IllegalArgumentException("Unknown game state");
+			case DRAW:
+				return DRAWUTILITY;
+			case OPEN:
+				throw new IllegalCallerException("The game is still open");
+			case WINP1:
+				return p == Player.P1 ? VICTORYUTILITY : LOSSUTILITY;
+			case WINP2:
+				return p == Player.P2 ? VICTORYUTILITY : LOSSUTILITY;
+			default:
+				throw new IllegalArgumentException("Unknown game state");
 		}
 	}
 
@@ -174,7 +174,7 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	 * Science and Applied Mathematics). Nabil Gmati; Eric Badouel; Bruce Watson.
 	 * CARI 2018 - Colloque africain sur la recherche en informatique et
 	 * mathématiques appliquées</i>, Oct 2018, Stellenbosch, South Africa. 2018, pp.
-	 * 268-269. hal-01881376f
+	 * 268-269. hal-01881376f.
 	 *
 	 * @param p The {@link monkey.ai.Player Player} from whose point of view the
 	 *          current {@link Board} is evaluated.
@@ -183,6 +183,7 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	 * @version 1.0
 	 * @since 1.0
 	 */
+	@Override
 	public Integer eval(Player p) {
 		final int A = 100 * countThreats(K - 2, Threat.ONE, p) + 80 * countHalfOpenThreats(K - 1, p)
 				+ 250 * countThreats(K - 1, Threat.ONE, p) + 1000000 * countThreatsWithoutHole(K, p);
@@ -197,6 +198,14 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 		return SIZE - history.size();
 	}
 
+	/**
+	 * {@inheritDoc} <br />
+	 * Takes Θ({@link #SIZE}) time.
+	 *
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
 	@Override // inherit doc comment
 	public String toString() {
 		String res = "";
@@ -207,7 +216,56 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 			res += String.format("%n");
 		}
 		// threatsManagers
-		return res + String.format(KCOUNTER + "%n" + KMINUSONECOUNTER + "%n" + KMINUSTWOCOUNTER);
+		return res + String.format(kCounter + "%n" + kMinusOneCounter + "%n" + kMinusTwoCounter);
+	}
+
+	/**
+	 * {@inheritDoc}. <br />
+	 * Zobrist hashing is used (transposition will return the same hash code. See A.
+	 * L. Zobrist, <i>A New Hashing Method with Application for Game Playing</i>. 1
+	 * Jan. 1990, pp. 5-7.
+	 * 
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	@Override
+	public int hashCode() {
+		return zobristHashCode;
+	}
+
+	/**
+	 * A getter for the cells of the grid.
+	 *
+	 * @param p The {@link Position} to inspect.
+	 * @throws IllegalArgumentException p does not have correct extents.
+	 * @return The state of the inspected cell, or <code>null</code> if p is
+	 *         <code>null</code>.
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	public MNKCellState getCellState(Position p) {
+		if (p == null)
+			return null;
+		if (p.ROWSNUMBER != M || p.COLUMNSNUMBER != N)
+			throw new IllegalArgumentException("This Position is meant for a different grid.");
+		return cellStates[p.getRow()][p.getColumn()];
+	}
+
+	/**
+	 * A getter for the cells of the grid.
+	 *
+	 * @param row    The row of the cell to inspect.
+	 * @param column The column of the cell to inspect.
+	 * @throws IndexOutOfBoundsException (row, column) is not part of the grid.
+	 * @return The state of the inspected cell.
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	public MNKCellState getCellState(int row, int column) {
+		return cellStates[row][column];
 	}
 
 	/**
@@ -315,12 +373,12 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	 * @since 1.0
 	 */
 	private void updateThreatsManagers(Position p) {
-		if (KCOUNTER != null) {
-			KCOUNTER.updateAlignments(p, player(), cellStates);
-			if (KMINUSONECOUNTER != null) {
-				KMINUSONECOUNTER.updateAlignments(p, player(), cellStates);
-				if (KMINUSTWOCOUNTER != null)
-					KMINUSTWOCOUNTER.updateAlignments(p, player(), cellStates);
+		if (kCounter != null) {
+			kCounter.updateAlignments(p, player());
+			if (kMinusOneCounter != null) {
+				kMinusOneCounter.updateAlignments(p, player());
+				if (kMinusTwoCounter != null)
+					kMinusTwoCounter.updateAlignments(p, player());
 			}
 		}
 	}
@@ -342,13 +400,13 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	protected int countThreats(int length, Threat type, Player threatener) {
 		final ThreatsManager threatsManager;
 		if (length == K)
-			threatsManager = type.hasHole() ? null : KCOUNTER;
+			threatsManager = type.hasHole() ? null : kCounter;
 		else if (length == K - 1)
-			threatsManager = type.hasHole() ? KCOUNTER : KMINUSONECOUNTER;
+			threatsManager = type.hasHole() ? kCounter : kMinusOneCounter;
 		else if (length == K - 2)
-			threatsManager = type.hasHole() ? KMINUSONECOUNTER : KMINUSTWOCOUNTER;
+			threatsManager = type.hasHole() ? kMinusOneCounter : kMinusTwoCounter;
 		else if (length == K - 3)
-			threatsManager = type.hasHole() ? KMINUSTWOCOUNTER : null;
+			threatsManager = type.hasHole() ? kMinusTwoCounter : null;
 		else
 			threatsManager = null;
 		return threatsManager == null ? 0 : threatsManager.count(type, threatener);
@@ -413,15 +471,101 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	 * Counters for both no-hole {@link #K}-threats and
 	 * {@link #K}<code>-1</code>-threats with a hole.
 	 */
-	final private ThreatsManager KCOUNTER;
+	final private ThreatsManager kCounter;
 	/**
 	 * Counters for both no-hole {@link #K}<code>-1</code>-threats and
 	 * {@link #K}<code>-2</code>-threats with a hole.
 	 */
-	final private ThreatsManager KMINUSONECOUNTER;
+	final private ThreatsManager kMinusOneCounter;
 	/**
 	 * Counters for no-hole {@link #K}<code>-2</code>-threats.
 	 */
-	final private ThreatsManager KMINUSTWOCOUNTER;
+	final private ThreatsManager kMinusTwoCounter;
+	/** Zobrist hash code for this object. */
+	private int zobristHashCode = 0;
+	/** Utility for Zobrist hashing. */
+	final ZobristHasher zobristHasher;
+
+	/**
+	 * An <code>Iterator</code> class for {@link Board} which iterates by decreasing
+	 * heuristic values. It does not implement <code>remove</code>.
+	 *
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @version 1.0
+	 */
+	class BoardIterator implements Iterator<Position> {
+
+		/**
+		 * Constructs a new {@link #BoardIterator}. Takes Θ(1) time in the best and
+		 * average cases, but Θ(@link Board#SIZE} in the worst case.
+		 *
+		 * @author Stefano Volpe
+		 * @version 1.0
+		 * @since 1.0
+		 */
+		public BoardIterator() {
+			if (terminalTest())
+				index = actionsCandidates.length;
+			else
+				while (index < actionsCandidates.length && getCellState(actionsCandidates[index]) != MNKCellState.FREE)
+					++index;
+		}
+
+		/**
+		 * {@inheritDoc}
+		 *
+		 * @author Stefano Volpe
+		 * @version 1.0
+		 * @since 1.0
+		 */
+		@Override
+		public boolean hasNext() {
+			return index < actionsCandidates.length;
+		}
+
+		/**
+		 * {@inheritDoc} <br />
+		 * Takes Θ(1) time in the best and average cases, but Θ(@link Board#SIZE} in the
+		 * worst case.
+		 *
+		 * @throws NoSuchElementException {@inheritDoc}
+		 * @author Stefano Volpe
+		 * @version 1.0
+		 * @since 1.0
+		 */
+		@Override
+		public Position next() {
+			if (hasNext()) {
+				final int oldIndex = index;
+				do
+					++index;
+				while (index < actionsCandidates.length && getCellState(actionsCandidates[index]) != MNKCellState.FREE);
+				return actionsCandidates[oldIndex];
+			}
+			throw new java.util.NoSuchElementException("No next element.");
+		}
+
+		/** The index of the next element, or the length of the table if it is over. */
+		private int index = 0;
+
+	}
+
+	/**
+	 * {@inheritDoc} <br />
+	 * See the project report. Takes Θ(1) (sic).
+	 */
+	@Override
+	public int ttSuggestedCapacity() {
+		final int AVERAGEENTRYSIZE = 128, MAXENTRIES = AI.MAXRAM / AVERAGEENTRYSIZE;
+		int sum = 1, lastTerm = 1;
+		for (int p = 1; p < SIZE; ++p) {
+			lastTerm *= (SIZE - p + 1) * (p % 2 == 0 ? p / 2 : 1);
+			sum += lastTerm;
+			if (sum > MAXENTRIES)
+				return MAXENTRIES;
+		}
+		return sum;
+	}
 
 }
