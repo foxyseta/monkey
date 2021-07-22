@@ -20,9 +20,12 @@ import monkey.util.ObjectUtils;
  */
 public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 
+	/** RAM limit (in bytes): 1 GB. */
+	final public static int MAXRAM = 1073741824;
+
 	/**
 	 * Constructs a new {@link AI} for a certain {@link Player} given an initial
-	 * {@link State} and a timeout in milliseconds.
+	 * {@link State} and a timeout in milliseconds. Takes O(SIZE*(SIZE)!).
 	 *
 	 * @param p  The player the {@link AI} will play as.
 	 * @param s0 The initial {@link State} of the game.
@@ -32,13 +35,14 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 	 * @version 1.0
 	 * @since 1.0
 	 */
+	// TODO be more precise with the cost class.
 	public AI(Player p, S s0, long t) {
 		if (p == null || s0 == null)
 			throw new NullPointerException("Some of the arguments are null.");
 		player = p;
 		state = s0;
 		timeLimit = t;
-		transpositionTable = new HashMap<Integer, Entry<A, U>>();
+		transpositionTable = new HashMap<Integer, Entry<A, U>>(state.ttSuggestedCapacity());
 	}
 
 	/**
