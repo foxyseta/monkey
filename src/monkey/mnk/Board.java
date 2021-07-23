@@ -141,16 +141,16 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	@Override // inherit doc comment
 	public Integer utility(Player p) {
 		switch (state) {
-			case DRAW:
-				return DRAWUTILITY;
-			case OPEN:
-				throw new IllegalCallerException("The game is still open");
-			case WINP1:
-				return p == Player.P1 ? VICTORYUTILITY : LOSSUTILITY;
-			case WINP2:
-				return p == Player.P2 ? VICTORYUTILITY : LOSSUTILITY;
-			default:
-				throw new IllegalArgumentException("Unknown game state");
+		case DRAW:
+			return DRAWUTILITY;
+		case OPEN:
+			throw new IllegalCallerException("The game is still open");
+		case WINP1:
+			return p == Player.P1 ? VICTORYUTILITY : LOSSUTILITY;
+		case WINP2:
+			return p == Player.P2 ? VICTORYUTILITY : LOSSUTILITY;
+		default:
+			throw new IllegalArgumentException("Unknown game state");
 		}
 	}
 
@@ -557,12 +557,12 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	 */
 	@Override
 	public int ttSuggestedCapacity() {
-		final int AVERAGEENTRYSIZE = 128, MAXENTRIES = AI.MAXRAM / AVERAGEENTRYSIZE;
+		final int ENTRIESPERKILOBYTES = 256, MAXENTRIES = AI.MAXRAM * ENTRIESPERKILOBYTES;
 		int sum = 1, lastTerm = 1;
 		for (int p = 1; p < SIZE; ++p) {
 			lastTerm *= (SIZE - p + 1) * (p % 2 == 0 ? p / 2 : 1);
 			sum += lastTerm;
-			if (sum > MAXENTRIES)
+			if (sum < 0 || sum > MAXENTRIES)
 				return MAXENTRIES;
 		}
 		return sum;
