@@ -55,20 +55,13 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 	 * @param a A legal action to inform this {@link AI} about.
 	 * @throws IllegalArgumentException <code>a</code> is an illegal action for the
 	 *                                  current state.
+	 * @throws NullPointerException     The action is <code>null</code>.
 	 * @author Gaia Clerici
 	 * @version 1.0
 	 * @since 1.0
 	 */
 	public void update(A a) {
-		if (a != null) {
-			Iterator<A> actions = state.actions();
-			while (actions.hasNext())
-				if (a.equals(actions.next())) {
-					state.result(a);
-					return;
-				}
-			throw new IllegalArgumentException("Illegal action for the current state.");
-		}
+		state.result(a);
 	}
 
 	/**
@@ -87,9 +80,9 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 	public A alphaBetaSearch() {
 		startTime = System.currentTimeMillis();
 		if (state.terminalTest())
-			throw new IllegalArgumentException("s is a terminal state");
+			throw new IllegalArgumentException("s is a terminal state.");
 		if (player != state.player())
-			throw new IllegalArgumentException("It's not your turn");
+			throw new IllegalArgumentException("It's not your turn.");
 		A a = null;
 		U alpha = state.initialAlpha(player), beta = state.initialBeta(player), v = alpha;
 		final S backupState = state.clone();

@@ -52,7 +52,7 @@ public interface State<Self extends State<Self, Action, Utility>, Action, Utilit
 	 *
 	 * @param a The <code>Action</code> to be applied.
 	 * @throws IllegalArgumentException Illegal move.
-	 * @throws NullPointerException     The action is null.
+	 * @throws NullPointerException     The action is <code>null</code>.
 	 * @return A reference to this {@link State}.
 	 * @author Stefano Volpe
 	 * @version 1.0
