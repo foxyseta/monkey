@@ -12,7 +12,7 @@ import monkey.ai.Player;
  * @version 1.0
  * @since 1.0
  */
-public class Alignment {
+public class Alignment implements Cloneable {
 
 	/**
 	 * Starting from the top left cell of the {@link Alignment}, you can move
@@ -96,6 +96,22 @@ public class Alignment {
 		LASTCELL = new Position(FIRSTCELL.ROWSNUMBER, FIRSTCELL.COLUMNSNUMBER, lastRow, lastColumn);
 		firstExtremity = firstExt;
 		secondExtremity = secondExt;
+	}
+
+	/**
+	 * Creates a clone of this {@link Alignment}.
+	 *
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	public Alignment clone() {
+		try {
+			return (Alignment) super.clone();
+		} catch (CloneNotSupportedException e) {
+			// Should never happen: we support clone
+			throw new InternalError(e.toString());
+		}
 	}
 
 	/**

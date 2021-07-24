@@ -14,7 +14,7 @@ import monkey.util.DirectAddressTable;
  * @version 1.0
  * @since 1.0
  */
-public class ThreatsManager {
+public class ThreatsManager implements Cloneable {
 
 	/** See {@link ThreatsManager}. */
 	final public int L;
@@ -53,6 +53,38 @@ public class ThreatsManager {
 		final Threat[] threats = Threat.values();
 		for (Threat t : threats)
 			counters.insert(new ThreatsCounter(t));
+	}
+
+	/**
+	 * Creates a clone of this {@link ThreatsManager}. Takes Θ({@link #ALIGNMENTS})
+	 * time.
+	 *
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	public ThreatsManager clone() {
+		try {
+			ThreatsManager copy = (ThreatsManager) super.clone();
+			copy.alignments = alignments.clone();
+			int length = alignments.length();
+			for (int i = 0; i < length; ++i) {
+				final Alignment a = alignments.search(i);
+				if (a != null)
+					copy.alignments.insert(a.clone());
+			}
+			copy.counters = counters.clone();
+			length = counters.length();
+			for (int i = 0; i < length; ++i) {
+				final ThreatsCounter c = counters.search(i);
+				if (c != null)
+					copy.counters.insert(c.clone());
+			}
+			return copy;
+		} catch (CloneNotSupportedException e) {
+			// Should never happen: we support clone
+			throw new InternalError(e.toString());
+		}
 	}
 
 	/**
@@ -365,9 +397,15 @@ public class ThreatsManager {
 	 * The non-<code>null</code> {@link Board} whose {@link Threat}s are counted.
 	 */
 	private Board board;
-	/** Stores all of the {@link Board}'s possible {@link Alignment}s. */
-	final private DirectAddressTable<Alignment> alignments;
-	/** Stores a counter for each type of {@link Threat}. */
-	final private DirectAddressTable<ThreatsCounter> counters = new DirectAddressTable<ThreatsCounter>(
-			ThreatsCounter.class, c -> c.THREAT.ordinal(), Threat.SIZE);
+	/**
+	 * Stores all of the {@link Board}'s possible {@link Alignment}s. Not a final
+	 * field because of {@link #clone}.
+	 */
+	private DirectAddressTable<Alignment> alignments;
+	/**
+	 * Stores a counter for each type of {@link Threat}. Not a final field because
+	 * of {@link #clone}.
+	 */
+	private DirectAddressTable<ThreatsCounter> counters = new DirectAddressTable<ThreatsCounter>(ThreatsCounter.class,
+			c -> c.THREAT.ordinal(), Threat.SIZE);
 }

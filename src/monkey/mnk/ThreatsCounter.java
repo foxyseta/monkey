@@ -10,7 +10,7 @@ import monkey.ai.Player;
  * @version 1.0
  * @since 1.0
  */
-public class ThreatsCounter {
+public class ThreatsCounter implements Cloneable {
 
 	/** The kind of {@link Threat} to keep track of. */
 	final public Threat THREAT;
@@ -25,6 +25,22 @@ public class ThreatsCounter {
 	 */
 	public ThreatsCounter(Threat threat) {
 		THREAT = threat;
+	}
+
+	/**
+	 * Creates a clone of this {@link ThreatsCounter}.
+	 *
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	public ThreatsCounter clone() {
+		try {
+			return (ThreatsCounter) super.clone();
+		} catch (CloneNotSupportedException e) {
+			// Should never happen: we support clone
+			throw new InternalError(e.toString());
+		}
 	}
 
 	/**

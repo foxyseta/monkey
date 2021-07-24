@@ -14,7 +14,7 @@ import java.util.function.ToIntFunction;
  * @version 1.0
  * @since 1.0
  */
-public class DirectAddressTable<T> implements Iterable<T> {
+public class DirectAddressTable<T> implements Cloneable, Iterable<T> {
 
 	/**
 	 * A function associating each value to an integer key in the range [0 .. length
@@ -46,6 +46,26 @@ public class DirectAddressTable<T> implements Iterable<T> {
 			throw new NullPointerException("keyFunction is null");
 		table = (T[]) java.lang.reflect.Array.newInstance(type, length);
 		toKey = keyFunction;
+	}
+
+	/**
+	 * Creates a clone of this {@link DirectAddressTable}. Takes Θ({@link #length})
+	 * time.
+	 *
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	@SuppressWarnings("unchecked")
+	public DirectAddressTable<T> clone() {
+		try {
+			DirectAddressTable<T> copy = (DirectAddressTable<T>) super.clone();
+			copy.table = table.clone();
+			return copy;
+		} catch (CloneNotSupportedException e) {
+			// Should never happen: we support clone
+			throw new InternalError(e.toString());
+		}
 	}
 
 	/**

@@ -14,7 +14,17 @@ package monkey.ai;
  * @version 1.0
  * @since 1.0
  */
-public interface State<Self extends State<Self, Action, Utility>, Action, Utility extends Comparable<Utility>> {
+public interface State<Self extends State<Self, Action, Utility>, Action, Utility extends Comparable<Utility>>
+		extends Cloneable {
+
+	/**
+	 * Creates a clone of this {@link State}.
+	 *
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	public Self clone();
 
 	/**
 	 * Defines which {@link Player} has the move.
