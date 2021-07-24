@@ -2,6 +2,7 @@ package monkey.ai;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.concurrent.TimeoutException;
 import monkey.ai.table.Entry;
 import monkey.util.ObjectUtils;
 
@@ -84,7 +85,7 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 	 * @since 1.0
 	 */
 	public A alphaBetaSearch() {
-		long startTime = System.currentTimeMillis();
+		startTime = System.currentTimeMillis();
 		if (state.terminalTest())
 			throw new IllegalArgumentException("s is a terminal state");
 		if (player != state.player())
@@ -96,19 +97,21 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 			Iterator<A> actions = state.actions();
 			while (actions.hasNext()) {
 				final A toChild = actions.next();
-				final U minValue = minValue(state.result(toChild), alpha, beta, depthLimit);
-				if (a == null || minValue != null && (v == null || minValue.compareTo(v) > 0)) {
-					a = toChild;
-					v = minValue;
+				try {
+					final U minValue = minValue(state.result(toChild), alpha, beta, depthLimit);
+					if (a == null || minValue != null && (v == null || minValue.compareTo(v) > 0)) {
+						a = toChild;
+						v = minValue;
+					}
+				} catch (TimeoutException e) {
+					state.revert();
+					System.out.println("🙈 limit ≤ " + depthLimit);
+					return a;
 				}
 				state.revert();
 				if (v != null && v.compareTo(beta) >= 0)
 					return a;
 				alpha = objectUtils.max(alpha, v);
-				if (System.currentTimeMillis() - startTime > timeLimit * RELAXATION) {
-					System.out.println("🙈 limit ≤ " + depthLimit);
-					return a;
-				}
 			}
 		}
 		return a;
@@ -126,22 +129,30 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 	 * @return The utility brought by the most useful action for the <code>AI</code>
 	 *         within <code>s</code>.
 	 * @throws NullPointerException The state is null.
+	 * @throws TimeoutException     The time limit is almost over.
 	 * @author Gaia Clerici
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	protected U maxValue(S s, U alpha, U beta, int depthLimit) {
+	protected U maxValue(S s, U alpha, U beta, int depthLimit) throws TimeoutException {
 		if (s == null)
 			throw new NullPointerException("s is null.");
 		if (s.terminalTest())
 			return s.utility(player);
 		if (depthLimit <= 0)
 			return null;
+		if (System.currentTimeMillis() - startTime > timeLimit * RELAXATION)
+			throw new TimeoutException();
 		U v = null;
 		final Iterator<A> actions = s.actions();
 		while (actions.hasNext()) {
 			final A toChild = actions.next();
-			v = objectUtils.max(v, minValue(s.result(toChild), alpha, beta, depthLimit - 1));
+			try {
+				v = objectUtils.max(v, minValue(s.result(toChild), alpha, beta, depthLimit - 1));
+			} catch (TimeoutException e) {
+				s.revert();
+				throw e;
+			}
 			s.revert();
 			if (v != null && v.compareTo(beta) >= 0)
 				return v;
@@ -162,27 +173,35 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 	 * @return The utility brought by the most useful action for the opponent within
 	 *         <code>s</code>.
 	 * @throws NullPointerException The state is null.
+	 * @throws TimeoutException     The time limit is almost over.
 	 * @author Gaia Clerici
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	protected U minValue(S s, U alpha, U beta, int depthLimit) {
+	protected U minValue(S s, U alpha, U beta, int depthLimit) throws TimeoutException {
 		if (s == null)
 			throw new NullPointerException("s is null.");
 		if (s.terminalTest())
 			return s.utility(player);
 		if (depthLimit <= 0)
 			return null;
+		if (System.currentTimeMillis() - startTime > timeLimit * RELAXATION)
+			throw new TimeoutException();
 		U v = s.initialBeta(player);
 		boolean cutoff = false;
 		final Iterator<A> actions = s.actions();
 		while (actions.hasNext()) {
 			final A toChild = actions.next();
-			final U maxValue = maxValue(s.result(toChild), alpha, beta, depthLimit - 1);
-			if (maxValue == null)
-				cutoff = true;
-			else
-				v = objectUtils.min(v, maxValue);
+			try {
+				final U maxValue = maxValue(s.result(toChild), alpha, beta, depthLimit - 1);
+				if (maxValue == null)
+					cutoff = true;
+				else
+					v = objectUtils.min(v, maxValue);
+			} catch (TimeoutException e) {
+				s.revert();
+				throw e;
+			}
 			s.revert();
 			if (v != null && v.compareTo(alpha) <= 0)
 				return v;
@@ -200,8 +219,10 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 	/** Utilities instance for generic objects. */
 	final private ObjectUtils objectUtils = new ObjectUtils();
 	/** The higher, the more time is used at most for each search. */
-	final private float RELAXATION = 0.7f;
+	final private float RELAXATION = 0.99f;
 	/** A transposition table for this instance of the {@link AI}. */
 	final private HashMap<Integer, Entry<A, U>> transpositionTable;
+	/** Start time of the current turn. */
+	private long startTime;
 
 }
