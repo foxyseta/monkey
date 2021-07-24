@@ -92,7 +92,7 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 			throw new IllegalArgumentException("It's not your turn");
 		A a = null;
 		U alpha = state.initialAlpha(player), beta = state.initialBeta(player), v = alpha;
-		// final S backupState = state.clone();
+		final S backupState = state.clone();
 		final int maxLimit = state.overestimatedHeight();
 		for (int depthLimit = 0; depthLimit <= maxLimit; ++depthLimit) {
 			Iterator<A> actions = state.actions();
@@ -105,7 +105,7 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 						v = minValue;
 					}
 				} catch (TimeoutException e) {
-					state.revert();
+					state = backupState;
 					System.out.println("🙈 limit ≤ " + depthLimit);
 					return a;
 				}
@@ -151,7 +151,6 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 			try {
 				v = objectUtils.max(v, minValue(s.result(toChild), alpha, beta, depthLimit - 1));
 			} catch (TimeoutException e) {
-				s.revert();
 				throw e;
 			}
 			s.revert();
@@ -200,7 +199,6 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 				else
 					v = objectUtils.min(v, maxValue);
 			} catch (TimeoutException e) {
-				s.revert();
 				throw e;
 			}
 			s.revert();
