@@ -92,6 +92,7 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 			throw new IllegalArgumentException("It's not your turn");
 		A a = null;
 		U alpha = state.initialAlpha(player), beta = state.initialBeta(player), v = alpha;
+		// final S backupState = state.clone();
 		final int maxLimit = state.overestimatedHeight();
 		for (int depthLimit = 0; depthLimit <= maxLimit; ++depthLimit) {
 			Iterator<A> actions = state.actions();
@@ -219,7 +220,7 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 	/** Utilities instance for generic objects. */
 	final private ObjectUtils objectUtils = new ObjectUtils();
 	/** The higher, the more time is used at most for each search. */
-	final private float RELAXATION = 0.99f;
+	final private float RELAXATION = 0.998f;
 	/** A transposition table for this instance of the {@link AI}. */
 	final private HashMap<Integer, Entry<A, U>> transpositionTable;
 	/** Start time of the current turn. */
