@@ -17,56 +17,6 @@ public class Position {
 	/** Number of columns of the board. */
 	public final int COLUMNSNUMBER;
 
-	/** Current row index. */
-	private int row;
-	/** Current column index */
-	private int column;
-
-	/**
-	 * Implements bounds checking for rows.
-	 *
-	 * @see #validateColumn
-	 * @param row Row index.
-	 * @throws IndexOutOfBoundsException Row out of bounds.
-	 * @author Gaia Clerici
-	 * @version 1.0
-	 * @since 1.0
-	 */
-	private void validateRow(int row) {
-		if (row >= ROWSNUMBER || row < 0)
-			throw new IndexOutOfBoundsException("This row isn't valid");
-	}
-
-	/**
-	 * Implements bounds checking for columns.
-	 *
-	 * @see #validateRow
-	 * @param column Column index.
-	 * @throws IndexOutOfBoundsException Column out of bounds.
-	 * @author Gaia Clerici
-	 * @version 1.0
-	 * @since 1.0
-	 */
-	private void validateColumn(int column) {
-		if (column >= COLUMNSNUMBER || column < 0)
-			throw new IndexOutOfBoundsException("This row isn't valid");
-	}
-
-	/**
-	 * Implements bounds checking for both rows and columns.
-	 *
-	 * @param row    Row index.
-	 * @param column Column index.
-	 * @throws IndexOutOfBoundsException Row and/or column out of bounds.
-	 * @author Gaia Clerici
-	 * @version 1.0
-	 * @since 1.0
-	 */
-	private void validate(int row, int column) {
-		validateRow(row);
-		validateColumn(column);
-	}
-
 	/**
 	 * Constructs a new {@link Position} given the numbers of rows and columns and
 	 * its coordinates.
@@ -235,6 +185,16 @@ public class Position {
 		return this;
 	}
 
+	/**
+	 * Indicates whether some other object is "equal to" (memberwise) this one.
+	 *
+	 * @param o The reference object with which to compare.
+	 * @return <code>true</code> if this object is the same as the obj argument;
+	 *         <code>false</code> otherwise.
+	 * @author Gaia Clerici
+	 * @version 1.0
+	 * @since 1.0
+	 */
 	@Override // inherit doc comment
 	public boolean equals(Object o) {
 		if (o == this)
@@ -244,5 +204,55 @@ public class Position {
 		Position p = (Position) o;
 		return ROWSNUMBER == p.ROWSNUMBER && COLUMNSNUMBER == p.COLUMNSNUMBER && row == p.row && column == p.column;
 	}
+
+	/**
+	 * Implements bounds checking for rows.
+	 *
+	 * @see #validateColumn
+	 * @param row Row index.
+	 * @throws IndexOutOfBoundsException Row out of bounds.
+	 * @author Gaia Clerici
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	private void validateRow(int row) {
+		if (row >= ROWSNUMBER || row < 0)
+			throw new IndexOutOfBoundsException("This row isn't valid");
+	}
+
+	/**
+	 * Implements bounds checking for columns.
+	 *
+	 * @see #validateRow
+	 * @param column Column index.
+	 * @throws IndexOutOfBoundsException Column out of bounds.
+	 * @author Gaia Clerici
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	private void validateColumn(int column) {
+		if (column >= COLUMNSNUMBER || column < 0)
+			throw new IndexOutOfBoundsException("This row isn't valid");
+	}
+
+	/**
+	 * Implements bounds checking for both rows and columns.
+	 *
+	 * @param row    Row index.
+	 * @param column Column index.
+	 * @throws IndexOutOfBoundsException Row and/or column out of bounds.
+	 * @author Gaia Clerici
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	private void validate(int row, int column) {
+		validateRow(row);
+		validateColumn(column);
+	}
+
+	/** Current row index. */
+	private int row;
+	/** Current column index */
+	private int column;
 
 }

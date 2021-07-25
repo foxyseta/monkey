@@ -1,5 +1,6 @@
 package monkey.util;
 
+import java.util.Iterator;
 import java.util.function.ToIntFunction;
 
 /**
@@ -13,20 +14,20 @@ import java.util.function.ToIntFunction;
  * @version 1.0
  * @since 1.0
  */
-public class DirectAddressTable<T> {
+public class DirectAddressTable<T> implements Cloneable, Iterable<T> {
 
 	/**
 	 * A function associating each value to an integer key in the range [0 .. length
 	 * - 1].
 	 */
-	final public ToIntFunction<T> KEYFUNCTION;
+	final public ToIntFunction<T> toKey;
 
 	/**
-	 * Constructs a new {@link DirectAddressTable}.
+	 * Constructs a new {@link DirectAddressTable}. Takes Θ({@link #length}) time.
 	 *
 	 * @param type        Type token to allocate the underlying
 	 *                    {@link java.lang.reflect.Array Array}.
-	 * @param keyFunction Initializer for {@link #KEYFUNCTION}.
+	 * @param keyFunction Initializer for {@link #toKey}.
 	 * @param length      Number of possible keys.
 	 * @throws IllegalArgumentException length is negative
 	 * @throws NullPointerException     type, or keyFunction, or both are null.
@@ -43,7 +44,27 @@ public class DirectAddressTable<T> {
 		if (keyFunction == null)
 			throw new NullPointerException("keyFunction is null");
 		table = (T[]) java.lang.reflect.Array.newInstance(type, length);
-		KEYFUNCTION = keyFunction;
+		toKey = keyFunction;
+	}
+
+	/**
+	 * Creates a clone of this {@link DirectAddressTable}. Takes Θ({@link #length})
+	 * time.
+	 *
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	@SuppressWarnings("unchecked")
+	public DirectAddressTable<T> clone() {
+		try {
+			DirectAddressTable<T> copy = (DirectAddressTable<T>) super.clone();
+			copy.table = table.clone();
+			return copy;
+		} catch (CloneNotSupportedException e) {
+			// Should never happen: we support clone
+			throw new InternalError(e.toString());
+		}
 	}
 
 	/**
@@ -82,8 +103,7 @@ public class DirectAddressTable<T> {
 	}
 
 	/**
-	 * Inserts an element in the table, updating it if it was already contained in
-	 * it.
+	 * Inserts an element in the table, updating it if already present.
 	 *
 	 * @param element The element to be inserted. It may be <code>null</code>.
 	 * @throws IndexOutOfBoundsException The element's key is out of bounds.
@@ -92,7 +112,7 @@ public class DirectAddressTable<T> {
 	 * @since 1.0
 	 */
 	public void insert(T element) {
-		final int key = KEYFUNCTION.applyAsInt(element);
+		final int key = toKey.applyAsInt(element);
 		try {
 			table[key] = element;
 		} catch (IndexOutOfBoundsException e) {
@@ -102,7 +122,7 @@ public class DirectAddressTable<T> {
 	}
 
 	/**
-	 * Deletes an element from the table, if it was contained in it. Otherwise,
+	 * Deletes an element from the table, if it was already present. Otherwise,
 	 * calling this method does nothing.
 	 *
 	 * @param element The element to be deleted. It may be <code>null</code>.
@@ -112,7 +132,7 @@ public class DirectAddressTable<T> {
 	 * @since 1.0
 	 */
 	public void delete(T element) {
-		final int key = KEYFUNCTION.applyAsInt(element);
+		final int key = toKey.applyAsInt(element);
 		try {
 			table[key] = null;
 		} catch (IndexOutOfBoundsException e) {
@@ -121,6 +141,90 @@ public class DirectAddressTable<T> {
 		}
 	}
 
+	/** Array used to store the data. */
 	private T[] table;
+
+	@Override // inherit doc comment
+	public Iterator<T> iterator() {
+		return new DirectAddressTableIterator<T>(table);
+	}
+
+	/**
+	 * Returns a string representation of the object. <br>
+	 * Takes Θ({@link #length}) time.
+	 *
+	 * @return A string representation of this object.
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	@Override
+	public String toString() {
+		String res = "[";
+		Iterator<T> it = iterator();
+		while (it.hasNext())
+			res = res + it.next() + (it.hasNext() ? "|" : "]");
+		return res;
+	}
+
+}
+
+/**
+ * An <code>Iterator</code> class for {@link DirectAddressTable}. It does not
+ * implement <code>remove</code>.
+ *
+ * @author Stefano Volpe
+ * @version 1.0
+ * @since 1.0
+ */
+class DirectAddressTableIterator<T> implements Iterator<T> {
+
+	/**
+	 * Constructs a new {@link DirectAddressTableIterator} from the underlying
+	 * array.
+	 * 
+	 * @param t Table to iterate through.
+	 * @throws NullPointerException t is null.
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 **/
+	public DirectAddressTableIterator(T[] t) {
+		if (t == null)
+			throw new NullPointerException("t is null.");
+		table = t;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	@Override
+	public boolean hasNext() {
+		return index < table.length;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @throws NoSuchElementException {@inheritDoc}
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	@Override
+	public T next() {
+		if (hasNext())
+			return table[index++];
+		throw new java.util.NoSuchElementException("No next element.");
+	}
+
+	/** The table to iterate through. */
+	final private T[] table;
+	/** The index of the next element, or the length of the table if it is over. */
+	private int index = 0;
 
 }

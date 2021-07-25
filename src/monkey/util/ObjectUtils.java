@@ -12,6 +12,7 @@ import java.util.Comparator;
  * @since 1.0
  */
 public class ObjectUtils {
+
     /**
      * Null safe comparison of Comparables.
      *

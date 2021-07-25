@@ -1,20 +1,17 @@
 package monkey.mnk;
 
-import java.lang.Iterable;
-import java.lang.Math;
 import java.util.Arrays;
-import java.util.function.Consumer;
-import java.util.ArrayList;
 import java.util.Stack;
+import java.util.Iterator;
 import mnkgame.MNKCellState;
 import mnkgame.MNKGameState;
+import monkey.ai.AI;
 import monkey.ai.Player;
-import monkey.util.DirectAddressTable;
 
 /**
- * A <code>Board</code> describes the {@link monkey.ai.State State} of a
- * MNK-game. It supports backtracking and alpha-beta pruning. A single istance
- * of this class takes Θ({@link #SIZE}) memory.
+ * A <code>Board</code> describes the {@link monkey.ai.State} of a m,n,k-game.
+ * It supports backtracking and alpha-beta pruning. A single istance of this
+ * class takes Θ({@link #SIZE}) memory.
  *
  * @author Stefano Volpe
  * @version 1.0
@@ -30,14 +27,12 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	final public int K;
 	/** Number of cells of the {@link Board}. */
 	final public int SIZE;
-	/** Number of possible {@link Alignment}s. */
-	final public int ALIGNMENTS;
 	/** Quantifies the satisfaction earned by winning the game. */
-	final public static int VICTORYUTILITY = 1;
+	final public static int VICTORYUTILITY = 1000000;
 	/** Quantifies the satisfaction earned when the game ends in a draw. */
 	final public static int DRAWUTILITY = 0;
 	/** Quantifies the satisfaction earned by losing the game. */
-	final public static int LOSSUTILITY = -1;
+	final public static int LOSSUTILITY = -1000000;
 
 	/**
 	 * Constructs a new {@link Board} given its m, n and k parameters. Takes
@@ -46,29 +41,24 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	 * @param m Number of rows.
 	 * @param n Number of columns.
 	 * @param k Number of symbols to be aligned.
-	 * @throws IllegalArgumentException m or n or k is negative.
+	 * @throws IllegalArgumentException m or n or k is not positive.
 	 * @author Stefano Volpe
 	 * @version 1.0
 	 * @since 1.0
 	 */
 	public Board(int m, int n, int k) {
-		if (m < 0)
-			throw new IllegalArgumentException("m < 0");
-		if (n < 0)
-			throw new IllegalArgumentException("n < 0");
-		if (k < 0)
-			throw new IllegalArgumentException("k < 0");
+		if (m <= 0)
+			throw new IllegalArgumentException("m <= 0");
+		if (n <= 0)
+			throw new IllegalArgumentException("n <= 0");
+		if (k <= 0)
+			throw new IllegalArgumentException("k <= 0");
 		// constants
 		SIZE = (M = m) * (N = n);
 		K = k;
 		// states
-		state = SIZE > 0 ? MNKGameState.OPEN : MNKGameState.DRAW;
+		state = MNKGameState.OPEN;
 		cellStates = initialCellStates();
-		// alignments
-		B = Math.max(0, N - K + 1);
-		H = Math.max(0, M - K + 1);
-		ALIGNMENTS = countAlignments();
-		alignments = new DirectAddressTable<Alignment>(Alignment.class, a -> toKey(a), ALIGNMENTS);
 		// action candidates
 		actionsCandidates = generateActionCandidates();
 		// initial alpha and beta values
@@ -78,6 +68,44 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 		// no m,n,k-game has theoreticalGameValue() == LOSSUTILITY anyway
 		INITIALALPHAP2 = INITIALBETAP1 == VICTORYUTILITY ? LOSSUTILITY : DRAWUTILITY;
 		INITIALBETAP2 = VICTORYUTILITY;
+		// counters
+		kCounter = K > 1 ? new ThreatsManager(K, this) : null;
+		kMinusOneCounter = K > 2 ? new ThreatsManager(K - 1, this) : null;
+		kMinusTwoCounter = K > 3 ? new ThreatsManager(K - 2, this) : null;
+		// hashing
+		zobristHasher = new ZobristHasher(M, N);
+	}
+
+	/**
+	 * {@inheritDoc} <br>
+	 * Takes Θ({@link #SIZE}) time.
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	public Board clone() {
+		try {
+			Board copy = (Board) super.clone();
+			copy.cellStates = new MNKCellState[M][N];
+			for (int i = 0; i < cellStates.length; ++i)
+				copy.cellStates[i] = cellStates[i].clone();
+			copy.history = (Stack<Position>) history.clone();
+			if (kCounter != null) {
+				copy.kCounter = kCounter.clone();
+				copy.kCounter.setBoard(copy);
+			}
+			if (kMinusOneCounter != null) {
+				copy.kMinusOneCounter = kMinusOneCounter.clone();
+				copy.kMinusOneCounter.setBoard(copy);
+			}
+			if (kMinusTwoCounter != null) {
+				copy.kMinusTwoCounter = kMinusTwoCounter.clone();
+				copy.kMinusTwoCounter.setBoard(copy);
+			}
+			return copy;
+		} catch (CloneNotSupportedException e) {
+			// Should never happen: we support clone
+			throw new InternalError(e.toString());
+		}
 	}
 
 	@Override // inherit doc comment
@@ -86,22 +114,24 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	}
 
 	/**
-	 * {@inheritDoc} Takes Ο({@link #SIZE}) time.
+	 * {@inheritDoc} <br>
+	 * Takes Θ(1) time in the best and average cases, but Θ({@link SIZE}} in the
+	 * worst case. The act of instantiating an iterator and bringing it to the end
+	 * of the sequence always takes Θ({@link SIZE}) time in total.
 	 */
 	@Override
-	public Iterable<Position> actions() {
-		ArrayList<Position> res = new ArrayList<Position>(SIZE - history.size());
-		for (Position p : actionsCandidates)
-			if (cellStates[p.getRow()][p.getColumn()] == MNKCellState.FREE)
-				res.add(p);
-		return res;
+	public Iterator<Position> actions() {
+		return new BoardIterator();
 	}
 
 	/**
-	 * {@inheritDoc} Takes Θ({@link #K}) time.
+	 * {@inheritDoc} <br>
+	 * Takes Θ({@link #K}) time.
 	 */
 	@Override
 	public Board result(Position a) {
+		if (a == null)
+			throw new IllegalArgumentException("Null moves are invalid in this game.");
 		if (state != MNKGameState.OPEN)
 			throw new IllegalCallerException("The game is already over.");
 		if (a.ROWSNUMBER != M || a.COLUMNSNUMBER != N)
@@ -109,16 +139,21 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 		final int row = a.getRow(), column = a.getColumn();
 		if (cellStates[row][column] != MNKCellState.FREE)
 			throw new IllegalArgumentException("(" + row + ", " + column + ") is not free.");
-		cellStates[row][column] = player() == Player.P1 ? MNKCellState.P1 : MNKCellState.P2;
-		updateAlignments(a, x -> updateMark(x, true));
+		final Player p = player();
+		cellStates[row][column] = p == Player.P1 ? MNKCellState.P1 : MNKCellState.P2;
+		updateThreatsManagers(a);
+		if (countThreatsWithoutHole(K, p) > 0)
+			state = p == Player.P1 ? MNKGameState.WINP1 : MNKGameState.WINP2;
 		history.push(a);
 		if (state == MNKGameState.OPEN && history.size() == SIZE)
 			state = MNKGameState.DRAW;
+		zobristHashCode ^= zobristHasher.getDisjunct(a, p);
 		return this;
 	}
 
 	/**
-	 * {@inheritDoc} Takes Θ({@link #K}) time.
+	 * {@inheritDoc} <br>
+	 * Takes Θ({@link #K}) time.
 	 */
 	@Override
 	public Board revert() {
@@ -126,8 +161,9 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 			final Position a = history.pop();
 			final int row = a.getRow(), column = a.getColumn();
 			cellStates[row][column] = MNKCellState.FREE;
-			updateAlignments(a, x -> updateMark(x, false));
+			updateThreatsManagers(a);
 			state = MNKGameState.OPEN;
+			zobristHashCode ^= zobristHasher.getDisjunct(a, player());
 		} catch (java.util.EmptyStackException e) {
 			throw new IllegalCallerException("No previous action to revert.");
 		}
@@ -157,40 +193,136 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 
 	@Override // inherit doc comment
 	public Integer initialAlpha(Player p) {
-		return p == Player.P1 ? INITIALALPHAP1 : INITIALALPHAP2;
+		return history.empty() ? p == Player.P1 ? INITIALALPHAP1 : INITIALALPHAP2 : LOSSUTILITY;
 	}
 
 	@Override // inherit doc comment
 	public Integer initialBeta(Player p) {
-		return p == Player.P1 ? INITIALBETAP1 : INITIALBETAP2;
+		return history.empty() ? p == Player.P1 ? INITIALBETAP1 : INITIALBETAP2 : VICTORYUTILITY;
 	}
 
 	/**
-	 * Helper function to initialize cell states.
+	 * {@inheritDoc} It is implemented as a simplified (see project report) version
+	 * of the heuristic of Abdoulaye-Houndji-Ezin-Aglin. The coefficients are left
+	 * as unnamed constants because of their large number and their experimental
+	 * origin. See A. Abdoulaye, V. R. Houndji, E. C. Ezin, G. Aglin, <i>Generic
+	 * Heuristic for the mnk-games</i>, in A. E. Badouel, N. Gmati, B. Watson (eds),
+	 * <i>Proceedings of CARI 2018 (African Conference on Research in Computer
+	 * Science and Applied Mathematics). Nabil Gmati; Eric Badouel; Bruce Watson.
+	 * CARI 2018 - Colloque africain sur la recherche en informatique et
+	 * mathématiques appliquées</i>, Oct 2018, Stellenbosch, South Africa. 2018, pp.
+	 * 268-269. hal-01881376f.
+	 *
+	 * @param p The {@link monkey.ai.Player} from whose point of view the current
+	 *          {@link Board} is evaluated.
+	 * @return The result of the evaluation.
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	@Override
+	public Integer eval(Player p) {
+		if (terminalTest())
+			return utility(p);
+		final int A = 100 * countThreats(K - 2, Threat.ONE, p) + 80 * countHalfOpenThreats(K - 1, p)
+				+ 250 * countThreats(K - 1, Threat.ONE, p) + 1000000 * countThreatsWithoutHole(K, p);
+		final Player q = p.not();
+		final int B = 1300 * countThreats(K - 2, Threat.ONE, q) + 2000 * countHalfOpenThreats(K - 1, q)
+				+ 5020 * countThreats(K - 1, Threat.ONE, q) + 1000000 * countThreatsWithoutHole(K, q);
+		return A - B;
+	}
+
+	@Override // inherit doc comment
+	public int overestimatedHeight() {
+		return SIZE - history.size();
+	}
+
+	/**
+	 * Returns a string representation of the object. <br>
+	 * Takes Θ({@link #SIZE}) time.
+	 *
+	 * @return A string representation of this object.
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	@Override
+	public String toString() {
+		char[] res = new char[SIZE + 2 * M];
+		int i = 0;
+		for (MNKCellState[] row : cellStates) {
+			for (MNKCellState cell : row)
+				res[i++] = cell == MNKCellState.P1 ? '1' : cell == MNKCellState.P2 ? '2' : '.';
+			res[i++] = '%';
+			res[i++] = 'n';
+		}
+		return String.format(new String(res));
+	}
+
+	/**
+	 * Returns a hash code value for the object. Zobrist hashing is used
+	 * (transpositions will return the same hash code). Hence, most of this method's
+	 * original contract is broken. See A. L. Zobrist, <i>A New Hashing Method with
+	 * Application for Game Playing</i>, Tech. Rep. 88, Computer Sciences
+	 * Department, University of Wisconsin, Madison, Wisconsin, Apr. 1970, pp. 5-7.
+	 * 
+	 * @return A hash code value for this object.
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	@Override
+	public int hashCode() {
+		return zobristHashCode;
+	}
+
+	/**
+	 * A getter for the cells of the grid.
+	 *
+	 * @param p The {@link Position} to inspect.
+	 * @throws IllegalArgumentException p does not have correct extents.
+	 * @return The state of the inspected cell, or <code>null</code> if p is
+	 *         <code>null</code>.
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	public MNKCellState getCellState(Position p) {
+		if (p == null)
+			return null;
+		if (p.ROWSNUMBER != M || p.COLUMNSNUMBER != N)
+			throw new IllegalArgumentException("This Position is meant for a different grid.");
+		return cellStates[p.getRow()][p.getColumn()];
+	}
+
+	/**
+	 * A getter for the cells of the grid.
+	 *
+	 * @param row    The row of the cell to inspect.
+	 * @param column The column of the cell to inspect.
+	 * @throws IndexOutOfBoundsException (row, column) is not part of the grid.
+	 * @return The state of the inspected cell.
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	public MNKCellState getCellState(int row, int column) {
+		return cellStates[row][column];
+	}
+
+	/**
+	 * Helper function to initialize cell states. Takes Θ({@link #SIZE}) time.
 	 *
 	 * @return A {@link #M} x {@link #N} matrix with the initial cell states.
 	 * @author Stefano Volpe
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	private MNKCellState[][] initialCellStates() {
+	protected MNKCellState[][] initialCellStates() {
 		MNKCellState[][] res = new MNKCellState[M][N];
 		for (MNKCellState[] row : res)
 			Arrays.fill(row, MNKCellState.FREE);
 		return res;
-	}
-
-	/**
-	 * Computes the number of possible {@link monkey.mnk.Alignment Alignment}s for
-	 * this {@link Board}.
-	 *
-	 * @return The number of possible {@link monkey.mnk.Alignment Alignment}s.
-	 * @author Stefano Volpe
-	 * @version 1.0
-	 * @since 1.0
-	 */
-	private int countAlignments() {
-		return B * (M + H) + H * (N + B);
 	}
 
 	/**
@@ -204,9 +336,13 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	private Integer theoreticalGameValue() {
-		if (K == 1 || K == 2 && SIZE > 2 || K == 3 && (M >= 4 && N >= 3 || M >= 3 && N >= 4))
+	protected Integer theoreticalGameValue() {
+		if (K == 1)
 			return VICTORYUTILITY;
+		if (K == 2)
+			return SIZE > 2 ? VICTORYUTILITY : DRAWUTILITY;
+		if (K == 3)
+			return M >= 4 && N >= 3 || M >= 3 && N >= 4 ? VICTORYUTILITY : DRAWUTILITY;
 		if (K == 4) {
 			if (M <= 8 && N == 4 || M == 4 && N <= 8 || M == 5 && N == 5)
 				return DRAWUTILITY;
@@ -225,135 +361,16 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	}
 
 	/**
-	 * Maps a valid {@link monkey.mnk.Alignment Alignment} for this {@link Board} to
-	 * an appropriate integer key in [0 .. {@link #ALIGNMENTS} - 1].
-	 *
-	 * @see #alignments
-	 * @param a Value to be mapped.
-	 * @throws IllegalArgumentException a's grid extents are different from this
-	 *                                  {@link Board}'s.
-	 * @throws NullPointerException     a is <code>null</code>.
-	 * @return An integer key
-	 * @author Stefano Volpe
-	 * @version 1.0
-	 * @since 1.0
-	 */
-	private int toKey(Alignment a) {
-		if (a == null)
-			throw new NullPointerException("Null alignment.");
-		if (a.FIRSTCELL.ROWSNUMBER != M || a.FIRSTCELL.COLUMNSNUMBER != N)
-			throw new IllegalArgumentException("Incompatible grid extents.");
-		final int row = a.FIRSTCELL.getRow(), column = a.FIRSTCELL.getColumn();
-		switch (a.DIRECTION) {
-		case HORIZONTAL: // [0 .. B * M - 1]
-			return row * B + column;
-		case VERTICAL: // B * M + [0 .. N * H - 1]
-			return B * M + row * N + column;
-		case PRIMARY_DIAGONAL: // B * M + N * H + [0 .. B * H - 1]
-			return B * (M + row) + N * H + column;
-		case SECONDARY_DIAGONAL: // B * (M + H) + N * H + [0 .. B * H - 1]
-			return B * (2 * H + row) + N * H + column;
-		default:
-			throw new IllegalArgumentException("Unknown direction");
-		}
-	}
-
-	/**
-	 * (Un)records a mark for a certain {@link monkey.mnk.Alignment Alignment} based
-	 * on the current {@link monkey.ai.Player Player}.
-	 *
-	 * @param query Its coordinates are used to identify the element to update. May
-	 *              be dirtied after its use.
-	 * @param add   <code>true</code> just in case the cell has to be added instead
-	 *              of removed.
-	 * @throws IllegalArgumentException query is meant for another M-N-K tuple.
-	 * @throws IllegalArgumentException Cannot add any more marks.
-	 * @throws IllegalCallerException   Unknown direction.history.peek()
-	 * @throws NullPointerException     query is null
-	 * @author Stefano Volpe
-	 * @version 1.0
-	 * @since 1.0
-	 */
-	private void updateMark(Alignment query, boolean add) {
-		if (query == null)
-			throw new NullPointerException("query is null");
-		if (query.FIRSTCELL.ROWSNUMBER != M || query.FIRSTCELL.COLUMNSNUMBER != N || query.LENGTH != K)
-			throw new IllegalArgumentException("M-N-K incompatibility.");
-		Alignment result = alignments.search(toKey(query));
-		if (result == null) {
-			query.clear();
-			alignments.insert(result = query);
-		}
-		try {
-			if (add)
-				switch (result.addMark(player())) {
-				case P1FULL:
-					state = MNKGameState.WINP1;
-					break;
-				case P2FULL:
-					state = MNKGameState.WINP2;
-					break;
-				default:
-					break;
-				}
-			else
-				result.removeMark(player());
-		} catch (IllegalCallerException e) {
-			throw e.getMessage() == "Unknown direction." ? e
-					: new IllegalArgumentException("Cannot " + (add ? "add" : "remove") + " any more marks.");
-		}
-	}
-
-	/**
-	 * Applies a generic "update" function to every {@link monkey.mnk.Alignment
-	 * Alignment} containing a given cell. Takes Θ({@link #K} f) time, where f is
-	 * the cost of the "update" function.
-	 *
-	 * @param p      Location of the cell which has just been (un)marked.
-	 * @param update Functional argument invoked as an "update" function.
-	 * @throws IllegalArgumentException p caused an M-N-K incompatibility.
-	 * @throws NullPointerException     p, or update, or both are null.
-	 * @author Stefano Volpe
-	 * @version 1.0
-	 * @since 1.0
-	 */
-	private void updateAlignments(Position p, Consumer<Alignment> update) {
-		if (p == null)
-			throw new NullPointerException("p is null.");
-		if (update == null)
-			throw new NullPointerException("update is null.");
-		if (p.ROWSNUMBER != M || p.COLUMNSNUMBER != N)
-			throw new IllegalArgumentException("M-N-K incompatibility");
-		final int row = p.getRow(), column = p.getColumn();
-		// horizontal alignments
-		int max = Math.min(N - K, column);
-		for (int j = Math.max(0, column - K + 1); j <= max; ++j)
-			update.accept(new Alignment(new Position(this, row, j), Alignment.Direction.HORIZONTAL, K));
-		// vertical alignments
-		max = Math.min(M - K, row);
-		for (int i = Math.max(0, row - K + 1); i <= max; ++i)
-			update.accept(new Alignment(new Position(this, i, column), Alignment.Direction.VERTICAL, K));
-		// primary diagonal alignments
-		max = Math.min(N - K + row - column, Math.min(M - K, row));
-		for (int i = Math.max(0, Math.max(row - K + 1, row - column)), j = i + column - row; i <= max; ++i, ++j)
-			update.accept(new Alignment(new Position(this, i, j), Alignment.Direction.PRIMARY_DIAGONAL, K));
-		// secondary diagonal alignments
-		max = Math.min(column + row, Math.min(M - 1, row + K - 1));
-		for (int i = Math.max(row + column + K - N, Math.max(K - 1, row)), j = row + column - i; i <= max; ++i, --j)
-			update.accept(new Alignment(new Position(this, i, j), Alignment.Direction.SECONDARY_DIAGONAL, K));
-	}
-
-	/**
 	 * Generates a sequence containing all of the {@link Position}s of this
-	 * <code>Board</code>, sorted by decreasing heuristic value. See the project
-	 * report. Takes Θ({@link #SIZE}) time.
+	 * <code>Board</code>, sorted by decreasing heuristic value. <i>Escargot</i>
+	 * heuristic is used (see the project report). Takes Θ({@link #SIZE}) time.
 	 *
 	 * @return The generated sequence.
 	 * @author Stefano Volpe
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	Position[] generateActionCandidates() {
+	protected Position[] generateActionCandidates() {
 		Position[] res = new Position[SIZE];
 		int firstRow = 0, lastRow = M - 1, firstColumn = 0, lastColumn = N - 1;
 		int i = SIZE - 1, row = firstRow, column = firstColumn;
@@ -389,10 +406,176 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 		return res;
 	}
 
-	/** See the project report. */
-	final private int B;
-	/** See the project report. */
-	final private int H;
+	/**
+	 * Updates all of the non-<code>null</code> {@link ThreatsManager}s of this
+	 * {@link Board}. Takes Θ({@link #K}) time.
+	 *
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	private void updateThreatsManagers(Position p) {
+		if (kCounter != null) {
+			kCounter.updateAlignments(p, player());
+			if (kMinusOneCounter != null) {
+				kMinusOneCounter.updateAlignments(p, player());
+				if (kMinusTwoCounter != null)
+					kMinusTwoCounter.updateAlignments(p, player());
+			}
+		}
+	}
+
+	/**
+	 * Retrieves the number of {@link Threat}s stored by this object, filtered by
+	 * length, type, and threatener.
+	 *
+	 * @param length     Length of the {@link Threat}s to count.
+	 * @param type       Nature of the {@link Threat}s to count.
+	 * @param threatener {@link monkey.ai.Player Player} doing the threatening.
+	 * @throws NullPointerException Type or threatener are <code>null</code> and
+	 *                              required to compute the result.
+	 * @return The current number of the {@link Threat}s queried.
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	protected int countThreats(int length, Threat type, Player threatener) {
+		final ThreatsManager threatsManager;
+		if (length == K)
+			threatsManager = type.hasHole() ? null : kCounter;
+		else if (length == K - 1)
+			threatsManager = type.hasHole() ? kCounter : kMinusOneCounter;
+		else if (length == K - 2)
+			threatsManager = type.hasHole() ? kMinusOneCounter : kMinusTwoCounter;
+		else if (length == K - 3)
+			threatsManager = type.hasHole() ? kMinusTwoCounter : null;
+		else
+			threatsManager = null;
+		return threatsManager == null ? 0 : threatsManager.count(type, threatener);
+	}
+
+	/**
+	 * Retrieves the number of half-open {@link Threat}s stored by this object,
+	 * filtered by length and threatener.
+	 *
+	 * @param length     Length of the {@link Threat}s to count.
+	 * @param threatener {@link monkey.ai.Player Player} doing the threatening.
+	 * @throws NullPointerException threatener is <code>null</code> and required to
+	 *                              compute the result.
+	 * @return The current number of the {@link Threat}s queried.
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	protected int countHalfOpenThreats(int length, Player threatener) {
+		return countThreats(length, Threat.TWO, threatener) + countThreats(length, Threat.FOUR, threatener)
+				+ countThreats(length, Threat.FIVE, threatener) + countThreats(length, Threat.SIX, threatener);
+	}
+
+	/**
+	 * Retrieves the number of {@link Threat}s without hole stored by this object,
+	 * filtered by length and threatener.
+	 *
+	 * @param length     Length of the {@link Threat}s to count.
+	 * @param threatener {@link monkey.ai.Player Player} doing the threatening.
+	 * @throws NullPointerException threatener is <code>null</code> and required to
+	 *                              compute the result.
+	 * @return The current number of the {@link Threat}s queried.
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	protected int countThreatsWithoutHole(int length, Player threatener) {
+		return countThreats(length, Threat.ONE, threatener) + countThreats(length, Threat.TWO, threatener)
+				+ countThreats(length, Threat.THREE, threatener);
+	}
+
+	/**
+	 * An <code>Iterator</code> class for {@link Board} which iterates by decreasing
+	 * heuristic values. It does not implement <code>remove</code>.
+	 *
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @version 1.0
+	 */
+	private class BoardIterator implements Iterator<Position> {
+
+		/**
+		 * Constructs a new {@link #BoardIterator}. Takes Θ(1) time in the best and
+		 * average cases, but Θ(@link Board#SIZE} in the worst case.
+		 *
+		 * @author Stefano Volpe
+		 * @version 1.0
+		 * @since 1.0
+		 */
+		public BoardIterator() {
+			if (terminalTest())
+				index = actionsCandidates.length;
+			else
+				while (index < actionsCandidates.length && getCellState(actionsCandidates[index]) != MNKCellState.FREE)
+					++index;
+		}
+
+		/**
+		 * Returns <code>true</code> if the iteration has more elements. (In other
+		 * words, returns <code>true</code> if {@link #next} would return an element
+		 * rather than throwing an exception.)
+		 *
+		 * @return <code>true</code> if the iteration has more elements.
+		 * @author Stefano Volpe
+		 * @version 1.0
+		 * @since 1.0
+		 */
+		@Override
+		public boolean hasNext() {
+			return index < actionsCandidates.length;
+		}
+
+		/**
+		 * Returns the next element in the iteration. <br>
+		 * Takes Θ(1) time in the best and average cases, but Θ(@link Board#SIZE} in the
+		 * worst case.
+		 *
+		 * @return The next element in the iteration.
+		 * @throws NoSuchElementException if the iteration has no more elements.
+		 * @author Stefano Volpe
+		 * @version 1.0
+		 * @since 1.0
+		 */
+		@Override
+		public Position next() {
+			if (hasNext()) {
+				final int oldIndex = index;
+				do
+					++index;
+				while (index < actionsCandidates.length && getCellState(actionsCandidates[index]) != MNKCellState.FREE);
+				return actionsCandidates[oldIndex];
+			}
+			throw new java.util.NoSuchElementException("No next element.");
+		}
+
+		/** The index of the next element, or the length of the table if it is over. */
+		private int index = 0;
+
+	}
+
+	/**
+	 * {@inheritDoc} <br>
+	 * See the project report. Takes Θ(1) (sic).
+	 */
+	@Override
+	public int ttSuggestedCapacity() {
+		final int ENTRIESPERKILOBYTES = 256, MAXENTRIES = AI.MAXRAM * ENTRIESPERKILOBYTES;
+		int sum = 1, lastTerm = 1;
+		for (int p = 1; p < SIZE; ++p) {
+			lastTerm *= (SIZE - p + 1) * (p % 2 == 0 ? p / 2 : 1);
+			sum += lastTerm;
+			if (sum < 0 || sum > MAXENTRIES)
+				return MAXENTRIES;
+		}
+		return sum;
+	}
+
 	/** A P1 alpha value valid after a generic first move of theirs. */
 	final private int INITIALALPHAP1;
 	/** A P1 beta value valid after a generic first move of theirs. */
@@ -401,12 +584,13 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	final private int INITIALALPHAP2;
 	/** A P2 beta value valid after a generic first move of P1. */
 	final private int INITIALBETAP2;
-	/** Stores the {@link Board}'s {@link mnkgame.MNKCell cells}. */
-	final private MNKCellState[][] cellStates;
-	/** The moves played so far. */
-	final private Stack<Position> history = new Stack<Position>();
-	/** Stores all of the {@link Board}'s possible {@link Alignment}s. */
-	final private DirectAddressTable<Alignment> alignments;
+	/**
+	 * Stores the {@link Board}'s {@link mnkgame.MNKCell cells}. Not a final field
+	 * because of {@link #clone}.
+	 */
+	private MNKCellState[][] cellStates;
+	/** The moves played so far. Not a final field because of {@link #clone}. */
+	private Stack<Position> history = new Stack<Position>();
 	/** The current game state. */
 	private MNKGameState state;
 	/**
@@ -414,5 +598,26 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	 * sorted by decreasing heuristic value.
 	 */
 	final private Position[] actionsCandidates;
+	/**
+	 * Counters for both no-hole {@link #K}-threats and
+	 * {@link #K}<code>-1</code>-threats with a hole. Not a final field because of
+	 * {@link #clone}.
+	 */
+	private ThreatsManager kCounter;
+	/**
+	 * Counters for both no-hole {@link #K}<code>-1</code>-threats and
+	 * {@link #K}<code>-2</code>-threats with a hole. Not a final field because of
+	 * {@link #clone}.
+	 */
+	private ThreatsManager kMinusOneCounter;
+	/**
+	 * Counters for no-hole {@link #K}<code>-2</code>-threats. Not a final field
+	 * because of {@link #clone}.
+	 */
+	private ThreatsManager kMinusTwoCounter;
+	/** Zobrist hash code for this object. */
+	private int zobristHashCode = 0;
+	/** Utility for Zobrist hashing. */
+	final private ZobristHasher zobristHasher;
 
 }

@@ -1,5 +1,9 @@
 package monkey.ai;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.concurrent.TimeoutException;
+import monkey.ai.table.Entry;
 import monkey.util.ObjectUtils;
 
 /**
@@ -17,14 +21,8 @@ import monkey.util.ObjectUtils;
  */
 public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 
-	/** The player the {@link AI} will play as. */
-	final private Player player;
-	/** The current {@link State} of the game. */
-	private S state;
-	/** The maximum number of milliseconds usable to select a move. */
-	final private long time;
-	/** Utilities instance for generic objects. */
-	final private ObjectUtils objectUtils = new ObjectUtils();
+	/** RAM limit (in KBs): 4 GB. */
+	final public static int MAXRAM = 4194304;
 
 	/**
 	 * Constructs a new {@link AI} for a certain {@link Player} given an initial
@@ -33,7 +31,7 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 	 * @param p  The player the {@link AI} will play as.
 	 * @param s0 The initial {@link State} of the game.
 	 * @param t  The maximum number of milliseconds usable to select a move.
-	 * @throws NullPointerException Any of the arguments are null
+	 * @throws NullPointerException Any of the arguments are <code>null</code>.
 	 * @author Gaia Clerici
 	 * @version 1.0
 	 * @since 1.0
@@ -43,12 +41,14 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 			throw new NullPointerException("Some of the arguments are null.");
 		player = p;
 		state = s0;
-		time = t;
+		timeLimit = t;
+		final int capacity = state.ttSuggestedCapacity();
+		transpositionTable = new HashMap<Integer, Entry<A, U>>(capacity);
+		System.out.println("📋 " + capacity);
 	}
 
 	/**
-	 * Updates the current {@link State} with the given action. It does nothing if
-	 * the action passed is null.
+	 * Updates the current {@link State} with the given action.
 	 *
 	 * @param a A legal action to inform this {@link AI} about.
 	 * @throws IllegalArgumentException <code>a</code> is an illegal action for the
@@ -58,20 +58,14 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 	 * @since 1.0
 	 */
 	public void update(A a) {
-		if (a != null) {
-			final Iterable<A> actions = state.actions();
-			for (A action : actions)
-				if (a.equals(action)) {
-					state.result(a);
-					return;
-				}
-			throw new IllegalArgumentException("Illegal action for the current state.");
-		}
+		state.result(a);
 	}
 
 	/**
 	 * Given a state in which the player has the move, selects one of the legal
-	 * actions to be played using alpa-beta pruning.
+	 * actions to be played using alpa-beta pruning and iterative deepening search.
+	 * See S. Russell, P. Norvig, <i>Artificial Intelligence: A Modern Approach</i>,
+	 * 3rd ed., Prentice Hall, p. 88f.
 	 *
 	 * @return A legal action to be played.
 	 * @throws IllegalArgumentException The player does not have the move or if the
@@ -81,49 +75,71 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 	 * @since 1.0
 	 */
 	public A alphaBetaSearch() {
+		startTime = System.currentTimeMillis();
 		if (state.terminalTest())
-			throw new IllegalArgumentException("s is a terminal state");
+			throw new IllegalArgumentException("s is a terminal state.");
 		if (player != state.player())
-			throw new IllegalArgumentException("It's not your turn");
-		A a = null;
-		U alpha = state.initialAlpha(player), beta = state.initialBeta(player), v = alpha;
-		final Iterable<A> actions = state.actions();
-		for (A toChild : actions) {
-			final U minValue = minValue(state.result(toChild), alpha, beta);
-			if (a == null || v.compareTo(minValue) < 0) {
-				a = toChild;
-				v = minValue;
+			throw new IllegalArgumentException("It's not your turn.");
+		final S backupState = state.clone();
+		final int maxLimit = state.overestimatedHeight();
+		A res = null;
+		final U beta = state.initialBeta(player);
+		for (int depthLimit = 0; depthLimit <= maxLimit; ++depthLimit) {
+			A a = null;
+			U alpha = state.initialAlpha(player), v = alpha;
+			Iterator<A> actions = state.actions();
+			while (actions.hasNext()) {
+				final A toChild = actions.next();
+				try {
+					final U minValue = minValue(state.result(toChild), alpha, beta, depthLimit);
+					if (a == null || minValue != null && (v == null || minValue.compareTo(v) > 0)) {
+						a = toChild;
+						v = minValue;
+					}
+				} catch (TimeoutException e) {
+					state = backupState;
+					System.out.println("🙈 limit ≤ " + depthLimit);
+					return res;
+				}
+				state.revert();
+				if (v != null && v.compareTo(beta) >= 0)
+					return a;
+				alpha = objectUtils.max(alpha, v);
 			}
-			state.revert();
-			if (v.compareTo(beta) >= 0)
-				return a;
-			alpha = objectUtils.max(alpha, v);
+			res = a;
 		}
-		return a;
+		return res;
 	}
 
 	/**
-	 * Executes a "max" alpha-beta pruning step.
+	 * Executes a "max" alpha-beta pruning step using depth limited search. See S.
+	 * Russell, P. Norvig, <i>Artificial Intelligence: A Modern Approach</i>, 3rd
+	 * ed., Prentice Hall, p. 87f.
 	 *
-	 * @param s     The state to be considered.
-	 * @param alpha The current alpha value. It may be null.
-	 * @param beta  The current beta value. It may be null.
+	 * @param s          The state to be considered.
+	 * @param alpha      The current alpha value. It may be null.
+	 * @param beta       The current beta value. It may be null.
+	 * @param depthLimit Maximum depth to be inspected.
 	 * @return The utility brought by the most useful action for the <code>AI</code>
 	 *         within <code>s</code>.
 	 * @throws NullPointerException The state is null.
+	 * @throws TimeoutException     The time limit is almost over.
 	 * @author Gaia Clerici
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	protected U maxValue(S s, U alpha, U beta) {
+	protected U maxValue(S s, U alpha, U beta, int depthLimit) throws TimeoutException {
 		if (s == null)
 			throw new NullPointerException("s is null.");
-		if (s.terminalTest())
-			return s.utility(player);
-		U v = s.initialAlpha(player);
-		final Iterable<A> actions = s.actions();
-		for (A toChild : actions) {
-			v = objectUtils.max(v, minValue(s.result(toChild), alpha, beta));
+		if (System.currentTimeMillis() - startTime > timeLimit * RELAXATION)
+			throw new TimeoutException();
+		if (cutoffTest(s, depthLimit))
+			return s.eval(player);
+		U v = null;
+		final Iterator<A> actions = s.actions();
+		while (actions.hasNext()) {
+			final A toChild = actions.next();
+			v = objectUtils.max(v, minValue(s.result(toChild), alpha, beta, depthLimit - 1));
 			s.revert();
 			if (v.compareTo(beta) >= 0)
 				return v;
@@ -133,27 +149,34 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 	}
 
 	/**
-	 * Executes a "min" alpha-beta pruning step.
+	 * Executes a "min" alpha-beta pruning step using depth limited search. See S.
+	 * Russell, P. Norvig, <i>Artificial Intelligence: A Modern Approach</i>, 3rd
+	 * ed., Prentice Hall, p. 87f.
 	 *
-	 * @param s     The state to be considered.
-	 * @param alpha The current alpha value. It may be null.
-	 * @param beta  The current beta value. It may be null.
+	 * @param s          The state to be considered.
+	 * @param alpha      The current alpha value. It may be null.
+	 * @param beta       The current beta value. It may be null.
+	 * @param depthLimit Maximum depth to be inspected.
 	 * @return The utility brought by the most useful action for the opponent within
-	 *         <code>s</code>.
+	 *         s.
 	 * @throws NullPointerException The state is null.
+	 * @throws TimeoutException     The time limit is almost over.
 	 * @author Gaia Clerici
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	protected U minValue(S s, U alpha, U beta) {
+	protected U minValue(S s, U alpha, U beta, int depthLimit) throws TimeoutException {
 		if (s == null)
 			throw new NullPointerException("s is null.");
-		if (s.terminalTest())
-			return s.utility(player);
-		U v = s.initialBeta(player);
-		final Iterable<A> actions = s.actions();
-		for (A toChild : actions) {
-			v = objectUtils.min(v, maxValue(s.result(toChild), alpha, beta));
+		if (System.currentTimeMillis() - startTime > timeLimit * RELAXATION)
+			throw new TimeoutException();
+		if (cutoffTest(s, depthLimit))
+			return s.eval(player);
+		U v = null;
+		final Iterator<A> actions = s.actions();
+		while (actions.hasNext()) {
+			final A toChild = actions.next();
+			v = objectUtils.min(v, maxValue(s.result(toChild), alpha, beta, depthLimit - 1));
 			s.revert();
 			if (v.compareTo(alpha) <= 0)
 				return v;
@@ -161,5 +184,36 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 		}
 		return v;
 	}
+
+	/**
+	 * During an alpha-beta search, decides when to apply {@link State#eval}. See S.
+	 * Russell, P. Norvig, <i>Artificial Intelligence: A Modern Approach</i>, 3rd
+	 * ed., Prentice Hall, p. 171.
+	 *
+	 * @param s The state to be considered.
+	 * @param d Maximum depth to be inspected
+	 * @return <code>true</code> just in case {@link State#eval} should be applied.
+	 * @author Gaia Clerici
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	protected boolean cutoffTest(S s, int d) {
+		return d <= 0 || s.terminalTest();
+	}
+
+	/** The player the {@link AI} will play as. */
+	final private Player player;
+	/** The current {@link State} of the game. */
+	private S state;
+	/** The maximum number of milliseconds usable to select a move. */
+	final private long timeLimit;
+	/** Utilities instance for generic objects. */
+	final private ObjectUtils objectUtils = new ObjectUtils();
+	/** The higher, the more time is used at most for each search. */
+	final private float RELAXATION = 0.99f;
+	/** A transposition table for this instance of the {@link AI}. */
+	final private HashMap<Integer, Entry<A, U>> transpositionTable;
+	/** Start time of the current turn. */
+	private long startTime;
 
 }

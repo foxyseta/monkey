@@ -13,9 +13,9 @@ package monkey.util;
 public class Pair<K, V> {
 
 	/** Key of the {@link Pair}. */
-	private K key;
+	protected K key;
 	/** Value of the {@link Pair}. */
-	private V value;
+	protected V value;
 
 	/**
 	 * Creates a new {@link Pair}.
@@ -53,6 +53,19 @@ public class Pair<K, V> {
 	 */
 	public V getValue() {
 		return value;
+	}
+
+	/**
+	 * Returns a string representation of the object. <br>
+	 *
+	 * @return A string representation of this object.
+	 * @author Gaia Clerici
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	@Override
+	public String toString() {
+		return "(" + key + ", " + value + ")";
 	}
 
 }
