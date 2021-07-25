@@ -80,11 +80,13 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 			throw new IllegalArgumentException("s is a terminal state.");
 		if (player != state.player())
 			throw new IllegalArgumentException("It's not your turn.");
-		A a = null;
-		U alpha = state.initialAlpha(player), beta = state.initialBeta(player), v = alpha;
 		final S backupState = state.clone();
 		final int maxLimit = state.overestimatedHeight();
+		A res = null;
+		final U beta = state.initialBeta(player);
 		for (int depthLimit = 0; depthLimit <= maxLimit; ++depthLimit) {
+			A a = null;
+			U alpha = state.initialAlpha(player), v = alpha;
 			Iterator<A> actions = state.actions();
 			while (actions.hasNext()) {
 				final A toChild = actions.next();
@@ -104,8 +106,9 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 					return a;
 				alpha = objectUtils.max(alpha, v);
 			}
+			res = a;
 		}
-		return a;
+		return res;
 	}
 
 	/**
@@ -128,19 +131,17 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 	protected U maxValue(S s, U alpha, U beta, int depthLimit) throws TimeoutException {
 		if (s == null)
 			throw new NullPointerException("s is null.");
-		if (s.terminalTest())
-			return s.utility(player);
-		if (depthLimit <= 0)
-			return null;
 		if (System.currentTimeMillis() - startTime > timeLimit * RELAXATION)
 			throw new TimeoutException();
+		if (cutoffTest(s, depthLimit))
+			return s.eval(player);
 		U v = null;
 		final Iterator<A> actions = s.actions();
 		while (actions.hasNext()) {
 			final A toChild = actions.next();
 			v = objectUtils.max(v, minValue(s.result(toChild), alpha, beta, depthLimit - 1));
 			s.revert();
-			if (v != null && v.compareTo(beta) >= 0)
+			if (v.compareTo(beta) >= 0)
 				return v;
 			alpha = objectUtils.max(alpha, v);
 		}
@@ -167,28 +168,37 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 	protected U minValue(S s, U alpha, U beta, int depthLimit) throws TimeoutException {
 		if (s == null)
 			throw new NullPointerException("s is null.");
-		if (s.terminalTest())
-			return s.utility(player);
-		if (depthLimit <= 0)
-			return null;
 		if (System.currentTimeMillis() - startTime > timeLimit * RELAXATION)
 			throw new TimeoutException();
-		U v = s.initialBeta(player);
-		boolean cutoff = false;
+		if (cutoffTest(s, depthLimit))
+			return s.eval(player);
+		U v = null;
 		final Iterator<A> actions = s.actions();
 		while (actions.hasNext()) {
 			final A toChild = actions.next();
-			final U maxValue = maxValue(s.result(toChild), alpha, beta, depthLimit - 1);
-			if (maxValue == null)
-				cutoff = true;
-			else
-				v = objectUtils.min(v, maxValue);
+			v = objectUtils.min(v, maxValue(s.result(toChild), alpha, beta, depthLimit - 1));
 			s.revert();
-			if (v != null && v.compareTo(alpha) <= 0)
+			if (v.compareTo(alpha) <= 0)
 				return v;
 			beta = objectUtils.min(beta, v);
 		}
-		return cutoff ? null : v;
+		return v;
+	}
+
+	/**
+	 * During an alpha-beta search, decides when to apply {@link State#eval}. See S.
+	 * Russell, P. Norvig, <i>Artificial Intelligence: A Modern Approach</i>, 3rd
+	 * ed., Prentice Hall, p. 171.
+	 *
+	 * @param s The state to be considered.
+	 * @param d Maximum depth to be inspected
+	 * @return <code>true</code> just in case {@link State#eval} should be applied.
+	 * @author Gaia Clerici
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	protected boolean cutoffTest(S s, int d) {
+		return d <= 0 || s.terminalTest();
 	}
 
 	/** The player the {@link AI} will play as. */
