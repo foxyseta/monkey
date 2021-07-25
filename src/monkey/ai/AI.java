@@ -99,7 +99,7 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 				} catch (TimeoutException e) {
 					state = backupState;
 					System.out.println("🙈 limit ≤ " + depthLimit);
-					return a;
+					return res;
 				}
 				state.revert();
 				if (v != null && v.compareTo(beta) >= 0)
