@@ -61,7 +61,7 @@ public class Entry<A, U extends Comparable<U>> {
 	 * Adds a new {@link SearchResult} using the <code>TWOBIG1</code> replacement
 	 * scheme.
 	 *
-	 * @param searchResult The non-<code>null</code> {@link searchResult} to add.
+	 * @param searchResult The non-<code>null</code> {@link SearchResult} to add.
 	 * @throws NullPointerException searchResult is <code>null</code>.
 	 * @author Gaia Clerici
 	 * @version 1.0
@@ -78,8 +78,9 @@ public class Entry<A, U extends Comparable<U>> {
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Returns a string representation of the object.
 	 *
+	 * @return A string representation of the object.
 	 * @author Gaia Clerici
 	 * @version 1.0
 	 * @since 1.0

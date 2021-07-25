@@ -23,7 +23,16 @@ public class Alignment implements Cloneable {
 	 * @since 1.0
 	 */
 	public enum Direction {
-		HORIZONTAL, VERTICAL, PRIMARY_DIAGONAL, SECONDARY_DIAGONAL
+
+		/** From left to right. */
+		HORIZONTAL,
+		/** From top to bottom. */
+		VERTICAL,
+		/** From top left to bottom right. */
+		PRIMARY_DIAGONAL,
+		/** From bottom left to top right. */
+		SECONDARY_DIAGONAL
+
 	}
 
 	/**
@@ -35,7 +44,20 @@ public class Alignment implements Cloneable {
 	 * @since 1.0
 	 */
 	public enum State {
-		EMPTY, P1PARTIAL, P2PARTIAL, MIXED, P1FULL, P2FULL
+
+		/** Every cell is free. */
+		EMPTY,
+		/** Some cells are free, some were marked by {@link monkey.ai.Player#P1}. */
+		P1PARTIAL,
+		/** Some cells are free, some were marked by {@link monkey.ai.Player#P2}. */
+		P2PARTIAL,
+		/** All three kinds of cells can be found here. */
+		MIXED,
+		/** Every cell has been marked by {@link monkey.ai.Player#P1}. */
+		P1FULL,
+		/** Every cell has been marked by {@link monkey.ai.Player#P2}. */
+		P2FULL
+
 	}
 
 	/** The {@link Position} of the top left cell of this {@link Alignment}. */
@@ -356,8 +378,9 @@ public class Alignment implements Cloneable {
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Returns a string representation of the object.
 	 *
+	 * @return A string representation of this object.
 	 * @author Gaia Clerici
 	 * @version 1.0
 	 * @since 1.0

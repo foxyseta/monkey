@@ -5,7 +5,10 @@ package monkey.ai;
  * encountered when playing a deterministic, turn-taking, two-player, zero-sum
  * games of perfect information. Backtracking and alpha-beta pruning support is
  * included. See S. Russell, P. Norvig, <i>Artificial Intelligence: A Modern
- * Approach</i>, 3rd ed., Prentice Hall, p. 166f.
+ * Approach</i>, 3rd ed., Prentice Hall, p. 166f. A circular type definition is
+ * needed in order to declare methods returning the correct kind of instances of
+ * <code>State</code>. See K. Arnold, J. Gosling, D. Holmes, <i>The Java
+ * Programming Language</i>, 4th ed., Addison-Wesley Professional, p. 148.
  *
  * @param <Self>    The class implementing the interface.
  * @param <Action>  The type of the moves of the game.
@@ -18,8 +21,9 @@ public interface State<Self extends State<Self, Action, Utility>, Action, Utilit
 		extends Cloneable {
 
 	/**
-	 * Creates a clone of this {@link State}.
+	 * Creates a clone of this object.
 	 *
+	 * @return The desired clone.
 	 * @author Stefano Volpe
 	 * @version 1.0
 	 * @since 1.0
@@ -27,9 +31,9 @@ public interface State<Self extends State<Self, Action, Utility>, Action, Utilit
 	public Self clone();
 
 	/**
-	 * Defines which {@link Player} has the move.
+	 * Defines which {@link Player} should play next.
 	 *
-	 * @return The {@link Player} which has the move.
+	 * @return The {@link Player} who should play next.
 	 * @author Stefano Volpe
 	 * @version 1.0
 	 * @since 1.0
@@ -52,7 +56,6 @@ public interface State<Self extends State<Self, Action, Utility>, Action, Utilit
 	 *
 	 * @param a The <code>Action</code> to be applied.
 	 * @throws IllegalArgumentException Illegal move.
-	 * @throws NullPointerException     The action is <code>null</code>.
 	 * @return A reference to this {@link State}.
 	 * @author Stefano Volpe
 	 * @version 1.0

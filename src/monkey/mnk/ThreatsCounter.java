@@ -30,6 +30,7 @@ public class ThreatsCounter implements Cloneable {
 	/**
 	 * Creates a clone of this {@link ThreatsCounter}.
 	 *
+	 * @return A clone of this instance.
 	 * @author Stefano Volpe
 	 * @version 1.0
 	 * @since 1.0
@@ -108,8 +109,9 @@ public class ThreatsCounter implements Cloneable {
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Returns a string representation of the object.
 	 *
+	 * @return A string representation of this object.
 	 * @author Gaia Clerici
 	 * @version 1.0
 	 * @since 1.0

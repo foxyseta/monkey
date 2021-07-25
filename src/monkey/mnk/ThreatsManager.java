@@ -56,9 +56,10 @@ public class ThreatsManager implements Cloneable {
 	}
 
 	/**
-	 * Creates a clone of this {@link ThreatsManager}. Takes Θ({@link #ALIGNMENTS})
-	 * time.
+	 * Creates a clone of this {@link ThreatsManager}. <br>
+	 * Takes Θ({@link #ALIGNMENTS}) time.
 	 *
+	 * @return The desired clone.
 	 * @author Stefano Volpe
 	 * @version 1.0
 	 * @since 1.0
@@ -90,10 +91,8 @@ public class ThreatsManager implements Cloneable {
 	/**
 	 * (Un)records a mark for the whole {@link Board}. Takes Θ({@link #L}) time.
 	 * 
-	 * @param pos        {@link Position} of the mark to (un)record.
-	 * @param pl         The {@link monkey.ai.Player Player} responsible for the
-	 *                   change.
-	 * @param cellStates The updated state of the {@link Board}.
+	 * @param pos {@link Position} of the mark to (un)record.
+	 * @param pl  The {@link monkey.ai.Player Player} responsible for the change.
 	 * @throws IllegalArgumentException Either position or cellStates are meant for
 	 *                                  another M-N-K tuple.
 	 * @throws NullPointerException     Either pos, pl, or cellStates are null.

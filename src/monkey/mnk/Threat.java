@@ -51,7 +51,14 @@ public enum Threat {
 	 * @since 1.0
 	 */
 	public enum Category {
-		OPEN, HALFOPEN, CLOSED
+
+		/** The most menacing category. */
+		OPEN,
+		/** A mildly threatening category. */
+		HALFOPEN,
+		/** A not-really-dangerous category. */
+		CLOSED
+
 	}
 
 	/**

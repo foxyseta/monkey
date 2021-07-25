@@ -28,12 +28,14 @@ public class SearchResult<Action, Utility extends Comparable<Utility>>
 	 * @since 1.0
 	 */
 	public enum ScoreType {
+
 		/** Indicates that the {@link #SCORE} is a true value. */
 		TRUEVALUE,
 		/** Indicates that the {@link #SCORE} is an upper bound. */
 		UPPERBOUND,
 		/** Indicates that the {@link #SCORE} is a lower bound. */
-		LOWERBOUND;
+		LOWERBOUND
+
 	}
 
 	/**
@@ -69,17 +71,16 @@ public class SearchResult<Action, Utility extends Comparable<Utility>>
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	public SearchResult(Action move, Utility score, ScoreType flag, int searchDepth, int searchNodes) {
+	public SearchResult(Action move, Utility score, ScoreType flag, int searchDepth, int searchedNodes) {
 		if (move == null || score == null || flag == null)
 			throw new NullPointerException("move, result and flag can't be null.");
-		if (searchDepth <= 0 || searchNodes <= 0)
+		if (searchDepth <= 0 || searchedNodes <= 0)
 			throw new IllegalArgumentException("searchDepth and searchNodes can't be negative values or zeros.");
 		MOVE = move;
 		SCORE = score;
 		FLAG = flag;
 		SEARCHDEPTH = searchDepth;
-		SEARCHEDNODES = searchNodes;
-
+		SEARCHEDNODES = searchedNodes;
 	}
 
 	/**
@@ -105,8 +106,9 @@ public class SearchResult<Action, Utility extends Comparable<Utility>>
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Returns a string representation of the object.
 	 *
+	 * @return A string representation of this object.
 	 * @author Gaia Clerici
 	 * @version 1.0
 	 * @since 1.0
@@ -115,4 +117,5 @@ public class SearchResult<Action, Utility extends Comparable<Utility>>
 	public String toString() {
 		return MOVE + " " + SCORE + " " + FLAG + " " + SEARCHDEPTH + " " + SEARCHEDNODES;
 	}
+
 }

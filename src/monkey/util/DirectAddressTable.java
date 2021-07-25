@@ -23,8 +23,7 @@ public class DirectAddressTable<T> implements Cloneable, Iterable<T> {
 	final public ToIntFunction<T> toKey;
 
 	/**
-	 * Constructs a new {@link DirectAddressTable}.Takes Θ(<code>length</code>)
-	 * time.
+	 * Constructs a new {@link DirectAddressTable}. Takes Θ({@link #length}) time.
 	 *
 	 * @param type        Type token to allocate the underlying
 	 *                    {@link java.lang.reflect.Array Array}.
@@ -104,8 +103,7 @@ public class DirectAddressTable<T> implements Cloneable, Iterable<T> {
 	}
 
 	/**
-	 * Inserts an element in the table, updating it if it was already contained in
-	 * it.
+	 * Inserts an element in the table, updating it if already present.
 	 *
 	 * @param element The element to be inserted. It may be <code>null</code>.
 	 * @throws IndexOutOfBoundsException The element's key is out of bounds.
@@ -124,7 +122,7 @@ public class DirectAddressTable<T> implements Cloneable, Iterable<T> {
 	}
 
 	/**
-	 * Deletes an element from the table, if it was contained in it. Otherwise,
+	 * Deletes an element from the table, if it was already present. Otherwise,
 	 * calling this method does nothing.
 	 *
 	 * @param element The element to be deleted. It may be <code>null</code>.
@@ -152,8 +150,10 @@ public class DirectAddressTable<T> implements Cloneable, Iterable<T> {
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Returns a string representation of the object. <br>
+	 * Takes Θ({@link #length}) time.
 	 *
+	 * @return A string representation of this object.
 	 * @author Stefano Volpe
 	 * @version 1.0
 	 * @since 1.0
@@ -226,4 +226,5 @@ class DirectAddressTableIterator<T> implements Iterator<T> {
 	final private T[] table;
 	/** The index of the next element, or the length of the table if it is over. */
 	private int index = 0;
+
 }

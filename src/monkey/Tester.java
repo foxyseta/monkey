@@ -10,6 +10,15 @@ package monkey;
 public class Tester {
 
 	/**
+	 * This class cannot be instantiated.
+	 *
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	private Tester() {}
+
+	/**
 	 * Runs some utility tests useful for development and debugging.
 	 *
 	 * @param args Every argument is ignored.

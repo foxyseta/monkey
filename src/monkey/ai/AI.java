@@ -26,13 +26,12 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 
 	/**
 	 * Constructs a new {@link AI} for a certain {@link Player} given an initial
-	 * {@link State} and a timeout in milliseconds. Takes
-	 * Θ({@link State#suggestedCapacity)).
+	 * {@link State} and a timeout in milliseconds.
 	 *
 	 * @param p  The player the {@link AI} will play as.
 	 * @param s0 The initial {@link State} of the game.
 	 * @param t  The maximum number of milliseconds usable to select a move.
-	 * @throws NullPointerException Any of the arguments are null
+	 * @throws NullPointerException Any of the arguments are <code>null</code>.
 	 * @author Gaia Clerici
 	 * @version 1.0
 	 * @since 1.0
@@ -44,18 +43,16 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 		state = s0;
 		timeLimit = t;
 		final int capacity = state.ttSuggestedCapacity();
-		System.out.println("📋 " + capacity);
 		transpositionTable = new HashMap<Integer, Entry<A, U>>(capacity);
+		System.out.println("📋 " + capacity);
 	}
 
 	/**
-	 * Updates the current {@link State} with the given action. It does nothing if
-	 * the action passed is null.
+	 * Updates the current {@link State} with the given action.
 	 *
 	 * @param a A legal action to inform this {@link AI} about.
 	 * @throws IllegalArgumentException <code>a</code> is an illegal action for the
 	 *                                  current state.
-	 * @throws NullPointerException     The action is <code>null</code>.
 	 * @author Gaia Clerici
 	 * @version 1.0
 	 * @since 1.0
@@ -141,11 +138,7 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 		final Iterator<A> actions = s.actions();
 		while (actions.hasNext()) {
 			final A toChild = actions.next();
-			try {
-				v = objectUtils.max(v, minValue(s.result(toChild), alpha, beta, depthLimit - 1));
-			} catch (TimeoutException e) {
-				throw e;
-			}
+			v = objectUtils.max(v, minValue(s.result(toChild), alpha, beta, depthLimit - 1));
 			s.revert();
 			if (v != null && v.compareTo(beta) >= 0)
 				return v;
@@ -164,7 +157,7 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 	 * @param beta       The current beta value. It may be null.
 	 * @param depthLimit Maximum depth to be inspected.
 	 * @return The utility brought by the most useful action for the opponent within
-	 *         <code>s</code>.
+	 *         s.
 	 * @throws NullPointerException The state is null.
 	 * @throws TimeoutException     The time limit is almost over.
 	 * @author Gaia Clerici
@@ -185,15 +178,11 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 		final Iterator<A> actions = s.actions();
 		while (actions.hasNext()) {
 			final A toChild = actions.next();
-			try {
-				final U maxValue = maxValue(s.result(toChild), alpha, beta, depthLimit - 1);
-				if (maxValue == null)
-					cutoff = true;
-				else
-					v = objectUtils.min(v, maxValue);
-			} catch (TimeoutException e) {
-				throw e;
-			}
+			final U maxValue = maxValue(s.result(toChild), alpha, beta, depthLimit - 1);
+			if (maxValue == null)
+				cutoff = true;
+			else
+				v = objectUtils.min(v, maxValue);
 			s.revert();
 			if (v != null && v.compareTo(alpha) <= 0)
 				return v;

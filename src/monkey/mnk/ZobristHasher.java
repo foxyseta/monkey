@@ -16,7 +16,7 @@ import monkey.ai.Player;
  */
 public class ZobristHasher {
 
-	/** Number of {@link monkey.ai.Player Player}s to be considered. */
+	/** Number of {@link monkey.ai.Player}s to be considered. */
 	final public static int PLAYERS = 2;
 	/** Seed to be used for the generated pseudo-random sequence. */
 	final public static long SEED = 0l;
@@ -46,11 +46,11 @@ public class ZobristHasher {
 	}
 
 	/**
-	 * Retrieves the disjunct for a given {@link Position}-{@link mnk.ai.Player
-	 * Player} couple.
+	 * Retrieves the disjunct for a given {@link Position}-{@link monkey.ai.Player}
+	 * couple.
 	 *
 	 * @param position The {@link Position} of the mark.
-	 * @param player   The {@link} Player} who could add/remove the mark.
+	 * @param player   The {@link monkey.ai.Player} who could add/remove the mark.
 	 * @throws NullPointerException     At least one argument is <code>null</code>.
 	 * @throws IllegalArgumentException position does not have the right extents.
 	 * @return The desired disjunct.
@@ -68,8 +68,8 @@ public class ZobristHasher {
 
 	/**
 	 * Checks whether the pseudo-random disjuncts generated for a {@link Board} are
-	 * distinct or not. Takes Θ(1) in the best case and Θ({@link Board#SIZE^2}) time
-	 * in the average and worst cases.
+	 * distinct or not. Takes Θ(1) in the best case and
+	 * Θ({@link Board#SIZE}<sup>2</sup>) time in the average and worst cases.
 	 *
 	 * @param m Strictly positive number of rows.
 	 * @param n Strictly positive number of columns.
@@ -95,8 +95,8 @@ public class ZobristHasher {
 	}
 
 	/**
-	 * Random generated values for every {@link Position}-{@link mnk.ai.Player
-	 * Player} couple.
+	 * Random generated values for every {@link Position}-{@link monkey.ai.Player}
+	 * couple.
 	 */
 	private int disjuncts[][][];
 

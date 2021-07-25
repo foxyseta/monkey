@@ -56,8 +56,9 @@ public class Pair<K, V> {
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Returns a string representation of the object. <br>
 	 *
+	 * @return A string representation of this object.
 	 * @author Gaia Clerici
 	 * @version 1.0
 	 * @since 1.0
@@ -66,4 +67,5 @@ public class Pair<K, V> {
 	public String toString() {
 		return "(" + key + ", " + value + ")";
 	}
+
 }

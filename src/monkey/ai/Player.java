@@ -9,6 +9,7 @@ package monkey.ai;
  * @since 1.0
  */
 public enum Player {
+
 	/** The first agent to play. */
 	P1(true) {
 		public Player not() {

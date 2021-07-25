@@ -9,9 +9,9 @@ import monkey.ai.AI;
 import monkey.ai.Player;
 
 /**
- * A <code>Board</code> describes the {@link monkey.ai.State State} of a
- * MNK-game. It supports backtracking and alpha-beta pruning. A single istance
- * of this class takes Θ({@link #SIZE}) memory.
+ * A <code>Board</code> describes the {@link monkey.ai.State} of a m,n,k-game.
+ * It supports backtracking and alpha-beta pruning. A single istance of this
+ * class takes Θ({@link #SIZE}) memory.
  *
  * @author Stefano Volpe
  * @version 1.0
@@ -77,7 +77,8 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	}
 
 	/**
-	 * Creates a clone of this {@link Board}. Takes Θ(#SIZE) time.
+	 * {@inheritDoc} <br>
+	 * Takes Θ({@link #SIZE}) time.
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
@@ -113,9 +114,10 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	}
 
 	/**
-	 * {@inheritDoc} <br />
-	 * Takes Θ(1) time in the best and average cases, but Θ(@link SIZE} in the worst
-	 * case.
+	 * {@inheritDoc} <br>
+	 * Takes Θ(1) time in the best and average cases, but Θ({@link SIZE}} in the
+	 * worst case. The act of instantiating an iterator and bringing it to the end
+	 * of the sequence always takes Θ({@link SIZE}) time in total.
 	 */
 	@Override
 	public Iterator<Position> actions() {
@@ -123,10 +125,13 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	}
 
 	/**
-	 * {@inheritDoc} Takes Θ({@link #K}) time.
+	 * {@inheritDoc} <br>
+	 * Takes Θ({@link #K}) time.
 	 */
 	@Override
 	public Board result(Position a) {
+		if (a == null)
+			throw new IllegalArgumentException("Null moves are invalid in this game.");
 		if (state != MNKGameState.OPEN)
 			throw new IllegalCallerException("The game is already over.");
 		if (a.ROWSNUMBER != M || a.COLUMNSNUMBER != N)
@@ -147,7 +152,8 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	}
 
 	/**
-	 * {@inheritDoc} Takes Θ({@link #K}) time.
+	 * {@inheritDoc} <br>
+	 * Takes Θ({@link #K}) time.
 	 */
 	@Override
 	public Board revert() {
@@ -198,17 +204,17 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	/**
 	 * {@inheritDoc} It is implemented as a simplified (see project report) version
 	 * of the heuristic of Abdoulaye-Houndji-Ezin-Aglin. The coefficients are left
-	 * as unnamed constants because of their number and their experimental origin.
-	 * See A. Abdoulaye, V. R. Houndji, E. C. Ezin, G. Aglin, <i>Generic Heuristic
-	 * for the mnk-games</i>, in A. E. Badouel, N. Gmati, B. Watson (eds),
+	 * as unnamed constants because of their large number and their experimental
+	 * origin. See A. Abdoulaye, V. R. Houndji, E. C. Ezin, G. Aglin, <i>Generic
+	 * Heuristic for the mnk-games</i>, in A. E. Badouel, N. Gmati, B. Watson (eds),
 	 * <i>Proceedings of CARI 2018 (African Conference on Research in Computer
 	 * Science and Applied Mathematics). Nabil Gmati; Eric Badouel; Bruce Watson.
 	 * CARI 2018 - Colloque africain sur la recherche en informatique et
 	 * mathématiques appliquées</i>, Oct 2018, Stellenbosch, South Africa. 2018, pp.
 	 * 268-269. hal-01881376f.
 	 *
-	 * @param p The {@link monkey.ai.Player Player} from whose point of view the
-	 *          current {@link Board} is evaluated.
+	 * @param p The {@link monkey.ai.Player} from whose point of view the current
+	 *          {@link Board} is evaluated.
 	 * @return The result of the evaluation.
 	 * @author Stefano Volpe
 	 * @version 1.0
@@ -230,14 +236,15 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	}
 
 	/**
-	 * {@inheritDoc} <br />
+	 * Returns a string representation of the object. <br>
 	 * Takes Θ({@link #SIZE}) time.
 	 *
+	 * @return A string representation of this object.
 	 * @author Stefano Volpe
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	@Override // inherit doc comment
+	@Override
 	public String toString() {
 		char[] res = new char[SIZE + 2 * M];
 		int i = 0;
@@ -251,11 +258,13 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	}
 
 	/**
-	 * {@inheritDoc}. <br />
-	 * Zobrist hashing is used (transposition will return the same hash code. See A.
-	 * L. Zobrist, <i>A New Hashing Method with Application for Game Playing</i>. 1
-	 * Jan. 1990, pp. 5-7.
+	 * Returns a hash code value for the object. Zobrist hashing is used
+	 * (transpositions will return the same hash code). Hence, most of this method's
+	 * original contract is broken. See A. L. Zobrist, <i>A New Hashing Method with
+	 * Application for Game Playing</i>, Tech. Rep. 88, Computer Sciences
+	 * Department, University of Wisconsin, Madison, Wisconsin, Apr. 1970, pp. 5-7.
 	 * 
+	 * @return A hash code value for this object.
 	 * @author Stefano Volpe
 	 * @version 1.0
 	 * @since 1.0
@@ -351,8 +360,8 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 
 	/**
 	 * Generates a sequence containing all of the {@link Position}s of this
-	 * <code>Board</code>, sorted by decreasing heuristic value. See the project
-	 * report. Takes Θ({@link #SIZE}) time.
+	 * <code>Board</code>, sorted by decreasing heuristic value. <i>Escargot</i>
+	 * heuristic is used (see the project report). Takes Θ({@link #SIZE}) time.
 	 *
 	 * @return The generated sequence.
 	 * @author Stefano Volpe
@@ -487,7 +496,7 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	 * @version 1.0
 	 * @version 1.0
 	 */
-	class BoardIterator implements Iterator<Position> {
+	private class BoardIterator implements Iterator<Position> {
 
 		/**
 		 * Constructs a new {@link #BoardIterator}. Takes Θ(1) time in the best and
@@ -506,8 +515,11 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 		}
 
 		/**
-		 * {@inheritDoc}
+		 * Returns <code>true</code> if the iteration has more elements. (In other
+		 * words, returns <code>true</code> if {@link #next} would return an element
+		 * rather than throwing an exception.)
 		 *
+		 * @return <code>true</code> if the iteration has more elements.
 		 * @author Stefano Volpe
 		 * @version 1.0
 		 * @since 1.0
@@ -518,11 +530,12 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 		}
 
 		/**
-		 * {@inheritDoc} <br />
+		 * Returns the next element in the iteration. <br>
 		 * Takes Θ(1) time in the best and average cases, but Θ(@link Board#SIZE} in the
 		 * worst case.
 		 *
-		 * @throws NoSuchElementException {@inheritDoc}
+		 * @return The next element in the iteration.
+		 * @throws NoSuchElementException if the iteration has no more elements.
 		 * @author Stefano Volpe
 		 * @version 1.0
 		 * @since 1.0
@@ -545,7 +558,7 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	}
 
 	/**
-	 * {@inheritDoc} <br />
+	 * {@inheritDoc} <br>
 	 * See the project report. Takes Θ(1) (sic).
 	 */
 	@Override
