@@ -211,7 +211,7 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 	/** Utilities instance for generic objects. */
 	final private ObjectUtils objectUtils = new ObjectUtils();
 	/** The higher, the more time is used at most for each search. */
-	final private float RELAXATION = 0.998f;
+	final private float RELAXATION = 0.99f;
 	/** A transposition table for this instance of the {@link AI}. */
 	final private HashMap<Integer, Entry<A, U>> transpositionTable;
 	/** Start time of the current turn. */

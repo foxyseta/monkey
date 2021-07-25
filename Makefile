@@ -33,6 +33,12 @@ test:
 	@echo "Testing..."
 	@$(JR) -cp "$(LIB_DIR)/*:$(BUILD_DIR)/" $(TESTER_CLASS)
 
+test-debug:
+	@echo "Testing..."
+	@$(JR) -Xdebug \
+	 -Xrunjdwp:transport=dt_socket,address=5000,server=y,suspend=y \
+	-cp "$(LIB_DIR)/*:$(BUILD_DIR)/" $(TESTER_CLASS)
+
 build: clean-build
 	@echo "Building..."
 	@mkdir -p $(BUILD_DIR)

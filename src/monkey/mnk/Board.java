@@ -84,14 +84,22 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	public Board clone() {
 		try {
 			Board copy = (Board) super.clone();
-			copy.cellStates = cellStates.clone();
+			copy.cellStates = new MNKCellState[M][N];
+			for (int i = 0; i < cellStates.length; ++i)
+				copy.cellStates[i] = cellStates[i].clone();
 			copy.history = (Stack<Position>) history.clone();
-			copy.kCounter = kCounter.clone();
-			copy.kCounter.setBoard(copy);
-			copy.kMinusOneCounter = kMinusOneCounter.clone();
-			copy.kMinusOneCounter.setBoard(copy);
-			copy.kMinusTwoCounter = kMinusTwoCounter.clone();
-			copy.kMinusTwoCounter.setBoard(copy);
+			if (kCounter != null) {
+				copy.kCounter = kCounter.clone();
+				copy.kCounter.setBoard(copy);
+			}
+			if (kMinusOneCounter != null) {
+				copy.kMinusOneCounter = kMinusOneCounter.clone();
+				copy.kMinusOneCounter.setBoard(copy);
+			}
+			if (kMinusTwoCounter != null) {
+				copy.kMinusTwoCounter = kMinusTwoCounter.clone();
+				copy.kMinusTwoCounter.setBoard(copy);
+			}
 			return copy;
 		} catch (CloneNotSupportedException e) {
 			// Should never happen: we support clone
@@ -231,15 +239,15 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	 */
 	@Override // inherit doc comment
 	public String toString() {
-		String res = "";
-		// cellStates
+		char[] res = new char[SIZE + 2 * M];
+		int i = 0;
 		for (MNKCellState[] row : cellStates) {
 			for (MNKCellState cell : row)
-				res += cell;
-			res += String.format("%n");
+				res[i++] = cell == MNKCellState.P1 ? '1' : cell == MNKCellState.P2 ? '2' : '.';
+			res[i++] = '%';
+			res[i++] = 'n';
 		}
-		// threatsManagers
-		return res + String.format(kCounter + "%n" + kMinusOneCounter + "%n" + kMinusTwoCounter);
+		return String.format(new String(res));
 	}
 
 	/**
