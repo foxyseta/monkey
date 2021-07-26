@@ -565,7 +565,7 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	 */
 	@Override
 	public int ttSuggestedCapacity() {
-		final int ENTRIESPERKILOBYTES = 256, MAXENTRIES = AI.MAXRAM * ENTRIESPERKILOBYTES;
+		final int MAXENTRIES = Integer.MAX_VALUE;
 		int sum = 1, lastTerm = 1;
 		for (int p = 1; p < SIZE; ++p) {
 			lastTerm *= (SIZE - p + 1) * (p % 2 == 0 ? p / 2 : 1);

@@ -21,9 +21,6 @@ import monkey.util.ObjectUtils;
  */
 public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 
-	/** RAM limit (in KBs): 4 GB. */
-	final public static int MAXRAM = 4194304;
-
 	/**
 	 * Constructs a new {@link AI} for a certain {@link Player} given an initial
 	 * {@link State} and a timeout in milliseconds.
@@ -102,8 +99,6 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 					return res;
 				}
 				state.revert();
-				if (v != null && v.compareTo(beta) >= 0)
-					return a;
 				alpha = objectUtils.max(alpha, v);
 			}
 			res = a;
