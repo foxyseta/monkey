@@ -58,6 +58,27 @@ public class Entry<A, U extends Comparable<U>> {
 	}
 
 	/**
+	 * Decides which {@link SearchResult} should be used.
+	 *
+	 * @param d The maximum depth to be inspected.
+	 * @return The selected {@link SearchResult}.
+	 * @author Gaia Clerici
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	public SearchResult<A, U> pickSearchResult(int depth) {
+		if (second == null || depth <= first.SEARCHDEPTH && first.FLAG == SearchResult.ScoreType.TRUEVALUE)
+			return first;
+		if (depth <= second.SEARCHDEPTH && second.FLAG == SearchResult.ScoreType.TRUEVALUE)
+			return second;
+		if (depth <= first.SEARCHDEPTH)
+			return first;
+		if (depth <= second.SEARCHDEPTH)
+			return second;
+		return first;
+	}
+
+	/**
 	 * Adds a new {@link SearchResult} using the <code>TWOBIG1</code> replacement
 	 * scheme.
 	 *

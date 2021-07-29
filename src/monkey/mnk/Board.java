@@ -5,7 +5,6 @@ import java.util.Stack;
 import java.util.Iterator;
 import mnkgame.MNKCellState;
 import mnkgame.MNKGameState;
-import monkey.ai.AI;
 import monkey.ai.Player;
 
 /**

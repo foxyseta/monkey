@@ -18,7 +18,7 @@ package monkey.ai.table;
  * @since 1.0
  */
 public class SearchResult<Action, Utility extends Comparable<Utility>>
-		implements Comparable<SearchResult<Action, Utility>> {
+		implements Cloneable, Comparable<SearchResult<Action, Utility>> {
 
 	/**
 	 * A <code>ScoreType</code> indicates the nature of the {@link #SCORE}.
@@ -52,7 +52,7 @@ public class SearchResult<Action, Utility extends Comparable<Utility>>
 	/** Contains the actual depth of the search. */
 	public final int SEARCHDEPTH;
 	/** Contains the number of nodes of the subtree searched. */
-	public final int SEARCHEDNODES;
+	public final long SEARCHEDNODES;
 
 	/**
 	 * Constructs a new {@link SearchResult}.
@@ -71,7 +71,7 @@ public class SearchResult<Action, Utility extends Comparable<Utility>>
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	public SearchResult(Action move, Utility score, ScoreType flag, int searchDepth, int searchedNodes) {
+	public SearchResult(Action move, Utility score, ScoreType flag, int searchDepth, long searchedNodes) {
 		if (move == null || score == null || flag == null)
 			throw new NullPointerException("move, result and flag can't be null.");
 		if (searchDepth <= 0 || searchedNodes <= 0)
@@ -81,6 +81,25 @@ public class SearchResult<Action, Utility extends Comparable<Utility>>
 		FLAG = flag;
 		SEARCHDEPTH = searchDepth;
 		SEARCHEDNODES = searchedNodes;
+	}
+
+	/**
+	 * Creates a clone of this object.
+	 *
+	 * @return The desired clone.
+	 * @author Gaia Clerici
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	public SearchResult<Action, Utility> clone() {
+		try {
+			return (SearchResult<Action, Utility>) super.clone();
+		} catch (CloneNotSupportedException e) {
+			// Should never happen: we support clone
+			throw new InternalError(e.toString());
+		}
 	}
 
 	/**

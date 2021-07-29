@@ -16,6 +16,11 @@ PLAYER_CLASS = monkey.MoNKey
 PLAYER_TESTER_CLASS = mnkgame.MNKPlayerTester
 TESTER_CLASS = monkey.Tester
 
+# Command line options
+OPTIONS = -cp "$(LIB_DIR)/*:$(BUILD_DIR)/" -Xmx250G
+OPTIONS_DEBUG = $(OPTIONS) -Xdebug \
+								-Xrunjdwp:transport=dt_socket,address=5000,server=y,suspend=y 
+
 # Source files
 PLAYER_FILE = monkey/MoNKey.java
 TESTER_FILE = monkey/Tester.java
@@ -26,40 +31,38 @@ MNK = 3 3 3
 # Plays a single game
 run:
 	@echo "Running..."
-	@$(JR) -cp "$(LIB_DIR)/*:$(BUILD_DIR)/" $(MAIN_CLASS) $(MNK) $(PLAYER_CLASS)
+	@$(JR) $(OPTIONS) $(MAIN_CLASS) $(MNK) $(PLAYER_CLASS)
 
 # Plays a single game (debug mode)
 run-debug:
 	@echo "Running..."
-	@$(JR) -Xdebug \
-	 -Xrunjdwp:transport=dt_socket,address=5000,server=y,suspend=y \
-	 -cp "$(LIB_DIR)/*:$(BUILD_DIR)/" $(MAIN_CLASS) $(MNK) $(PLAYER_CLASS)
+	@$(JR) $(OPTIONS_DEBUG) $(MAIN_CLASS) $(MNK) $(PLAYER_CLASS)
 
 # Runs some preliminar checks
 test:
 	@echo "Testing..."
-	@$(JR) -cp "$(LIB_DIR)/*:$(BUILD_DIR)/" $(TESTER_CLASS)
+	@$(JR) $(OPTIONS) $(TESTER_CLASS)
 
 # Runs some preliminar checks (debug mode)
 test-debug:
 	@echo "Testing..."
-	@$(JR) -Xdebug \
-	 -Xrunjdwp:transport=dt_socket,address=5000,server=y,suspend=y \
-	-cp "$(LIB_DIR)/*:$(BUILD_DIR)/" $(TESTER_CLASS)
+	@$(JR) $(OPTIONS_DEBUG) $(TESTER_CLASS)
 
 # Rebuilds the whole project from zero
 build: clean-build
 	@echo "Building..."
 	@mkdir -p $(BUILD_DIR)
 	@$(JC) -cp "$(LIB_DIR)/*" -d "$(BUILD_DIR)/" \
-	 -sourcepath "$(SRC_DIR)/" "$(SRC_DIR)/$(PLAYER_FILE)" "$(SRC_DIR)/$(TESTER_FILE)"
+	 -sourcepath "$(SRC_DIR)/" "$(SRC_DIR)/$(PLAYER_FILE)" \
+	 "$(SRC_DIR)/$(TESTER_FILE)" -Werror
 
 # Rebuilds the whole project from zero (debug mode)
 build-debug: clean-build
 	@echo "Building..."
 	@mkdir -p $(BUILD_DIR)
 	@$(JC) -g -cp "$(LIB_DIR)/*" -d "$(BUILD_DIR)/" -sourcepath "$(SRC_DIR)/" \
-	 "$(SRC_DIR)/$(PLAYER_FILE)" "$(SRC_DIR)/$(PLAYER_FILE)" "$(SRC_DIR)/$(TESTER_FILE)"
+	 "$(SRC_DIR)/$(PLAYER_FILE)" "$(SRC_DIR)/$(PLAYER_FILE)" \
+	 "$(SRC_DIR)/$(TESTER_FILE)" -Werror
 
 # Rebuilds documentation from zero
 docs: clean-docs
