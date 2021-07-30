@@ -17,7 +17,7 @@ PLAYER_TESTER_CLASS = mnkgame.MNKPlayerTester
 TESTER_CLASS = monkey.Tester
 
 # Command line options
-OPTIONS = -cp "$(LIB_DIR)/*:$(BUILD_DIR)/" -Xmx250G
+OPTIONS = -cp "$(LIB_DIR)/*:$(BUILD_DIR)/" -Xmx8G
 OPTIONS_DEBUG = $(OPTIONS) -Xdebug \
 								-Xrunjdwp:transport=dt_socket,address=5000,server=y,suspend=y 
 
