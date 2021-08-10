@@ -42,7 +42,7 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 		state = s0;
 		timeLimit = t;
 		final int capacity = state.ttSuggestedCapacity();
-		transpositionTable = new HashMap<Integer, Entry<A, U>>(capacity);
+		transpositionTable = new HashMap<Integer, Entry<S, A, U>>(capacity);
 		System.out.println("📋 " + capacity);
 	}
 
@@ -141,30 +141,30 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 			return s.eval(player);
 
 		// transposition table lookup
-		final Entry<A, U> cachedEntry = transpositionTable.get(s.hashCode());
+		final Entry<S, A, U> cachedEntry = transpositionTable.get(s.hashCode());
 		A bestOrRefutationMove = null;
 		if (cachedEntry != null) {
-			final SearchResult<A, U> cachedSearchResult = cachedEntry.pickSearchResult(depthLimit);
-			if (depthLimit <= cachedSearchResult.SEARCHDEPTH) {
-				switch (cachedSearchResult.FLAG) {
-				case TRUEVALUE: // purpose 1
-					return cachedSearchResult.SCORE;
-				case UPPERBOUND: // purpose 2
-					beta = objectUtils.min(beta, cachedSearchResult.SCORE);
-					break;
-				case LOWERBOUND: // purpose 2 (sic.)
-					alpha = objectUtils.max(alpha, cachedSearchResult.SCORE);
-					break;
-				default:
-					throw new InternalError("Unknown score type.");
+			final SearchResult<A, U> cachedSearchResult = cachedEntry.pickSearchResult(state, depthLimit);
+			if (cachedSearchResult != null) {
+				if (depthLimit <= cachedSearchResult.SEARCHDEPTH) {
+					switch (cachedSearchResult.FLAG) {
+					case TRUEVALUE: // purpose 1
+						return cachedSearchResult.SCORE;
+					case UPPERBOUND: // purpose 2
+						beta = objectUtils.min(beta, cachedSearchResult.SCORE);
+						break;
+					case LOWERBOUND: // purpose 2 (sic.)
+						alpha = objectUtils.max(alpha, cachedSearchResult.SCORE);
+						break;
+					default:
+						throw new InternalError("Unknown score type.");
+					}
+					if (alpha.compareTo(beta) >= 0)
+						return alpha;
 				}
-				if (alpha.compareTo(beta) >= 0)
-					return alpha;
+				// purposes 2 and 3
+				bestOrRefutationMove = cachedSearchResult.MOVE;
 			}
-			// purposes 2 and 3
-			bestOrRefutationMove = cachedSearchResult.MOVE;
-			if (!state.isLegal(bestOrRefutationMove))
-				throw new InternalError();
 		}
 
 		// check best/refutation move first
@@ -236,28 +236,30 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 			return s.eval(player);
 
 		// transposition table lookup
-		final Entry<A, U> cachedEntry = transpositionTable.get(s.hashCode());
+		final Entry<S, A, U> cachedEntry = transpositionTable.get(s.hashCode());
 		A bestOrRefutationMove = null;
 		if (cachedEntry != null) {
-			final SearchResult<A, U> cachedSearchResult = cachedEntry.pickSearchResult(depthLimit);
-			if (depthLimit <= cachedSearchResult.SEARCHDEPTH) {
-				switch (cachedSearchResult.FLAG) {
-				case TRUEVALUE: // purpose 1
-					return cachedSearchResult.SCORE;
-				case UPPERBOUND: // purpose 2
-					beta = objectUtils.min(beta, cachedSearchResult.SCORE);
-					break;
-				case LOWERBOUND: // purpose 2 (sic.)
-					alpha = objectUtils.max(alpha, cachedSearchResult.SCORE);
-					break;
-				default:
-					throw new InternalError("Unknown score type.");
+			final SearchResult<A, U> cachedSearchResult = cachedEntry.pickSearchResult(state, depthLimit);
+			if (cachedSearchResult != null) {
+				if (depthLimit <= cachedSearchResult.SEARCHDEPTH) {
+					switch (cachedSearchResult.FLAG) {
+					case TRUEVALUE: // purpose 1
+						return cachedSearchResult.SCORE;
+					case UPPERBOUND: // purpose 2
+						beta = objectUtils.min(beta, cachedSearchResult.SCORE);
+						break;
+					case LOWERBOUND: // purpose 2 (sic.)
+						alpha = objectUtils.max(alpha, cachedSearchResult.SCORE);
+						break;
+					default:
+						throw new InternalError("Unknown score type.");
+					}
+					if (beta.compareTo(alpha) <= 0)
+						return beta;
 				}
-				if (beta.compareTo(alpha) <= 0)
-					return beta;
+				// purposes 2 and 3
+				bestOrRefutationMove = cachedSearchResult.MOVE;
 			}
-			// purposes 2 and 3
-			bestOrRefutationMove = cachedSearchResult.MOVE;
 		}
 
 		// check best/refutation move first
@@ -326,9 +328,9 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	protected void addSearchResult(Entry<A, U> cachedEntry, SearchResult<A, U> newSearchResult) {
+	protected void addSearchResult(Entry<S, A, U> cachedEntry, SearchResult<A, U> newSearchResult) {
 		if (cachedEntry == null)
-			transpositionTable.put(state.hashCode(), new Entry<A, U>(newSearchResult));
+			transpositionTable.put(state.hashCode(), new Entry<S, A, U>(newSearchResult));
 		else
 			cachedEntry.add(newSearchResult);
 	}
@@ -346,7 +348,7 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 	/** The higher, the more time is used at most for each search. */
 	final private float RELAXATION = 0.99f;
 	/** A transposition table for this instance of the {@link AI}. */
-	final private HashMap<Integer, Entry<A, U>> transpositionTable;
+	final private HashMap<Integer, Entry<S, A, U>> transpositionTable;
 	/** Start time of the current turn. */
 	private long startTime;
 	/**

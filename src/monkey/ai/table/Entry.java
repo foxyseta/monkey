@@ -7,13 +7,14 @@ package monkey.ai.table;
  * <i>Replacement Schemes for Transposition Tables</i>, in <i>ICCA Journal</i>,
  * 17, 1970, 7.
  *
+ * @param <S> The type to be used for game {@link monkey.ai.State}s.
  * @param <A> The type of the moves of the game.
  * @param <U> The type used to quantify the payoffs.
  * @author Gaia Clerici
  * @version 1.0
  * @since 1.0
  */
-public class Entry<A, U extends Comparable<U>> {
+public class Entry<S extends monkey.ai.State<S, A, U>, A, U extends Comparable<U>> {
 
 	/**
 	 * Constructs a new {@link Entry} given its first {@link SearchResult}.
@@ -60,22 +61,25 @@ public class Entry<A, U extends Comparable<U>> {
 	/**
 	 * Decides which {@link SearchResult} should be used.
 	 *
-	 * @param d The maximum depth to be inspected.
+	 * @param state The current state of the game.
+	 * @param depth The maximum depth to be inspected.
 	 * @return The selected {@link SearchResult}.
 	 * @author Gaia Clerici
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	public SearchResult<A, U> pickSearchResult(int depth) {
-		if (second == null || depth <= first.SEARCHDEPTH && first.FLAG == SearchResult.ScoreType.TRUEVALUE)
+	public SearchResult<A, U> pickSearchResult(S state, int depth) {
+		final boolean isFirstLegal = state.isLegal(first.MOVE), isSecondLegal = state.isLegal(second.MOVE);
+		if (isFirstLegal
+				&& (second == null || depth <= first.SEARCHDEPTH && first.FLAG == SearchResult.ScoreType.TRUEVALUE))
 			return first;
-		if (depth <= second.SEARCHDEPTH && second.FLAG == SearchResult.ScoreType.TRUEVALUE)
+		if (isSecondLegal && (depth <= second.SEARCHDEPTH && second.FLAG == SearchResult.ScoreType.TRUEVALUE))
 			return second;
-		if (depth <= first.SEARCHDEPTH)
+		if (isFirstLegal && depth <= first.SEARCHDEPTH)
 			return first;
-		if (depth <= second.SEARCHDEPTH)
+		if (isSecondLegal && depth <= second.SEARCHDEPTH)
 			return second;
-		return first;
+		return isFirstLegal ? first : isSecondLegal ? second : null;
 	}
 
 	/**
