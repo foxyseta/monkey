@@ -112,6 +112,13 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 		return history.size() % 2 == 0 ? Player.P1 : Player.P2;
 	}
 
+	@Override // inherit doc comment
+	public boolean isLegal(Position p) {
+		if (p == null)
+			throw new NullPointerException("p is null.");
+		return p.ROWSNUMBER == M && p.COLUMNSNUMBER == N && cellStates[p.getRow()][p.getColumn()] == MNKCellState.FREE;
+	}
+
 	/**
 	 * {@inheritDoc} <br>
 	 * Takes Θ(1) time in the best and average cases, but Θ({@link SIZE}} in the

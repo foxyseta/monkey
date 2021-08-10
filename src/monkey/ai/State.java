@@ -41,6 +41,18 @@ public interface State<Self extends State<Self, Action, Utility>, Action, Utilit
 	public Player player();
 
 	/**
+	 * Checks if a certain <code>Action</code> is legal.
+	 *
+	 * @param a The <code>Action</code> to test.
+	 * @throws NullPointerException a is <code>null</code>.
+	 * @return <code>true</code> just in case a is legal.
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	public boolean isLegal(Action a);
+
+	/**
 	 * Defines the set of legal <code>Action</code>s.
 	 *
 	 * @return An {@link java.lang.Iterable Iterator} containing the legal

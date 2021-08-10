@@ -163,6 +163,8 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 			}
 			// purposes 2 and 3
 			bestOrRefutationMove = cachedSearchResult.MOVE;
+			if (!state.isLegal(bestOrRefutationMove))
+				throw new InternalError();
 		}
 
 		// check best/refutation move first
