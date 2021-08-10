@@ -69,17 +69,21 @@ public class Entry<S extends monkey.ai.State<S, A, U>, A, U extends Comparable<U
 	 * @since 1.0
 	 */
 	public SearchResult<A, U> pickSearchResult(S state, int depth) {
-		final boolean isFirstLegal = state.isLegal(first.MOVE), isSecondLegal = state.isLegal(second.MOVE);
-		if (isFirstLegal
-				&& (second == null || depth <= first.SEARCHDEPTH && first.FLAG == SearchResult.ScoreType.TRUEVALUE))
+		final boolean isFirstLegal = state.isLegal(first.MOVE),
+				isSecondLegal = second == null ? false : state.isLegal(second.MOVE);
+		if (!isFirstLegal)
+			return isSecondLegal ? second : null;
+		if (!isSecondLegal)
+			return isFirstLegal ? first : null;
+		if (depth <= first.SEARCHDEPTH && first.FLAG == SearchResult.ScoreType.TRUEVALUE)
 			return first;
-		if (isSecondLegal && (depth <= second.SEARCHDEPTH && second.FLAG == SearchResult.ScoreType.TRUEVALUE))
+		if (depth <= second.SEARCHDEPTH && second.FLAG == SearchResult.ScoreType.TRUEVALUE)
 			return second;
-		if (isFirstLegal && depth <= first.SEARCHDEPTH)
+		if (depth <= first.SEARCHDEPTH)
 			return first;
-		if (isSecondLegal && depth <= second.SEARCHDEPTH)
+		if (depth <= second.SEARCHDEPTH)
 			return second;
-		return isFirstLegal ? first : isSecondLegal ? second : null;
+		return first;
 	}
 
 	/**
