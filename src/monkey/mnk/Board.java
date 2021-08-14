@@ -103,6 +103,9 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 				copy.kMinusTwoCounter = kMinusTwoCounter.clone();
 				copy.kMinusTwoCounter.setBoard(copy);
 			}
+			copy.adjacencyCounters = new int[M][N];
+			for (int i = 0; i < adjacencyCounters.length; ++i)
+				copy.adjacencyCounters[i] = adjacencyCounters[i].clone();
 			return copy;
 		} catch (CloneNotSupportedException e) {
 			// Should never happen: we support clone
@@ -252,11 +255,17 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	 */
 	@Override
 	public String toString() {
-		char[] res = new char[SIZE + 2 * M];
+		char[] res = new char[2 * SIZE + 4 * M];
 		int i = 0;
 		for (MNKCellState[] row : cellStates) {
 			for (MNKCellState cell : row)
 				res[i++] = cell == MNKCellState.P1 ? '1' : cell == MNKCellState.P2 ? '2' : '.';
+			res[i++] = '%';
+			res[i++] = 'n';
+		}
+		for (int[] row : adjacencyCounters) {
+			for (int cell : row)
+				res[i++] = (char) (cell + '0');
 			res[i++] = '%';
 			res[i++] = 'n';
 		}
