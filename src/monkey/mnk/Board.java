@@ -11,8 +11,8 @@ import monkey.util.ObjectUtils;
 
 /**
  * A <code>Board</code> describes the {@link monkey.ai.State} of a m,n,k-game.
- * It supports backtracking and alpha-beta pruning. A single istance of this
- * class takes Θ({@link #SIZE}) memory.
+ * It supports backtracking, alpha-beta pruning, pattern search, and more. A
+ * single istance of this class takes Θ({@link #SIZE}) memory.
  *
  * @author Stefano Volpe
  * @version 1.0
@@ -682,8 +682,8 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	 */
 	private ThreatsManager kMinusTwoCounter;
 	/**
-	 * Counters for adjacent marked cells. Not a final field because of
-	 * {@link #clone}.
+	 * Counters for adjacent marked cells used for a simplified pattern search.
+	 * Not a final field because of {@link #clone}.
 	 */
 	private int[][] adjacencyCounters;
 	/** Zobrist hash code for this object. */
