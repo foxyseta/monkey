@@ -7,11 +7,12 @@ import mnkgame.MNKCellState;
 import mnkgame.MNKGameState;
 import monkey.ai.AI;
 import monkey.ai.Player;
+import monkey.util.ObjectUtils;
 
 /**
  * A <code>Board</code> describes the {@link monkey.ai.State} of a m,n,k-game.
- * It supports backtracking and alpha-beta pruning. A single istance of this
- * class takes Θ({@link #SIZE}) memory.
+ * It supports backtracking, alpha-beta pruning, pattern search, and more. A
+ * single istance of this class takes Θ({@link #SIZE}) memory.
  *
  * @author Stefano Volpe
  * @version 1.0
@@ -72,6 +73,7 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 		kCounter = K > 1 ? new ThreatsManager(K, this) : null;
 		kMinusOneCounter = K > 2 ? new ThreatsManager(K - 1, this) : null;
 		kMinusTwoCounter = K > 3 ? new ThreatsManager(K - 2, this) : null;
+		adjacencyCounters = new int[M][N];
 		// hashing
 		zobristHasher = new ZobristHasher(M, N);
 	}
@@ -101,6 +103,9 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 				copy.kMinusTwoCounter = kMinusTwoCounter.clone();
 				copy.kMinusTwoCounter.setBoard(copy);
 			}
+			copy.adjacencyCounters = new int[M][N];
+			for (int i = 0; i < adjacencyCounters.length; ++i)
+				copy.adjacencyCounters[i] = adjacencyCounters[i].clone();
 			return copy;
 		} catch (CloneNotSupportedException e) {
 			// Should never happen: we support clone
@@ -144,6 +149,7 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 		updateThreatsManagers(a);
 		if (countThreatsWithoutHole(K, p) > 0)
 			state = p == Player.P1 ? MNKGameState.WINP1 : MNKGameState.WINP2;
+		updateAdjacencyCounters(a, 1);
 		history.push(a);
 		if (state == MNKGameState.OPEN && history.size() == SIZE)
 			state = MNKGameState.DRAW;
@@ -162,6 +168,7 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 			final int row = a.getRow(), column = a.getColumn();
 			cellStates[row][column] = MNKCellState.FREE;
 			updateThreatsManagers(a);
+			updateAdjacencyCounters(a, -1);
 			state = MNKGameState.OPEN;
 			zobristHashCode ^= zobristHasher.getDisjunct(a, player());
 		} catch (java.util.EmptyStackException e) {
@@ -248,11 +255,17 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	 */
 	@Override
 	public String toString() {
-		char[] res = new char[SIZE + 2 * M];
+		char[] res = new char[2 * SIZE + 4 * M];
 		int i = 0;
 		for (MNKCellState[] row : cellStates) {
 			for (MNKCellState cell : row)
 				res[i++] = cell == MNKCellState.P1 ? '1' : cell == MNKCellState.P2 ? '2' : '.';
+			res[i++] = '%';
+			res[i++] = 'n';
+		}
+		for (int[] row : adjacencyCounters) {
+			for (int cell : row)
+				res[i++] = (char) (cell + '0');
 			res[i++] = '%';
 			res[i++] = 'n';
 		}
@@ -279,6 +292,7 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	/**
 	 * A getter for the cells of the grid.
 	 *
+	 * @see cellStates
 	 * @param p The {@link Position} to inspect.
 	 * @throws IllegalArgumentException p does not have correct extents.
 	 * @return The state of the inspected cell, or <code>null</code> if p is
@@ -293,6 +307,26 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 		if (p.ROWSNUMBER != M || p.COLUMNSNUMBER != N)
 			throw new IllegalArgumentException("This Position is meant for a different grid.");
 		return cellStates[p.getRow()][p.getColumn()];
+	}
+
+	/**
+	 * A getter for the adjacency counters.
+	 *
+	 * @see adjacencyCounters
+	 * @param p The {@link Position} to inspect.
+	 * @throws IllegalArgumentException p does not have the correct extents.
+	 * @throws NullPointerException     p is <code>null</code>.
+	 * @return The number of adjacent, non-free cells.
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	public int getAdjacencyCounter(Position p) {
+		if (p == null)
+			throw new NullPointerException("This position is null.");
+		if (p.ROWSNUMBER != M || p.COLUMNSNUMBER != N)
+			throw new IllegalArgumentException("This Position is meant for a different grid.");
+		return adjacencyCounters[p.getRow()][p.getColumn()];
 	}
 
 	/**
@@ -491,6 +525,35 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	}
 
 	/**
+	 * Updates the value of the adjacency counters neighbours of the desired
+	 * {@link Position}.
+	 *
+	 * @param p      The {@link Position} whose counter is to be updated. If it is
+	 *               <code>null</code>, nothing happens.
+	 * @param offset The quantity to add to the counter.
+	 * @throws IllegalArgumentException p is invalid or offset would make the
+	 *                                  counter negative.
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	private void updateAdjacencyCounters(Position p, int offset) {
+		if (p != null) {
+			if (p.ROWSNUMBER != M || p.COLUMNSNUMBER != N)
+				throw new IllegalArgumentException("p is not meant for this grid.");
+			final int row = p.getRow(), column = p.getColumn(), maxRow = objectUtils.min(row + 1, M - 1),
+					maxColumn = objectUtils.min(column + 1, N - 1);
+			for (int i = objectUtils.max(0, row - 1); i <= maxRow; ++i)
+				for (int j = objectUtils.max(0, column - 1); j <= maxColumn; ++j)
+					if (i != row || j != column) {
+						if (adjacencyCounters[i][j] + offset < 0)
+							throw new IllegalArgumentException("offset would make (" + i + ", " + j + ") counter negative.");
+						adjacencyCounters[i][j] += offset;
+					}
+		}
+	}
+
+	/**
 	 * An <code>Iterator</code> class for {@link Board} which iterates by decreasing
 	 * heuristic values. It does not implement <code>remove</code>.
 	 *
@@ -512,7 +575,8 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 			if (terminalTest())
 				index = actionsCandidates.length;
 			else
-				while (index < actionsCandidates.length && getCellState(actionsCandidates[index]) != MNKCellState.FREE)
+				while (index < actionsCandidates.length && (getCellState(actionsCandidates[index]) != MNKCellState.FREE
+						|| getAdjacencyCounter(actionsCandidates[index]) == 0 && !history.empty()))
 					++index;
 		}
 
@@ -576,6 +640,8 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 		return sum;
 	}
 
+	/** Utilities instance for generic objects. */
+	final private ObjectUtils objectUtils = new ObjectUtils();
 	/** A P1 alpha value valid after a generic first move of theirs. */
 	final private int INITIALALPHAP1;
 	/** A P1 beta value valid after a generic first move of theirs. */
@@ -615,6 +681,11 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	 * because of {@link #clone}.
 	 */
 	private ThreatsManager kMinusTwoCounter;
+	/**
+	 * Counters for adjacent marked cells used for a simplified pattern search.
+	 * Not a final field because of {@link #clone}.
+	 */
+	private int[][] adjacencyCounters;
 	/** Zobrist hash code for this object. */
 	private int zobristHashCode = 0;
 	/** Utility for Zobrist hashing. */
