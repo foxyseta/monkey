@@ -157,14 +157,17 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 		 */
 		// check best/refutation move first
 		U v = null;
-		/*
-		 * if (bestOrRefutationMove != null) { v =
-		 * minValue(s.result(bestOrRefutationMove), alpha, beta, depthLimit - 1);
-		 * s.revert(); if (v.compareTo(beta) >= 0) { addSearchResult(cachedEntry, new
-		 * SearchResult<A, U>(bestOrRefutationMove, v, ScoreType.LOWERBOUND, depthLimit,
-		 * inspectedNodes - previouslyInspectedNodes)); return v; } alpha =
-		 * objectUtils.max(alpha, v); }
-		 */
+
+		if (bestOrRefutationMove != null) {
+			v = minValue(s.result(bestOrRefutationMove), alpha, beta, depthLimit - 1);
+			s.revert();
+			if (v.compareTo(beta) >= 0) {
+				addSearchResult(cachedEntry, new SearchResult<A, U>(bestOrRefutationMove, v, ScoreType.LOWERBOUND,
+						depthLimit, inspectedNodes - previouslyInspectedNodes));
+				return v;
+			}
+			alpha = objectUtils.max(alpha, v);
+		}
 
 		// check other moves next
 		final Iterator<A> actions = s.actions();
@@ -178,17 +181,15 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 				}
 				s.revert();
 				if (v.compareTo(beta) >= 0) {
-					// addSearchResult(cachedEntry, new SearchResult<A, U>(bestOrRefutationMove, v,
-					// ScoreType.LOWERBOUND, depthLimit,
-					// inspectedNodes - previouslyInspectedNodes));
+					addSearchResult(cachedEntry, new SearchResult<A, U>(bestOrRefutationMove, v, ScoreType.LOWERBOUND,
+							depthLimit, inspectedNodes - previouslyInspectedNodes));
 					return v;
 				}
 				alpha = objectUtils.max(alpha, v);
 			}
 		}
-		// addSearchResult(cachedEntry, new SearchResult<A, U>(bestOrRefutationMove, v,
-		// ScoreType.TRUEVALUE, depthLimit,
-		// inspectedNodes - previouslyInspectedNodes));
+		addSearchResult(cachedEntry, new SearchResult<A, U>(bestOrRefutationMove, v, ScoreType.TRUEVALUE, depthLimit,
+				inspectedNodes - previouslyInspectedNodes));
 		return v;
 	}
 
@@ -253,14 +254,17 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 
 		// check best/refutation move first
 		U v = null;
-		/*
-		 * if (bestOrRefutationMove != null) { v =
-		 * maxValue(s.result(bestOrRefutationMove), alpha, beta, depthLimit - 1);
-		 * s.revert(); if (v.compareTo(alpha) <= 0) { addSearchResult(cachedEntry, new
-		 * SearchResult<A, U>(bestOrRefutationMove, v, ScoreType.UPPERBOUND, depthLimit,
-		 * inspectedNodes - previouslyInspectedNodes)); return v; } beta =
-		 * objectUtils.min(beta, v); }
-		 */
+
+		if (bestOrRefutationMove != null) {
+			v = maxValue(s.result(bestOrRefutationMove), alpha, beta, depthLimit - 1);
+			s.revert();
+			if (v.compareTo(alpha) <= 0) {
+				addSearchResult(cachedEntry, new SearchResult<A, U>(bestOrRefutationMove, v, ScoreType.UPPERBOUND,
+						depthLimit, inspectedNodes - previouslyInspectedNodes));
+				return v;
+			}
+			beta = objectUtils.min(beta, v);
+		}
 
 		// check other moves next
 		final Iterator<A> actions = s.actions();
@@ -274,17 +278,15 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 				}
 				s.revert();
 				if (v.compareTo(alpha) <= 0) {
-					// addSearchResult(cachedEntry, new SearchResult<A, U>(bestOrRefutationMove, v,
-					// ScoreType.UPPERBOUND, depthLimit,
-					// inspectedNodes - previouslyInspectedNodes));
+					addSearchResult(cachedEntry, new SearchResult<A, U>(bestOrRefutationMove, v, ScoreType.UPPERBOUND,
+							depthLimit, inspectedNodes - previouslyInspectedNodes));
 					return v;
 				}
 				beta = objectUtils.max(beta, v);
 			}
 		}
-		// addSearchResult(cachedEntry, new SearchResult<A, U>(bestOrRefutationMove, v,
-		// ScoreType.TRUEVALUE, depthLimit,
-		// inspectedNodes - previouslyInspectedNodes));
+		addSearchResult(cachedEntry, new SearchResult<A, U>(bestOrRefutationMove, v, ScoreType.TRUEVALUE, depthLimit,
+				inspectedNodes - previouslyInspectedNodes));
 		return v;
 	}
 
