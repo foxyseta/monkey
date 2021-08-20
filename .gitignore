@@ -25,5 +25,9 @@ hs_err_pid*
 # docs
 /docs/
 *.pdf
+*.aux
+*.out
+*.gz
+*_temp.tex
 
 !MNKGame*.jar # not available anywhere else!

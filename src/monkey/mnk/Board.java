@@ -5,7 +5,6 @@ import java.util.Stack;
 import java.util.Iterator;
 import mnkgame.MNKCellState;
 import mnkgame.MNKGameState;
-import monkey.ai.AI;
 import monkey.ai.Player;
 import monkey.util.ObjectUtils;
 
@@ -116,6 +115,13 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	@Override // inherit doc comment
 	public Player player() {
 		return history.size() % 2 == 0 ? Player.P1 : Player.P2;
+	}
+
+	@Override // inherit doc comment
+	public boolean isLegal(Position p) {
+		if (p == null)
+			throw new NullPointerException("p is null.");
+		return p.ROWSNUMBER == M && p.COLUMNSNUMBER == N && cellStates[p.getRow()][p.getColumn()] == MNKCellState.FREE;
 	}
 
 	/**
@@ -629,7 +635,7 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	 */
 	@Override
 	public int ttSuggestedCapacity() {
-		final int ENTRIESPERKILOBYTES = 256, MAXENTRIES = AI.MAXRAM * ENTRIESPERKILOBYTES;
+		final int MAXENTRIES = Integer.MAX_VALUE;
 		int sum = 1, lastTerm = 1;
 		for (int p = 1; p < SIZE; ++p) {
 			lastTerm *= (SIZE - p + 1) * (p % 2 == 0 ? p / 2 : 1);
