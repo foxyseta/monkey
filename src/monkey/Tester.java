@@ -36,9 +36,9 @@ public class Tester {
 		configurationTest(4, 3, 3);
 		configurationTest(4, 4, 3);
 		// skipping some configurations here...
-		configurationTest(6, 6, 6);
-		configurationTest(7, 4, 4);
-		configurationTest(7, 5, 4);
+		// configurationTest(6, 6, 6);
+		// configurationTest(7, 4, 4);
+		// configurationTest(7, 5, 4);
 		// skipping some configurations here...
 		// configurationTest(10, 10, 5);
 		// configurationTest(50, 50, 10);

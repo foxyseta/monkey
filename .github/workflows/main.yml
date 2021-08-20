@@ -1,4 +1,4 @@
-name: generic Java CI
+name: main branch tests
 
 on:
   push:
@@ -21,3 +21,12 @@ jobs:
     - run: make clean
     - run: make build
     - run: make test
+  build_latex:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Git repository
+        uses: actions/checkout@v2
+      - name: Compile LaTeX document
+        uses: xu-cheng/latex-action@v2
+        with:
+          root_file: report/report.tex
