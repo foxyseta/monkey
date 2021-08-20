@@ -18,4 +18,6 @@ jobs:
         java-version: '11.0.9'
         java-package: jdk
         architecture: x64
-    - run: make clean build
+    - run: make clean
+    - run: make build
+    - run: make test
