@@ -142,30 +142,32 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 
 		// transposition table lookup
 		final Entry<S, A, U> cachedEntry = transpositionTable.get(s.hashCode());
-		A bestOrRefutationMove = null;
+		A bestOrRefutationMove = null, cachedMove = null;
 		if (cachedEntry != null) {
 			final SearchResult<A, U> cachedSearchResult = cachedEntry.pickSearchResult(s, depthLimit);
 			if (cachedSearchResult != null) {
 				if (depthLimit <= cachedSearchResult.SEARCHDEPTH) {
 					switch (cachedSearchResult.FLAG) {
-					case TRUEVALUE: // purpose 1
-						return cachedSearchResult.SCORE;
-					case UPPERBOUND: // purpose 2
-						beta = objectUtils.min(beta, cachedSearchResult.SCORE);
-						break;
-					case LOWERBOUND: // purpose 2 (sic.)
-						alpha = objectUtils.max(alpha, cachedSearchResult.SCORE);
-						break;
-					default:
-						throw new InternalError("Unknown score type.");
+						case TRUEVALUE: // purpose 1
+							return cachedSearchResult.SCORE;
+						case UPPERBOUND: // purpose 2
+							beta = objectUtils.min(beta, cachedSearchResult.SCORE);
+							break;
+						case LOWERBOUND: // purpose 2 (sic.)
+							alpha = objectUtils.max(alpha, cachedSearchResult.SCORE);
+							break;
+						default:
+							throw new InternalError("Unknown score type.");
 					}
 					if (alpha.compareTo(beta) >= 0)
 						return alpha;
 				}
 				// purposes 2 and 3
 				bestOrRefutationMove = cachedSearchResult.MOVE;
+				cachedMove = bestOrRefutationMove;
 			}
 		}
+
 		// check best/refutation move first
 		U v = null;
 
@@ -173,8 +175,8 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 			v = minValue(s.result(bestOrRefutationMove), alpha, beta, depthLimit - 1);
 			s.revert();
 			if (v.compareTo(beta) >= 0) {
-				addSearchResult(cachedEntry, new SearchResult<A, U>(bestOrRefutationMove, v, ScoreType.LOWERBOUND, depthLimit,
-						inspectedNodes - previouslyInspectedNodes));
+				addSearchResult(cachedEntry, new SearchResult<A, U>(bestOrRefutationMove, v, ScoreType.LOWERBOUND,
+						depthLimit, inspectedNodes - previouslyInspectedNodes));
 				return v;
 			}
 			alpha = objectUtils.max(alpha, v);
@@ -184,7 +186,7 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 		final Iterator<A> actions = s.actions();
 		while (actions.hasNext()) {
 			final A toChild = actions.next();
-			if (!toChild.equals(bestOrRefutationMove)) {
+			if (!toChild.equals(cachedMove)) {
 				final U newV = minValue(s.result(toChild), alpha, beta, depthLimit - 1);
 				if (v == null || newV.compareTo(v) > 0) {
 					v = newV;
@@ -192,8 +194,8 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 				}
 				s.revert();
 				if (v.compareTo(beta) >= 0) {
-					addSearchResult(cachedEntry, new SearchResult<A, U>(bestOrRefutationMove, v, ScoreType.LOWERBOUND, depthLimit,
-							inspectedNodes - previouslyInspectedNodes));
+					addSearchResult(cachedEntry, new SearchResult<A, U>(bestOrRefutationMove, v, ScoreType.LOWERBOUND,
+							depthLimit, inspectedNodes - previouslyInspectedNodes));
 					return v;
 				}
 				alpha = objectUtils.max(alpha, v);
@@ -237,28 +239,29 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 
 		// transposition table lookup
 		final Entry<S, A, U> cachedEntry = transpositionTable.get(s.hashCode());
-		A bestOrRefutationMove = null;
+		A bestOrRefutationMove = null, cachedMove = null;
 		if (cachedEntry != null) {
 			final SearchResult<A, U> cachedSearchResult = cachedEntry.pickSearchResult(s, depthLimit);
 			if (cachedSearchResult != null) {
 				if (depthLimit <= cachedSearchResult.SEARCHDEPTH) {
 					switch (cachedSearchResult.FLAG) {
-					case TRUEVALUE: // purpose 1
-						return cachedSearchResult.SCORE;
-					case UPPERBOUND: // purpose 2
-						beta = objectUtils.min(beta, cachedSearchResult.SCORE);
-						break;
-					case LOWERBOUND: // purpose 2 (sic.)
-						alpha = objectUtils.max(alpha, cachedSearchResult.SCORE);
-						break;
-					default:
-						throw new InternalError("Unknown score type.");
+						case TRUEVALUE: // purpose 1
+							return cachedSearchResult.SCORE;
+						case UPPERBOUND: // purpose 2
+							beta = objectUtils.min(beta, cachedSearchResult.SCORE);
+							break;
+						case LOWERBOUND: // purpose 2 (sic.)
+							alpha = objectUtils.max(alpha, cachedSearchResult.SCORE);
+							break;
+						default:
+							throw new InternalError("Unknown score type.");
 					}
 					if (beta.compareTo(alpha) <= 0)
 						return beta;
 				}
 				// purposes 2 and 3
 				bestOrRefutationMove = cachedSearchResult.MOVE;
+				cachedMove = bestOrRefutationMove;
 			}
 		}
 
@@ -269,8 +272,8 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 			v = maxValue(s.result(bestOrRefutationMove), alpha, beta, depthLimit - 1);
 			s.revert();
 			if (v.compareTo(alpha) <= 0) {
-				addSearchResult(cachedEntry, new SearchResult<A, U>(bestOrRefutationMove, v, ScoreType.UPPERBOUND, depthLimit,
-						inspectedNodes - previouslyInspectedNodes));
+				addSearchResult(cachedEntry, new SearchResult<A, U>(bestOrRefutationMove, v, ScoreType.UPPERBOUND,
+						depthLimit, inspectedNodes - previouslyInspectedNodes));
 				return v;
 			}
 			beta = objectUtils.min(beta, v);
@@ -280,7 +283,7 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 		final Iterator<A> actions = s.actions();
 		while (actions.hasNext()) {
 			final A toChild = actions.next();
-			if (!toChild.equals(bestOrRefutationMove)) {
+			if (!toChild.equals(cachedMove)) {
 				final U newV = maxValue(s.result(toChild), alpha, beta, depthLimit - 1);
 				if (v == null || newV.compareTo(v) < 0) {
 					v = newV;
@@ -288,8 +291,8 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 				}
 				s.revert();
 				if (v.compareTo(alpha) <= 0) {
-					addSearchResult(cachedEntry, new SearchResult<A, U>(bestOrRefutationMove, v, ScoreType.UPPERBOUND, depthLimit,
-							inspectedNodes - previouslyInspectedNodes));
+					addSearchResult(cachedEntry, new SearchResult<A, U>(bestOrRefutationMove, v, ScoreType.UPPERBOUND,
+							depthLimit, inspectedNodes - previouslyInspectedNodes));
 					return v;
 				}
 				beta = objectUtils.min(beta, v);
