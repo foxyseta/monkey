@@ -27,8 +27,5 @@ jobs:
       - name: Set up Git repository
         uses: actions/checkout@v2
       - name: Compile LaTeX document
-        uses: dante-ev/latex-action@latest
-        with:
-          root_file: report/report.tex
-          compiler: xelatex
-          extra_system_packages: fonts-symbola
+        uses: wtfjoke/setup-tectonic@v1
+      - run: tectonic report/report.tex
