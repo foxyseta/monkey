@@ -42,4 +42,3 @@ jobs:
         with:
           branch: docs
           clean: off
-          folder: report
