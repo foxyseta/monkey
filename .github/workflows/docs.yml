@@ -36,8 +36,8 @@ jobs:
         uses: lihram/tectonic-nix
         with:
           file: "report/report.tex"
-    - name: Deploy to Github Pages
-      uses: JamesIves/github-pages-deploy-action@4.1.4
-      with:
-        branch: docs
-        folder: report
+      - name: Deploy to Github Pages
+        uses: JamesIves/github-pages-deploy-action@4.1.4
+        with:
+          branch: docs
+          folder: report
