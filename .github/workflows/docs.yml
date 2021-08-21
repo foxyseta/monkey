@@ -31,8 +31,6 @@ jobs:
     steps:
       - name: Set up Git repository
         uses: actions/checkout@v2
-      - name: Install Symbola
-        run: sudo apt-get install fonts-symbola -y 
       - name: Compile LaTeX document
         uses: lihram/tectonic-nix@v1.0
         with:
