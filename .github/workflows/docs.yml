@@ -36,8 +36,7 @@ jobs:
         with:
           file: "-o . report/report.tex"
       - name: Remove report sources
-        run: "rm -rf report/*"
-        run: "mv report.pdf report/"
+        run: "rm -rf report/* && mv report.pdf report/"
       - name: Deploy to Github Pages
         uses: JamesIves/github-pages-deploy-action@4.1.4
         with:
