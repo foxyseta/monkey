@@ -25,6 +25,7 @@ jobs:
       with:
         branch: docs
         folder: docs
+        target-folder: docs
   report:
     runs-on: ubuntu-latest
     steps:
@@ -33,11 +34,12 @@ jobs:
       - name: Install Symbola
         run: sudo apt-get install fonts-symbola -y 
       - name: Compile LaTeX document
-        uses: lihram/tectonic-nix@v1
+        uses: lihram/tectonic-nix@v1.0
         with:
           file: "report/report.tex"
       - name: Deploy to Github Pages
         uses: JamesIves/github-pages-deploy-action@4.1.4
         with:
           branch: docs
+          clean: off
           folder: report
