@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","url":"allpackages-index.html"},{"l":"monkey"},{"l":"monkey.ai"},{"l":"monkey.ai.table"},{"l":"monkey.mnk"},{"l":"monkey.util"}]
