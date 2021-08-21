@@ -33,7 +33,7 @@ jobs:
       - name: Install Symbola
         run: sudo apt-get install fonts-symbola -y 
       - name: Compile LaTeX document
-        uses: lihram/tectonic-nix
+        uses: lihram/tectonic-nix@v1
         with:
           file: "report/report.tex"
       - name: Deploy to Github Pages
