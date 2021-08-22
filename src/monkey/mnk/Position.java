@@ -10,7 +10,7 @@ import monkey.util.Pair;
  * @version 1.0
  * @since 1.0
  */
-public class Position {
+public class Position implements Cloneable {
 
 	/** Number of rows of the board. */
 	public final int ROWSNUMBER;
@@ -76,6 +76,23 @@ public class Position {
 	 */
 	public Position(int rowsNumber, int columnsNumber, mnkgame.MNKCell cell) {
 		this(rowsNumber, columnsNumber, cell.i, cell.j);
+	}
+
+	/**
+	 * Creates a clone of this {@link Position}.
+	 *
+	 * @return The desired clone.
+	 * @author Gaia Clerici
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	public Position clone() {
+		try {
+			return (Position) super.clone();
+		} catch (CloneNotSupportedException e) {
+			// Should never happen: we support clone
+			throw new InternalError(e.toString());
+		}
 	}
 
 	/**

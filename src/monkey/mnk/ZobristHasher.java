@@ -16,6 +16,100 @@ import monkey.ai.Player;
  */
 public class ZobristHasher {
 
+	/**
+	 * A symmetry is a transformation that leaves an empty {@link Board} unchanged.
+	 *
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	public enum Symmetry {
+		/** A symmetry that does nothing (e). */
+		A {
+			public Position apply(Position p) {
+				return p.clone();
+			}
+		},
+		/** 90° clockwise rotation. */
+		B {
+			public Position apply(Position p) {
+				validateSquareBoard(p);
+				return new Position(p.ROWSNUMBER, p.COLUMNSNUMBER, p.getColumn(), p.COLUMNSNUMBER - p.getRow() - 1);
+			}
+		},
+		/** 180° clockwise rotation. */
+		C {
+			public Position apply(Position p) {
+				return new Position(p.ROWSNUMBER, p.COLUMNSNUMBER, p.ROWSNUMBER - p.getRow() - 1,
+						p.COLUMNSNUMBER - p.getColumn() - 1);
+			}
+		},
+		/** 270° clockwise rotation. */
+		D {
+			public Position apply(Position p) {
+				validateSquareBoard(p);
+				return new Position(p.ROWSNUMBER, p.COLUMNSNUMBER, p.ROWSNUMBER - p.getColumn() - 1, p.getRow());
+			}
+		},
+		/** A flip around the primary diagonal. */
+		E {
+			public Position apply(Position p) {
+				validateSquareBoard(p);
+				return new Position(p.ROWSNUMBER, p.COLUMNSNUMBER, p.getColumn(), p.getRow());
+			}
+		},
+		/** A flip around the vertical axis. */
+		F {
+			public Position apply(Position p) {
+				return new Position(p.ROWSNUMBER, p.COLUMNSNUMBER, p.getRow(), p.COLUMNSNUMBER - p.getColumn() - 1);
+			}
+		},
+		/** A flip around the secondary diagonal. */
+		G {
+			public Position apply(Position p) {
+				validateSquareBoard(p);
+				return new Position(p.ROWSNUMBER, p.COLUMNSNUMBER, p.ROWSNUMBER - p.getColumn() - 1,
+						p.COLUMNSNUMBER - p.getRow() - 1);
+			}
+		},
+		/** A flip around the horizontal axis. */
+		H {
+			public Position apply(Position p) {
+				return new Position(p.ROWSNUMBER, p.COLUMNSNUMBER, p.ROWSNUMBER - p.getRow() - 1, p.getColumn());
+			}
+		};
+
+		/**
+		 * Validates the fact that a given {@link Position} is part of a square
+		 * {@link Board} or not.
+		 *
+		 * @param p The {@link Position} to examine.
+		 * @throws IllegalArgumentException The {@link Board} in question is not, in
+		 *                                  fact, square.
+		 * @author Stefano Volpe
+		 * @version 1.0
+		 * @since 1.0
+		 */
+		protected void validateSquareBoard(Position p) {
+			if (p.ROWSNUMBER != p.COLUMNSNUMBER)
+				throw new IllegalArgumentException("The board is not square.");
+		}
+
+		/**
+		 * Applies this simmetry to a given {@link Position}, returning the result of
+		 * the transformation and leaving the original one unchanged.
+		 *
+		 * @param p The {@link Position} to transform.
+		 * @throws IllegalArgumentException The {@link Board} in question should be
+		 *                                  square but is not.
+		 * @return A new {@link Position} representing the result of the transformation.
+		 * @author Stefano Volpe
+		 * @version 1.0
+		 * @since 1.0
+		 */
+		abstract public Position apply(Position p);
+	};
+
 	/** Number of {@link monkey.ai.Player}s to be considered. */
 	final public static int PLAYERS = 2;
 	/** Seed to be used for the generated pseudo-random sequence. */
