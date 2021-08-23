@@ -229,6 +229,7 @@ public class ZobristHasher {
 	 * @param m Number of rows.
 	 * @param n Number of columns.
 	 * @throws IllegalArgumentException m or n or k is not positive.
+	 * @return The generated disjuncts.
 	 * @author Stefano Volpe
 	 * @version 1.0
 	 * @since 1.0
