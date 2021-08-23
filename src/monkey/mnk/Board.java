@@ -646,6 +646,11 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 		return sum;
 	}
 
+	@Override // inherit doc comment
+	public int countLegalActions() {
+		return SIZE - history.size();
+	}
+
 	/** Utilities instance for generic objects. */
 	final private ObjectUtils objectUtils = new ObjectUtils();
 	/** A P1 alpha value valid after a generic first move of theirs. */
@@ -688,8 +693,8 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	 */
 	private ThreatsManager kMinusTwoCounter;
 	/**
-	 * Counters for adjacent marked cells used for a simplified pattern search.
-	 * Not a final field because of {@link #clone}.
+	 * Counters for adjacent marked cells used for a simplified pattern search. Not
+	 * a final field because of {@link #clone}.
 	 */
 	private int[][] adjacencyCounters;
 	/** Zobrist hash code for this object. */

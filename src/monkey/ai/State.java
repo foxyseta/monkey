@@ -178,4 +178,14 @@ public interface State<Self extends State<Self, Action, Utility>, Action, Utilit
 	 */
 	public int ttSuggestedCapacity();
 
+	/**
+	 * Computes the number of legal actions for the current {@link State}.
+	 *
+	 * @return The number of legal actions.
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	public int countLegalActions();
+
 }
