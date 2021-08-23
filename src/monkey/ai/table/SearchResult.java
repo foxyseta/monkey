@@ -11,14 +11,12 @@ package monkey.ai.table;
  * <i>Advances in Computer Chess 8</i>, Computer Science Department,
  * Universiteit Maastricht. 1997, pp. 2-3, 4.
  *
- * @param <Action>  The type of the moves of the game.
- * @param <Utility> The type used to quantify the payoffs.
+ * @param <Action> The type of the moves of the game.
  * @author Gaia Clerici
  * @version 1.0
  * @since 1.0
  */
-public class SearchResult<Action, Utility extends Comparable<Utility>>
-		implements Cloneable, Comparable<SearchResult<Action, Utility>> {
+public class SearchResult<Action> implements Cloneable, Comparable<SearchResult<Action>> {
 
 	/**
 	 * A <code>ScoreType</code> indicates the nature of the {@link #SCORE}.
@@ -44,7 +42,7 @@ public class SearchResult<Action, Utility extends Comparable<Utility>>
 	 */
 	public final Action MOVE;
 	/** Contains the value of {@link #MOVE}. */
-	public final Utility SCORE;
+	public final int SCORE;
 	/**
 	 * Indicates whether the score is a true value, an upper bound or a lower bound.
 	 */
@@ -71,8 +69,8 @@ public class SearchResult<Action, Utility extends Comparable<Utility>>
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	public SearchResult(Action move, Utility score, ScoreType flag, int searchDepth, long searchedNodes) {
-		if (move == null || score == null || flag == null)
+	public SearchResult(Action move, int score, ScoreType flag, int searchDepth, long searchedNodes) {
+		if (move == null || flag == null)
 			throw new NullPointerException("move, result and flag can't be null.");
 		if (searchDepth <= 0 || searchedNodes <= 0)
 			throw new IllegalArgumentException("searchDepth and searchNodes can't be negative values or zeros.");
@@ -93,9 +91,9 @@ public class SearchResult<Action, Utility extends Comparable<Utility>>
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
-	public SearchResult<Action, Utility> clone() {
+	public SearchResult<Action> clone() {
 		try {
-			return (SearchResult<Action, Utility>) super.clone();
+			return (SearchResult<Action>) super.clone();
 		} catch (CloneNotSupportedException e) {
 			// Should never happen: we support clone
 			throw new InternalError(e.toString());
@@ -114,7 +112,7 @@ public class SearchResult<Action, Utility extends Comparable<Utility>>
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	public int compareTo(SearchResult<Action, Utility> s) {
+	public int compareTo(SearchResult<Action> s) {
 		if (s == null)
 			throw new NullPointerException("s can't be null.");
 		if (SEARCHEDNODES < s.SEARCHEDNODES)

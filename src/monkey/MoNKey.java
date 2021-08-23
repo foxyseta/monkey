@@ -26,7 +26,7 @@ public class MoNKey implements MNKPlayer {
 	 */
 	@Override
 	public void initPlayer(int M, int N, int K, boolean first, int timeout_in_secs) {
-		ai = new AI<Board, Position, Integer>(first ? Player.P1 : Player.P2, new Board(M, N, K), timeout_in_secs * S_TO_MS);
+		ai = new AI<Board, Position>(first ? Player.P1 : Player.P2, new Board(M, N, K), timeout_in_secs * S_TO_MS);
 		m = M;
 		n = N;
 	}
@@ -45,7 +45,7 @@ public class MoNKey implements MNKPlayer {
 			ai.update(new Position(m, n, MC[MC.length - 2]));
 		if (MC.length > 0)
 			ai.update(new Position(m, n, MC[MC.length - 1]));
-		final Position p = ai.alphaBetaSearch();
+		final Position p = ai.iterativeDeepeningSearch();
 		System.out.println(formatTimeInterval(System.currentTimeMillis() - startTime));
 		return new MNKCell(p.getRow(), p.getColumn());
 	}
@@ -76,7 +76,7 @@ public class MoNKey implements MNKPlayer {
 	}
 
 	/** Artificial intelligence used by <code>MoNKey</code>. */
-	private AI<Board, Position, Integer> ai = null;
+	private AI<Board, Position> ai = null;
 	/** Number of rows. */
 	private int m;
 	/** Number of columns. */
