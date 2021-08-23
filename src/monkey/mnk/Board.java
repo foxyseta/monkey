@@ -348,6 +348,28 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	}
 
 	/**
+	 * {@inheritDoc} <br>
+	 * See the project report. Takes Θ(1) (sic).
+	 */
+	@Override
+	public int ttSuggestedCapacity() {
+		final int MAXENTRIES = Integer.MAX_VALUE;
+		int sum = 1, lastTerm = 1;
+		for (int p = 1; p < SIZE; ++p) {
+			lastTerm *= (SIZE - p + 1) * (p % 2 == 0 ? p / 2 : 1);
+			sum += lastTerm;
+			if (sum < 0 || sum > MAXENTRIES)
+				return MAXENTRIES;
+		}
+		return sum;
+	}
+
+	@Override // inherit doc comment
+	public Position revertFromHashedAction(Position a) {
+		return zobristHasher.getSymmetryUsed().revert(a);
+	}
+
+	/**
 	 * Helper function to initialize cell states. Takes Θ({@link #SIZE}) time.
 	 *
 	 * @return A {@link #M} x {@link #N} matrix with the initial cell states.
@@ -624,23 +646,6 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 		/** The index of the next element, or the length of the table if it is over. */
 		private int index = 0;
 
-	}
-
-	/**
-	 * {@inheritDoc} <br>
-	 * See the project report. Takes Θ(1) (sic).
-	 */
-	@Override
-	public int ttSuggestedCapacity() {
-		final int MAXENTRIES = Integer.MAX_VALUE;
-		int sum = 1, lastTerm = 1;
-		for (int p = 1; p < SIZE; ++p) {
-			lastTerm *= (SIZE - p + 1) * (p % 2 == 0 ? p / 2 : 1);
-			sum += lastTerm;
-			if (sum < 0 || sum > MAXENTRIES)
-				return MAXENTRIES;
-		}
-		return sum;
 	}
 
 	/** Utilities instance for generic objects. */

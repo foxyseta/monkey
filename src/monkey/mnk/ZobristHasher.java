@@ -257,6 +257,18 @@ public class ZobristHasher {
 	}
 
 	/**
+	 * A getter for {@link #symmetryUsed}.
+	 *
+	 * @return The value of {@link #symmetryUsed}.
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	public Symmetry getSymmetryUsed() {
+		return symmetryUsed;
+	}
+
+	/**
 	 * Checks whether the pseudo-random disjuncts generated for a {@link Board} are
 	 * distinct or not. Takes Θ(1) in the best case and
 	 * Θ({@link Board#SIZE}<sup>2</sup>) time in the average and worst cases.
