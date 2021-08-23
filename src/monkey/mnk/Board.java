@@ -159,7 +159,7 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 		history.push(a);
 		if (state == MNKGameState.OPEN && history.size() == SIZE)
 			state = MNKGameState.DRAW;
-		zobristHashCode ^= zobristHasher.getDisjunct(a, p);
+		zobristHasher.addOrRemove(a, p);
 		return this;
 	}
 
@@ -176,7 +176,7 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 			updateThreatsManagers(a);
 			updateAdjacencyCounters(a, -1);
 			state = MNKGameState.OPEN;
-			zobristHashCode ^= zobristHasher.getDisjunct(a, player());
+			zobristHasher.addOrRemove(a, player());
 		} catch (java.util.EmptyStackException e) {
 			throw new IllegalCallerException("No previous action to revert.");
 		}
@@ -280,10 +280,7 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 
 	/**
 	 * Returns a hash code value for the object. Zobrist hashing is used
-	 * (transpositions will return the same hash code). Hence, most of this method's
-	 * original contract is broken. See A. L. Zobrist, <i>A New Hashing Method with
-	 * Application for Game Playing</i>, Tech. Rep. 88, Computer Sciences
-	 * Department, University of Wisconsin, Madison, Wisconsin, Apr. 1970, pp. 5-7.
+	 * (transpositions and symmetric {@link Board}s will return the same hash code).
 	 * 
 	 * @return A hash code value for this object.
 	 * @author Stefano Volpe
@@ -292,7 +289,7 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	 */
 	@Override
 	public int hashCode() {
-		return zobristHashCode;
+		return zobristHasher.hashCode();
 	}
 
 	/**
@@ -688,12 +685,10 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	 */
 	private ThreatsManager kMinusTwoCounter;
 	/**
-	 * Counters for adjacent marked cells used for a simplified pattern search.
-	 * Not a final field because of {@link #clone}.
+	 * Counters for adjacent marked cells used for a simplified pattern search. Not
+	 * a final field because of {@link #clone}.
 	 */
 	private int[][] adjacencyCounters;
-	/** Zobrist hash code for this object. */
-	private int zobristHashCode = 0;
 	/** Utility for Zobrist hashing. */
 	final private ZobristHasher zobristHasher;
 
