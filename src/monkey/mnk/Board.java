@@ -365,6 +365,11 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	}
 
 	@Override // inherit doc comment
+	public Position convertToHashedAction(Position a) {
+		return zobristHasher.getSymmetryUsed().apply(a);
+	}
+
+	@Override // inherit doc comment
 	public Position revertFromHashedAction(Position a) {
 		return zobristHasher.getSymmetryUsed().revert(a);
 	}

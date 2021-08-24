@@ -180,7 +180,7 @@ public interface State<Self extends State<Self, Action, Utility>, Action, Utilit
 
 	/**
 	 * Let r be the hashing representant for this {@link State}; if a is a legal
-	 * action for this {@link State), then this method computes the analogue action
+	 * action for this {@link State}, then this method computes the analogue action
 	 * for r.
 	 *
 	 * @param a A legal action for this {@link State}.
