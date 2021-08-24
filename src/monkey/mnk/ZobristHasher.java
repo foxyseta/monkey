@@ -139,6 +139,9 @@ public class ZobristHasher {
 
 		};
 
+		/** The number of {@link Symmetr}ies. */
+		public final static int SIZE = H.ordinal() + 1;
+
 		/**
 		 * Validates the fact that a given {@link Position} is part of a square
 		 * {@link Board} or not.
@@ -208,7 +211,7 @@ public class ZobristHasher {
 	public ZobristHasher(int m, int n) {
 		disjuncts = generateDisjuncts(m, n);
 		symmetries = m == n ? Symmetry.values() : new Symmetry[] { Symmetry.A, Symmetry.C, Symmetry.F, Symmetry.H };
-		hashCodeCandidates = new int[symmetries.length];
+		hashCodeCandidates = new int[Symmetry.SIZE];
 	}
 
 	/**
