@@ -139,7 +139,7 @@ public class ZobristHasher {
 
 		};
 
-		/** The number of {@link Symmetr}ies. */
+		/** The number of {@link Symmetry Symmetries}. */
 		public final static int SIZE = H.ordinal() + 1;
 
 		/**
