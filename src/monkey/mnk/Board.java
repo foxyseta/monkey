@@ -105,6 +105,7 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 			copy.adjacencyCounters = new int[M][N];
 			for (int i = 0; i < adjacencyCounters.length; ++i)
 				copy.adjacencyCounters[i] = adjacencyCounters[i].clone();
+			copy.zobristHasher = zobristHasher.clone();
 			return copy;
 		} catch (CloneNotSupportedException e) {
 			// Should never happen: we support clone
@@ -699,7 +700,9 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	 * a final field because of {@link #clone}.
 	 */
 	private int[][] adjacencyCounters;
-	/** Utility for Zobrist hashing. */
-	final private ZobristHasher zobristHasher;
+	/**
+	 * Utility for Zobrist hashing. Not a final field because of {@link #clone}.
+	 */
+	private ZobristHasher zobristHasher;
 
 }

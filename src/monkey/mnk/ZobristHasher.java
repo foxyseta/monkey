@@ -14,7 +14,7 @@ import monkey.ai.Player;
  * @version 1.0
  * @since 1.0
  */
-public class ZobristHasher {
+public class ZobristHasher implements Cloneable {
 
 	/**
 	 * A symmetry is a transformation that leaves an empty {@link Board} unchanged.
@@ -236,6 +236,25 @@ public class ZobristHasher {
 	}
 
 	/**
+	 * Create a clone of this {@link ZobristHasher}.
+	 *
+	 * @return The desired clone.
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	public ZobristHasher clone() {
+		try {
+			ZobristHasher copy = (ZobristHasher) super.clone();
+			copy.hashCodeCandidates = hashCodeCandidates.clone();
+			return copy;
+		} catch (CloneNotSupportedException e) {
+			// Should never happen: we support clone
+			throw new InternalError(e.toString());
+		}
+	}
+
+	/**
 	 * Adds/removes a new move to/from the hash code.
 	 * 
 	 * @param position The {@link Position} of the mark.
@@ -351,7 +370,7 @@ public class ZobristHasher {
 	 */
 	private int disjuncts[][][];
 	/** An array containing each available {@link Symmetry}. */
-	final Symmetry[] symmetries;
+	final private Symmetry[] symmetries;
 	/** The {@link Symmetry} whose hash code is currently used. */
 	private Symmetry symmetryUsed = Symmetry.A;
 	/**
