@@ -82,7 +82,7 @@ public class AI<S extends State<S, A>, A> {
 		A res = null;
 		for (int depthLimit = 0; depthLimit <= maxLimit; ++depthLimit)
 			try {
-				System.out.println("\t🙈 = " + depthLimit);
+				// System.out.println("\t🙈 = " + depthLimit);
 				res = bestNodeLimitedSearch(depthLimit);
 			} catch (TimeoutException e) {
 				state = backupState;
@@ -106,13 +106,14 @@ public class AI<S extends State<S, A>, A> {
 	 * @since 1.0
 	 */
 	public A bestNodeLimitedSearch(int depthLimit) throws TimeoutException {
-		int alpha = state.initialAlpha(player), beta = state.initialBeta(player), subtreeCount = state.countLegalActions(),
-				betterCount;
+		int alpha = state.initialAlpha(player), beta = state.initialBeta(player),
+				subtreeCount = state.countLegalActions(), betterCount;
 		A bestNode;
 		do {
 			bestNode = null;
 			int test = nextGuess(alpha, beta, subtreeCount);
-			System.out.println("\t\t🌳× " + subtreeCount + ", 🧱 = " + test + " ∈ [" + alpha + ", " + beta + "]");
+			// System.out.println("\t\t🌳× " + subtreeCount + ", 🧱 = " + test + " ∈ [" +
+			// alpha + ", " + beta + "]");
 			betterCount = 0;
 			Iterator<A> actions = state.actions();
 			while (actions.hasNext()) {
@@ -125,15 +126,13 @@ public class AI<S extends State<S, A>, A> {
 				}
 				state.revert();
 			}
-			if (betterCount == 0)
+			if (betterCount == 0) {
 				beta = test;
-			else if (betterCount > 1) {
+			} else if (betterCount > 1) {
 				subtreeCount = betterCount;
 				alpha = test;
 			}
-		} while (beta - alpha >= 2 && betterCount != 1);
-		if (betterCount == 0)
-			throw new InternalError("No subtree passed the test!");
+		} while (beta - alpha >= 2 && betterCount != 1 || betterCount == 0);
 		return bestNode;
 	}
 
@@ -195,16 +194,16 @@ public class AI<S extends State<S, A>, A> {
 			if (cachedSearchResult != null) {
 				if (depthLimit <= cachedSearchResult.SEARCHDEPTH) {
 					switch (cachedSearchResult.FLAG) {
-					case TRUEVALUE: // purpose 1
-						return cachedSearchResult.SCORE;
-					case UPPERBOUND: // purpose 2
-						beta = objectUtils.min(beta, cachedSearchResult.SCORE);
-						break;
-					case LOWERBOUND: // purpose 2 (sic.)
-						alpha = objectUtils.max(alpha, cachedSearchResult.SCORE);
-						break;
-					default:
-						throw new InternalError("Unknown score type.");
+						case TRUEVALUE: // purpose 1
+							return cachedSearchResult.SCORE;
+						case UPPERBOUND: // purpose 2
+							beta = objectUtils.min(beta, cachedSearchResult.SCORE);
+							break;
+						case LOWERBOUND: // purpose 2 (sic.)
+							alpha = objectUtils.max(alpha, cachedSearchResult.SCORE);
+							break;
+						default:
+							throw new InternalError("Unknown score type.");
 					}
 					if (alpha >= beta)
 						return alpha;
@@ -222,8 +221,8 @@ public class AI<S extends State<S, A>, A> {
 			v = minValue(s.result(bestOrRefutationMove), alpha, beta, depthLimit - 1);
 			s.revert();
 			if (v.compareTo(beta) >= 0) {
-				addSearchResult(cachedEntry, new SearchResult<A>(bestOrRefutationMove, v, ScoreType.LOWERBOUND, depthLimit,
-						inspectedNodes - previouslyInspectedNodes));
+				addSearchResult(cachedEntry, new SearchResult<A>(bestOrRefutationMove, v, ScoreType.LOWERBOUND,
+						depthLimit, inspectedNodes - previouslyInspectedNodes));
 				return v;
 			}
 			alpha = objectUtils.max(alpha, v);
@@ -241,8 +240,8 @@ public class AI<S extends State<S, A>, A> {
 				}
 				s.revert();
 				if (v.compareTo(beta) >= 0) {
-					addSearchResult(cachedEntry, new SearchResult<A>(bestOrRefutationMove, v, ScoreType.LOWERBOUND, depthLimit,
-							inspectedNodes - previouslyInspectedNodes));
+					addSearchResult(cachedEntry, new SearchResult<A>(bestOrRefutationMove, v, ScoreType.LOWERBOUND,
+							depthLimit, inspectedNodes - previouslyInspectedNodes));
 					return v;
 				}
 				alpha = objectUtils.max(alpha, v);
@@ -292,16 +291,16 @@ public class AI<S extends State<S, A>, A> {
 			if (cachedSearchResult != null) {
 				if (depthLimit <= cachedSearchResult.SEARCHDEPTH) {
 					switch (cachedSearchResult.FLAG) {
-					case TRUEVALUE: // purpose 1
-						return cachedSearchResult.SCORE;
-					case UPPERBOUND: // purpose 2
-						beta = objectUtils.min(beta, cachedSearchResult.SCORE);
-						break;
-					case LOWERBOUND: // purpose 2 (sic.)
-						alpha = objectUtils.max(alpha, cachedSearchResult.SCORE);
-						break;
-					default:
-						throw new InternalError("Unknown score type.");
+						case TRUEVALUE: // purpose 1
+							return cachedSearchResult.SCORE;
+						case UPPERBOUND: // purpose 2
+							beta = objectUtils.min(beta, cachedSearchResult.SCORE);
+							break;
+						case LOWERBOUND: // purpose 2 (sic.)
+							alpha = objectUtils.max(alpha, cachedSearchResult.SCORE);
+							break;
+						default:
+							throw new InternalError("Unknown score type.");
 					}
 					if (beta <= alpha)
 						return beta;
@@ -319,8 +318,8 @@ public class AI<S extends State<S, A>, A> {
 			v = maxValue(s.result(bestOrRefutationMove), alpha, beta, depthLimit - 1);
 			s.revert();
 			if (v.compareTo(alpha) <= 0) {
-				addSearchResult(cachedEntry, new SearchResult<A>(bestOrRefutationMove, v, ScoreType.UPPERBOUND, depthLimit,
-						inspectedNodes - previouslyInspectedNodes));
+				addSearchResult(cachedEntry, new SearchResult<A>(bestOrRefutationMove, v, ScoreType.UPPERBOUND,
+						depthLimit, inspectedNodes - previouslyInspectedNodes));
 				return v;
 			}
 			beta = objectUtils.min(beta, v);
@@ -338,8 +337,8 @@ public class AI<S extends State<S, A>, A> {
 				}
 				s.revert();
 				if (v.compareTo(alpha) <= 0) {
-					addSearchResult(cachedEntry, new SearchResult<A>(bestOrRefutationMove, v, ScoreType.UPPERBOUND, depthLimit,
-							inspectedNodes - previouslyInspectedNodes));
+					addSearchResult(cachedEntry, new SearchResult<A>(bestOrRefutationMove, v, ScoreType.UPPERBOUND,
+							depthLimit, inspectedNodes - previouslyInspectedNodes));
 					return v;
 				}
 				beta = objectUtils.min(beta, v);

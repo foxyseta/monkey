@@ -36,9 +36,9 @@ public class Tester {
 		configurationTest(4, 3, 3);
 		configurationTest(4, 4, 3);
 		// skipping some configurations here...
-		// configurationTest(6, 6, 6);
-		// configurationTest(7, 4, 4);
-		// configurationTest(7, 5, 4);
+		configurationTest(6, 6, 6);
+		configurationTest(7, 4, 4);
+		configurationTest(7, 5, 4);
 		// skipping some configurations here...
 		// configurationTest(10, 10, 5);
 		// configurationTest(50, 50, 10);
@@ -76,10 +76,10 @@ public class Tester {
 		if (m <= 0 || n <= 0 || k <= 0)
 			throw new IllegalArgumentException("At least one of the arguments is not strictly positive.");
 		final String valueOfM = String.valueOf(m), valueOfN = String.valueOf(n), valueOfK = String.valueOf(k);
-		mnkgame.MNKPlayerTester
-				.main(new String[] { "-r", "2", valueOfM, valueOfN, valueOfK, "monkey.MoNKey", "mnkgame.QuasiRandomPlayer" });
-		mnkgame.MNKPlayerTester
-				.main(new String[] { "-r", "2", valueOfM, valueOfN, valueOfK, "mnkgame.QuasiRandomPlayer", "monkey.MoNKey" });
+		mnkgame.MNKPlayerTester.main(
+				new String[] { "-r", "2", valueOfM, valueOfN, valueOfK, "monkey.MoNKey", "mnkgame.QuasiRandomPlayer" });
+		mnkgame.MNKPlayerTester.main(
+				new String[] { "-r", "2", valueOfM, valueOfN, valueOfK, "mnkgame.QuasiRandomPlayer", "monkey.MoNKey" });
 	}
 
 }
