@@ -27,7 +27,8 @@ if you plan on using the debugger as well.
 ### Testing
 
 `make test` runs some tests which are not used during the main execution due to
-performance reasons.
+performance reasons. Use `make test-debug` instead if you plan on using the
+debugger as well.
 
 ### Running
 

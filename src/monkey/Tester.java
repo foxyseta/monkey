@@ -32,9 +32,9 @@ public class Tester {
 		final int MAXROWS = 70, MAXCOLUMNS = 70;
 		printTest(monkey.mnk.ZobristHasher.distinctDisjuncts(MAXROWS, MAXCOLUMNS), "distinct Zobrist disjuncts");
 		System.out.println("MNKPlayerTester tests");
-		configurationTest(3, 3, 3);
-		configurationTest(4, 3, 3);
-		configurationTest(4, 4, 3);
+		// configurationTest(3, 3, 3);
+		// configurationTest(4, 3, 3);
+		// configurationTest(4, 4, 3);
 		// skipping some configurations here...
 		configurationTest(6, 6, 6);
 		configurationTest(7, 4, 4);

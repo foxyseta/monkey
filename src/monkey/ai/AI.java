@@ -82,11 +82,11 @@ public class AI<S extends State<S, A>, A> {
 		A res = null;
 		for (int depthLimit = 0; depthLimit <= maxLimit; ++depthLimit)
 			try {
-				// System.out.println("\t🙈 = " + depthLimit);
+				System.out.println("\t🙈 = " + depthLimit);
 				res = bestNodeLimitedSearch(depthLimit);
 			} catch (TimeoutException e) {
 				state = backupState;
-				return res;
+				return res != null ? res : state.actions().next();
 			}
 		return res;
 	}
