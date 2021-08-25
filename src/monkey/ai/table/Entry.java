@@ -68,8 +68,8 @@ public class Entry<S extends monkey.ai.State<S, A>, A> {
 	 * @since 1.0
 	 */
 	public SearchResult<A> pickSearchResult(S state, int depth) {
-		final boolean isFirstLegal = state.isLegal(first.MOVE),
-				isSecondLegal = second == null ? false : state.isLegal(second.MOVE);
+		final boolean isFirstLegal = state.isLegal(state.revertFromHashedAction(first.MOVE)),
+				isSecondLegal = second == null ? false : state.isLegal(state.revertFromHashedAction(second.MOVE));
 		if (!isFirstLegal)
 			return isSecondLegal ? second : null;
 		if (!isSecondLegal)

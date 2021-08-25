@@ -186,4 +186,30 @@ public interface State<Self extends State<Self, Action>, Action> extends Cloneab
 	 */
 	public int countLegalActions();
 
+	/**
+	 * Let r be the hashing representant for this {@link State}; if a is a legal
+	 * action for this {@link State}, then this method computes the analogue action
+	 * for r.
+	 *
+	 * @param a A legal action for this {@link State}.
+	 * @return The computed action.
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	public Action convertToHashedAction(Action a);
+
+	/**
+	 * Let r be the hashing representant for this {@link State}; if a is a legal
+	 * action for r, then this method computes the analogue action for this
+	 * {@link State}.
+	 *
+	 * @param a A legal action for the hashing representant.
+	 * @return The computed action.
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	public Action revertFromHashedAction(Action a);
+
 }

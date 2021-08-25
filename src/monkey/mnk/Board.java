@@ -105,6 +105,7 @@ public class Board implements monkey.ai.State<Board, Position> {
 			copy.adjacencyCounters = new int[M][N];
 			for (int i = 0; i < adjacencyCounters.length; ++i)
 				copy.adjacencyCounters[i] = adjacencyCounters[i].clone();
+			copy.zobristHasher = zobristHasher.clone();
 			return copy;
 		} catch (CloneNotSupportedException e) {
 			// Should never happen: we support clone
@@ -159,7 +160,7 @@ public class Board implements monkey.ai.State<Board, Position> {
 		history.push(a);
 		if (state == MNKGameState.OPEN && history.size() == SIZE)
 			state = MNKGameState.DRAW;
-		zobristHashCode ^= zobristHasher.getDisjunct(a, p);
+		zobristHasher.addOrRemove(a, p);
 		return this;
 	}
 
@@ -176,7 +177,7 @@ public class Board implements monkey.ai.State<Board, Position> {
 			updateThreatsManagers(a);
 			updateAdjacencyCounters(a, -1);
 			state = MNKGameState.OPEN;
-			zobristHashCode ^= zobristHasher.getDisjunct(a, player());
+			zobristHasher.addOrRemove(a, player());
 		} catch (java.util.EmptyStackException e) {
 			throw new IllegalCallerException("No previous action to revert.");
 		}
@@ -280,10 +281,7 @@ public class Board implements monkey.ai.State<Board, Position> {
 
 	/**
 	 * Returns a hash code value for the object. Zobrist hashing is used
-	 * (transpositions will return the same hash code). Hence, most of this method's
-	 * original contract is broken. See A. L. Zobrist, <i>A New Hashing Method with
-	 * Application for Game Playing</i>, Tech. Rep. 88, Computer Sciences
-	 * Department, University of Wisconsin, Madison, Wisconsin, Apr. 1970, pp. 5-7.
+	 * (transpositions and symmetric {@link Board}s will return the same hash code).
 	 * 
 	 * @return A hash code value for this object.
 	 * @author Stefano Volpe
@@ -292,7 +290,7 @@ public class Board implements monkey.ai.State<Board, Position> {
 	 */
 	@Override
 	public int hashCode() {
-		return zobristHashCode;
+		return zobristHasher.hashCode();
 	}
 
 	/**
@@ -348,6 +346,33 @@ public class Board implements monkey.ai.State<Board, Position> {
 	 */
 	public MNKCellState getCellState(int row, int column) {
 		return cellStates[row][column];
+	}
+
+	/**
+	 * {@inheritDoc} <br>
+	 * See the project report. Takes Θ(1) (sic).
+	 */
+	@Override
+	public int ttSuggestedCapacity() {
+		final int MAXENTRIES = Integer.MAX_VALUE;
+		int sum = 1, lastTerm = 1;
+		for (int p = 1; p < SIZE; ++p) {
+			lastTerm *= (SIZE - p + 1) * (p % 2 == 0 ? p / 2 : 1);
+			sum += lastTerm;
+			if (sum < 0 || sum > MAXENTRIES)
+				return MAXENTRIES;
+		}
+		return sum;
+	}
+
+	@Override // inherit doc comment
+	public Position convertToHashedAction(Position a) {
+		return zobristHasher.getSymmetryUsed().apply(a);
+	}
+
+	@Override // inherit doc comment
+	public Position revertFromHashedAction(Position a) {
+		return zobristHasher.getSymmetryUsed().revert(a);
 	}
 
 	/**
@@ -630,23 +655,6 @@ public class Board implements monkey.ai.State<Board, Position> {
 
 	}
 
-	/**
-	 * {@inheritDoc} <br>
-	 * See the project report. Takes Θ(1) (sic).
-	 */
-	@Override
-	public int ttSuggestedCapacity() {
-		final int MAXENTRIES = Integer.MAX_VALUE;
-		int sum = 1, lastTerm = 1;
-		for (int p = 1; p < SIZE; ++p) {
-			lastTerm *= (SIZE - p + 1) * (p % 2 == 0 ? p / 2 : 1);
-			sum += lastTerm;
-			if (sum < 0 || sum > MAXENTRIES)
-				return MAXENTRIES;
-		}
-		return sum;
-	}
-
 	@Override // inherit doc comment
 	public int countLegalActions() {
 		return SIZE - history.size();
@@ -698,9 +706,9 @@ public class Board implements monkey.ai.State<Board, Position> {
 	 * a final field because of {@link #clone}.
 	 */
 	private int[][] adjacencyCounters;
-	/** Zobrist hash code for this object. */
-	private int zobristHashCode = 0;
-	/** Utility for Zobrist hashing. */
-	final private ZobristHasher zobristHasher;
+	/**
+	 * Utility for Zobrist hashing. Not a final field because of {@link #clone}.
+	 */
+	private ZobristHasher zobristHasher;
 
 }
