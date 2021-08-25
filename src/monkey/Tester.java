@@ -76,10 +76,10 @@ public class Tester {
 		if (m <= 0 || n <= 0 || k <= 0)
 			throw new IllegalArgumentException("At least one of the arguments is not strictly positive.");
 		final String valueOfM = String.valueOf(m), valueOfN = String.valueOf(n), valueOfK = String.valueOf(k);
-		mnkgame.MNKPlayerTester
-				.main(new String[] { "-r", "2", valueOfM, valueOfN, valueOfK, "monkey.MoNKey", "mnkgame.QuasiRandomPlayer" });
-		mnkgame.MNKPlayerTester
-				.main(new String[] { "-r", "2", valueOfM, valueOfN, valueOfK, "mnkgame.QuasiRandomPlayer", "monkey.MoNKey" });
+		mnkgame.MNKPlayerTester.main(
+				new String[] { "-r", "2", valueOfM, valueOfN, valueOfK, "monkey.MoNKey", "mnkgame.QuasiRandomPlayer" });
+		mnkgame.MNKPlayerTester.main(
+				new String[] { "-r", "2", valueOfM, valueOfN, valueOfK, "mnkgame.QuasiRandomPlayer", "monkey.MoNKey" });
 	}
 
 }

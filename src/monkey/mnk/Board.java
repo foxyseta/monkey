@@ -17,7 +17,7 @@ import monkey.util.ObjectUtils;
  * @version 1.0
  * @since 1.0
  */
-public class Board implements monkey.ai.State<Board, Position, Integer> {
+public class Board implements monkey.ai.State<Board, Position> {
 
 	/** Number of rows. */
 	final public int M;
@@ -190,28 +190,28 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	}
 
 	@Override // inherit doc comment
-	public Integer utility(Player p) {
+	public int utility(Player p) {
 		switch (state) {
-		case DRAW:
-			return DRAWUTILITY;
-		case OPEN:
-			throw new IllegalCallerException("The game is still open");
-		case WINP1:
-			return p == Player.P1 ? VICTORYUTILITY : LOSSUTILITY;
-		case WINP2:
-			return p == Player.P2 ? VICTORYUTILITY : LOSSUTILITY;
-		default:
-			throw new IllegalArgumentException("Unknown game state");
+			case DRAW:
+				return DRAWUTILITY;
+			case OPEN:
+				throw new IllegalCallerException("The game is still open");
+			case WINP1:
+				return p == Player.P1 ? VICTORYUTILITY : LOSSUTILITY;
+			case WINP2:
+				return p == Player.P2 ? VICTORYUTILITY : LOSSUTILITY;
+			default:
+				throw new IllegalArgumentException("Unknown game state");
 		}
 	}
 
 	@Override // inherit doc comment
-	public Integer initialAlpha(Player p) {
+	public int initialAlpha(Player p) {
 		return history.empty() ? p == Player.P1 ? INITIALALPHAP1 : INITIALALPHAP2 : LOSSUTILITY;
 	}
 
 	@Override // inherit doc comment
-	public Integer initialBeta(Player p) {
+	public int initialBeta(Player p) {
 		return history.empty() ? p == Player.P1 ? INITIALBETAP1 : INITIALBETAP2 : VICTORYUTILITY;
 	}
 
@@ -235,7 +235,7 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 	 * @since 1.0
 	 */
 	@Override
-	public Integer eval(Player p) {
+	public int eval(Player p) {
 		if (terminalTest())
 			return utility(p);
 		final int A = 100 * countThreats(K - 2, Threat.ONE, p) + 80 * countHalfOpenThreats(K - 1, p)
@@ -578,7 +578,8 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 				for (int j = objectUtils.max(0, column - 1); j <= maxColumn; ++j)
 					if (i != row || j != column) {
 						if (adjacencyCounters[i][j] + offset < 0)
-							throw new IllegalArgumentException("offset would make (" + i + ", " + j + ") counter negative.");
+							throw new IllegalArgumentException(
+									"offset would make (" + i + ", " + j + ") counter negative.");
 						adjacencyCounters[i][j] += offset;
 					}
 		}
@@ -652,6 +653,11 @@ public class Board implements monkey.ai.State<Board, Position, Integer> {
 		/** The index of the next element, or the length of the table if it is over. */
 		private int index = 0;
 
+	}
+
+	@Override // inherit doc comment
+	public int countLegalActions() {
+		return SIZE - history.size();
 	}
 
 	/** Utilities instance for generic objects. */

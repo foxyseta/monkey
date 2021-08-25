@@ -9,12 +9,11 @@ package monkey.ai.table;
  *
  * @param <S> The type to be used for game {@link monkey.ai.State}s.
  * @param <A> The type of the moves of the game.
- * @param <U> The type used to quantify the payoffs.
  * @author Gaia Clerici
  * @version 1.0
  * @since 1.0
  */
-public class Entry<S extends monkey.ai.State<S, A, U>, A, U extends Comparable<U>> {
+public class Entry<S extends monkey.ai.State<S, A>, A> {
 
 	/**
 	 * Constructs a new {@link Entry} given its first {@link SearchResult}.
@@ -25,7 +24,7 @@ public class Entry<S extends monkey.ai.State<S, A, U>, A, U extends Comparable<U
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	public Entry(SearchResult<A, U> searchResult) {
+	public Entry(SearchResult<A> searchResult) {
 		if (searchResult == null)
 			throw new NullPointerException("searchResult can't be null.");
 		first = searchResult;
@@ -40,7 +39,7 @@ public class Entry<S extends monkey.ai.State<S, A, U>, A, U extends Comparable<U
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	public SearchResult<A, U> getFirst() {
+	public SearchResult<A> getFirst() {
 		return first;
 	}
 
@@ -54,7 +53,7 @@ public class Entry<S extends monkey.ai.State<S, A, U>, A, U extends Comparable<U
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	public SearchResult<A, U> getSecond() {
+	public SearchResult<A> getSecond() {
 		return second;
 	}
 
@@ -68,7 +67,7 @@ public class Entry<S extends monkey.ai.State<S, A, U>, A, U extends Comparable<U
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	public SearchResult<A, U> pickSearchResult(S state, int depth) {
+	public SearchResult<A> pickSearchResult(S state, int depth) {
 		final boolean isFirstLegal = state.isLegal(state.revertFromHashedAction(first.MOVE)),
 				isSecondLegal = second == null ? false : state.isLegal(state.revertFromHashedAction(second.MOVE));
 		if (!isFirstLegal)
@@ -96,7 +95,7 @@ public class Entry<S extends monkey.ai.State<S, A, U>, A, U extends Comparable<U
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	public void add(SearchResult<A, U> searchResult) {
+	public void add(SearchResult<A> searchResult) {
 		if (searchResult == null)
 			throw new NullPointerException("searchResult can't be null.");
 		if (searchResult.compareTo(first) >= 0) {
@@ -120,11 +119,11 @@ public class Entry<S extends monkey.ai.State<S, A, U>, A, U extends Comparable<U
 	}
 
 	/** First position of the {@link Entry}. */
-	private SearchResult<A, U> first;
+	private SearchResult<A> first;
 	/**
 	 * Second position of the {@link Entry}. It is <code>null</code> if it does not
 	 * exist.
 	 */
-	private SearchResult<A, U> second = null;
+	private SearchResult<A> second = null;
 
 }

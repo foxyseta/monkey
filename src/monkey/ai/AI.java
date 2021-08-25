@@ -16,12 +16,11 @@ import monkey.util.ObjectUtils;
  *
  * @param <S> The type to be used for game {@link State}s.
  * @param <A> The type of the moves of the game.
- * @param <U> The type used to quantify the payoffs.
  * @author Gaia Clerici
  * @version 1.0
  * @since 1.0
  */
-public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
+public class AI<S extends State<S, A>, A> {
 
 	/**
 	 * Constructs a new {@link AI} for a certain {@link Player} given an initial
@@ -42,8 +41,7 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 		state = s0;
 		timeLimit = t;
 		final int capacity = state.ttSuggestedCapacity();
-		transpositionTable = new HashMap<Integer, Entry<S, A, U>>(capacity);
-		System.out.println("📋 " + capacity);
+		transpositionTable = new HashMap<Integer, Entry<S, A>>(capacity);
 	}
 
 	/**
@@ -61,10 +59,10 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 	}
 
 	/**
-	 * Given a state in which the player has the move, selects one of the legal
-	 * actions to be played using alpa-beta pruning and iterative deepening search.
-	 * See S. Russell, P. Norvig, <i>Artificial Intelligence: A Modern Approach</i>,
-	 * 3rd ed., Prentice Hall, p. 88f.
+	 * When called in a state in which the player has the move, selects one of the
+	 * legal actions to be played using iterative deepening search. See S. Russell,
+	 * P. Norvig, <i>Artificial Intelligence: A Modern Approach</i>, 3rd ed.,
+	 * Prentice Hall, p. 88f.
 	 *
 	 * @return A legal action to be played.
 	 * @throws IllegalArgumentException The player does not have the move or if the
@@ -73,7 +71,7 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	public A alphaBetaSearch() {
+	public A iterativeDeepeningSearch() {
 		startTime = System.currentTimeMillis();
 		if (state.terminalTest())
 			throw new IllegalArgumentException("s is a terminal state.");
@@ -82,31 +80,79 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 		final S backupState = state.clone();
 		final int maxLimit = state.overestimatedHeight();
 		A res = null;
-		final U beta = state.initialBeta(player);
-		for (int depthLimit = 0; depthLimit <= maxLimit; ++depthLimit) {
-			A a = null;
-			U alpha = state.initialAlpha(player), v = alpha;
+		for (int depthLimit = 0; depthLimit <= maxLimit; ++depthLimit)
+			try {
+				// System.out.println("\t🙈 = " + depthLimit);
+				res = bestNodeLimitedSearch(depthLimit);
+			} catch (TimeoutException e) {
+				state = backupState;
+				return res;
+			}
+		return res;
+	}
+
+	/**
+	 * When called in a state in which the player has the move, selects one of the
+	 * legal actions to be played using best node search with limited depth. See
+	 * Dmitrijs Rutko, <i>Fuzzified Algorithm for Game Tree Search with Statistical
+	 * and Analytical Evaluation</i>, in <i>Scientific Papers</i>, vol. 770, 2011,
+	 * Univerity of Latvia, p. 94f.
+	 *
+	 * @param depthLimit Maximum depth to be inspected
+	 * @throws TimeoutException The time limit is almost over.
+	 * @return A legal action to be played.
+	 * @author Gaia Clerici
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	public A bestNodeLimitedSearch(int depthLimit) throws TimeoutException {
+		int alpha = state.initialAlpha(player), beta = state.initialBeta(player),
+				subtreeCount = state.countLegalActions(), betterCount;
+		A bestNode;
+		do {
+			bestNode = null;
+			int test = nextGuess(alpha, beta, subtreeCount);
+			// System.out.println("\t\t🌳× " + subtreeCount + ", 🧱 = " + test + " ∈ [" +
+			// alpha + ", " + beta + "]");
+			betterCount = 0;
 			Iterator<A> actions = state.actions();
 			while (actions.hasNext()) {
-				final A toChild = actions.next();
+				final A child = actions.next();
 				inspectedNodes = 0;
-				try {
-					final U minValue = minValue(state.result(toChild), alpha, beta, depthLimit);
-					if (a == null || minValue != null && (v == null || minValue.compareTo(v) > 0)) {
-						a = toChild;
-						v = minValue;
-					}
-				} catch (TimeoutException e) {
-					state = backupState;
-					System.out.println("🙈 limit ≤ " + depthLimit);
-					return res;
+				if (minValue(state.result(child), test - 1, test, depthLimit) >= test) {
+					++betterCount;
+					if (bestNode == null)
+						bestNode = child;
 				}
 				state.revert();
-				alpha = objectUtils.max(alpha, v);
 			}
-			res = a;
-		}
-		return res;
+			if (betterCount == 0) {
+				beta = test;
+			} else if (betterCount > 1) {
+				subtreeCount = betterCount;
+				alpha = test;
+			}
+		} while (beta - alpha >= 2 && betterCount != 1 || betterCount == 0);
+		return bestNode;
+	}
+
+	/**
+	 * Suggests a separation value for a best node search. See Dmitrijs Rutko,
+	 * <i>Fuzzified Algorithm for Game Tree Search with Statistical and Analytical
+	 * Evaluation</i>, in <i>Scientific Papers</i>, vol. 770, 2011, Univerity of
+	 * Latvia, p. 95f.
+	 *
+	 * @see #bestNodeLimitedSearch
+	 * @param alpha        First extreem of the alpha-beta range.
+	 * @param beta         Second extreem of the alpha-beta range.
+	 * @param subtreeCount Number of subtrees that will be tested.
+	 * @return The suggested separation value.
+	 * @author Gaia Clerici
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	protected int nextGuess(int alpha, int beta, int subtreeCount) {
+		return alpha + (beta - alpha) * (subtreeCount - 1) / subtreeCount;
 	}
 
 	/**
@@ -130,7 +176,7 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	protected U maxValue(S s, U alpha, U beta, int depthLimit) throws TimeoutException {
+	protected int maxValue(S s, int alpha, int beta, int depthLimit) throws TimeoutException {
 		// exceptions/base case
 		if (s == null)
 			throw new NullPointerException("s is null.");
@@ -141,25 +187,25 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 			return s.eval(player);
 
 		// transposition table lookup
-		final Entry<S, A, U> cachedEntry = transpositionTable.get(s.hashCode());
+		final Entry<S, A> cachedEntry = transpositionTable.get(s.hashCode());
 		A bestOrRefutationMove = null, cachedMove = null;
 		if (cachedEntry != null) {
-			final SearchResult<A, U> cachedSearchResult = cachedEntry.pickSearchResult(s, depthLimit);
+			final SearchResult<A> cachedSearchResult = cachedEntry.pickSearchResult(s, depthLimit);
 			if (cachedSearchResult != null) {
 				if (depthLimit <= cachedSearchResult.SEARCHDEPTH) {
 					switch (cachedSearchResult.FLAG) {
-					case TRUEVALUE: // purpose 1
-						return cachedSearchResult.SCORE;
-					case UPPERBOUND: // purpose 2
-						beta = objectUtils.min(beta, cachedSearchResult.SCORE);
-						break;
-					case LOWERBOUND: // purpose 2 (sic.)
-						alpha = objectUtils.max(alpha, cachedSearchResult.SCORE);
-						break;
-					default:
-						throw new InternalError("Unknown score type.");
+						case TRUEVALUE: // purpose 1
+							return cachedSearchResult.SCORE;
+						case UPPERBOUND: // purpose 2
+							beta = objectUtils.min(beta, cachedSearchResult.SCORE);
+							break;
+						case LOWERBOUND: // purpose 2 (sic.)
+							alpha = objectUtils.max(alpha, cachedSearchResult.SCORE);
+							break;
+						default:
+							throw new InternalError("Unknown score type.");
 					}
-					if (alpha.compareTo(beta) >= 0)
+					if (alpha >= beta)
 						return alpha;
 				}
 				// purposes 2 and 3
@@ -169,13 +215,13 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 		}
 
 		// check best/refutation move first
-		U v = null;
+		Integer v = null;
 
 		if (bestOrRefutationMove != null) {
 			v = minValue(s.result(bestOrRefutationMove), alpha, beta, depthLimit - 1);
 			s.revert();
 			if (v.compareTo(beta) >= 0) {
-				addSearchResult(cachedEntry, new SearchResult<A, U>(s.convertToHashedAction(bestOrRefutationMove), v,
+				addSearchResult(cachedEntry, new SearchResult<A>(s.convertToHashedAction(bestOrRefutationMove), v,
 						ScoreType.LOWERBOUND, depthLimit, inspectedNodes - previouslyInspectedNodes));
 				return v;
 			}
@@ -187,21 +233,21 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 		while (actions.hasNext()) {
 			final A toChild = actions.next();
 			if (!toChild.equals(cachedMove)) {
-				final U newV = minValue(s.result(toChild), alpha, beta, depthLimit - 1);
-				if (v == null || newV.compareTo(v) > 0) {
+				final int newV = minValue(s.result(toChild), alpha, beta, depthLimit - 1);
+				if (v == null || newV > v) {
 					v = newV;
 					bestOrRefutationMove = toChild;
 				}
 				s.revert();
 				if (v.compareTo(beta) >= 0) {
-					addSearchResult(cachedEntry, new SearchResult<A, U>(s.convertToHashedAction(bestOrRefutationMove), v,
+					addSearchResult(cachedEntry, new SearchResult<A>(s.convertToHashedAction(bestOrRefutationMove), v,
 							ScoreType.LOWERBOUND, depthLimit, inspectedNodes - previouslyInspectedNodes));
 					return v;
 				}
 				alpha = objectUtils.max(alpha, v);
 			}
 		}
-		addSearchResult(cachedEntry, new SearchResult<A, U>(s.convertToHashedAction(bestOrRefutationMove), v,
+		addSearchResult(cachedEntry, new SearchResult<A>(s.convertToHashedAction(bestOrRefutationMove), v,
 				ScoreType.TRUEVALUE, depthLimit, inspectedNodes - previouslyInspectedNodes));
 		return v;
 	}
@@ -227,7 +273,7 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	protected U minValue(S s, U alpha, U beta, int depthLimit) throws TimeoutException {
+	protected int minValue(S s, int alpha, int beta, int depthLimit) throws TimeoutException {
 		// exceptions/base case
 		if (s == null)
 			throw new NullPointerException("s is null.");
@@ -238,25 +284,25 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 			return s.eval(player);
 
 		// transposition table lookup
-		final Entry<S, A, U> cachedEntry = transpositionTable.get(s.hashCode());
+		final Entry<S, A> cachedEntry = transpositionTable.get(s.hashCode());
 		A bestOrRefutationMove = null, cachedMove = null;
 		if (cachedEntry != null) {
-			final SearchResult<A, U> cachedSearchResult = cachedEntry.pickSearchResult(s, depthLimit);
+			final SearchResult<A> cachedSearchResult = cachedEntry.pickSearchResult(s, depthLimit);
 			if (cachedSearchResult != null) {
 				if (depthLimit <= cachedSearchResult.SEARCHDEPTH) {
 					switch (cachedSearchResult.FLAG) {
-					case TRUEVALUE: // purpose 1
-						return cachedSearchResult.SCORE;
-					case UPPERBOUND: // purpose 2
-						beta = objectUtils.min(beta, cachedSearchResult.SCORE);
-						break;
-					case LOWERBOUND: // purpose 2 (sic.)
-						alpha = objectUtils.max(alpha, cachedSearchResult.SCORE);
-						break;
-					default:
-						throw new InternalError("Unknown score type.");
+						case TRUEVALUE: // purpose 1
+							return cachedSearchResult.SCORE;
+						case UPPERBOUND: // purpose 2
+							beta = objectUtils.min(beta, cachedSearchResult.SCORE);
+							break;
+						case LOWERBOUND: // purpose 2 (sic.)
+							alpha = objectUtils.max(alpha, cachedSearchResult.SCORE);
+							break;
+						default:
+							throw new InternalError("Unknown score type.");
 					}
-					if (beta.compareTo(alpha) <= 0)
+					if (beta <= alpha)
 						return beta;
 				}
 				// purposes 2 and 3
@@ -266,13 +312,13 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 		}
 
 		// check best/refutation move first
-		U v = null;
+		Integer v = null;
 
 		if (bestOrRefutationMove != null) {
 			v = maxValue(s.result(bestOrRefutationMove), alpha, beta, depthLimit - 1);
 			s.revert();
 			if (v.compareTo(alpha) <= 0) {
-				addSearchResult(cachedEntry, new SearchResult<A, U>(s.convertToHashedAction(bestOrRefutationMove), v,
+				addSearchResult(cachedEntry, new SearchResult<A>(s.convertToHashedAction(bestOrRefutationMove), v,
 						ScoreType.UPPERBOUND, depthLimit, inspectedNodes - previouslyInspectedNodes));
 				return v;
 			}
@@ -284,21 +330,21 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 		while (actions.hasNext()) {
 			final A toChild = actions.next();
 			if (!toChild.equals(cachedMove)) {
-				final U newV = maxValue(s.result(toChild), alpha, beta, depthLimit - 1);
-				if (v == null || newV.compareTo(v) < 0) {
+				final int newV = maxValue(s.result(toChild), alpha, beta, depthLimit - 1);
+				if (v == null || newV < v) {
 					v = newV;
 					bestOrRefutationMove = toChild;
 				}
 				s.revert();
 				if (v.compareTo(alpha) <= 0) {
-					addSearchResult(cachedEntry, new SearchResult<A, U>(s.convertToHashedAction(bestOrRefutationMove), v,
+					addSearchResult(cachedEntry, new SearchResult<A>(s.convertToHashedAction(bestOrRefutationMove), v,
 							ScoreType.UPPERBOUND, depthLimit, inspectedNodes - previouslyInspectedNodes));
 					return v;
 				}
 				beta = objectUtils.min(beta, v);
 			}
 		}
-		addSearchResult(cachedEntry, new SearchResult<A, U>(s.convertToHashedAction(bestOrRefutationMove), v,
+		addSearchResult(cachedEntry, new SearchResult<A>(s.convertToHashedAction(bestOrRefutationMove), v,
 				ScoreType.TRUEVALUE, depthLimit, inspectedNodes - previouslyInspectedNodes));
 		return v;
 	}
@@ -332,9 +378,9 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	protected void addSearchResult(Entry<S, A, U> cachedEntry, SearchResult<A, U> newSearchResult) {
+	protected void addSearchResult(Entry<S, A> cachedEntry, SearchResult<A> newSearchResult) {
 		if (cachedEntry == null)
-			transpositionTable.put(state.hashCode(), new Entry<S, A, U>(newSearchResult));
+			transpositionTable.put(state.hashCode(), new Entry<S, A>(newSearchResult));
 		else
 			cachedEntry.add(newSearchResult);
 	}
@@ -352,7 +398,7 @@ public class AI<S extends State<S, A, U>, A, U extends Comparable<U>> {
 	/** The higher, the more time is used at most for each search. */
 	final private float RELAXATION = 0.99f;
 	/** A transposition table for this instance of the {@link AI}. */
-	final private HashMap<Integer, Entry<S, A, U>> transpositionTable;
+	final private HashMap<Integer, Entry<S, A>> transpositionTable;
 	/** Start time of the current turn. */
 	private long startTime;
 	/**

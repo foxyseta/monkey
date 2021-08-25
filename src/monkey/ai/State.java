@@ -10,15 +10,13 @@ package monkey.ai;
  * <code>State</code>. See K. Arnold, J. Gosling, D. Holmes, <i>The Java
  * Programming Language</i>, 4th ed., Addison-Wesley Professional, p. 148.
  *
- * @param <Self>    The class implementing the interface.
- * @param <Action>  The type of the moves of the game.
- * @param <Utility> The type used to quantify the payoffs.
+ * @param <Self>   The class implementing the interface.
+ * @param <Action> The type of the moves of the game.
  * @author Stefano Volpe
  * @version 1.0
  * @since 1.0
  */
-public interface State<Self extends State<Self, Action, Utility>, Action, Utility extends Comparable<Utility>>
-		extends Cloneable {
+public interface State<Self extends State<Self, Action>, Action> extends Cloneable {
 
 	/**
 	 * Creates a clone of this object.
@@ -110,7 +108,7 @@ public interface State<Self extends State<Self, Action, Utility>, Action, Utilit
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	public Utility utility(Player p);
+	public int utility(Player p);
 
 	/**
 	 * Defines the alpha value of the relative initial {@link State} for a certain
@@ -125,7 +123,7 @@ public interface State<Self extends State<Self, Action, Utility>, Action, Utilit
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	public Utility initialAlpha(Player p);
+	public int initialAlpha(Player p);
 
 	/**
 	 * Defines the beta value of the relative initial {@link State} for a certain
@@ -140,7 +138,7 @@ public interface State<Self extends State<Self, Action, Utility>, Action, Utilit
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	public Utility initialBeta(Player p);
+	public int initialBeta(Player p);
 
 	/**
 	 * Returns an estimate of the expected utility of the game from the current
@@ -154,7 +152,7 @@ public interface State<Self extends State<Self, Action, Utility>, Action, Utilit
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	public Utility eval(Player p);
+	public int eval(Player p);
 
 	/**
 	 * Computes an overestimate of the height of the game tree whose root is this
@@ -177,6 +175,16 @@ public interface State<Self extends State<Self, Action, Utility>, Action, Utilit
 	 * @since 1.0
 	 */
 	public int ttSuggestedCapacity();
+
+	/**
+	 * Computes the number of legal actions for the current {@link State}.
+	 *
+	 * @return The number of legal actions.
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	public int countLegalActions();
 
 	/**
 	 * Let r be the hashing representant for this {@link State}; if a is a legal
