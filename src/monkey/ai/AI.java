@@ -183,7 +183,6 @@ public class AI<S extends State<S, A>, A> {
 		if (s == null)
 			throw new NullPointerException("s is null.");
 		if (System.currentTimeMillis() - startTime > timeLimit * RELAXATION) {
-			System.out.println(monkey.MoNKey.formatTimeInterval(System.currentTimeMillis() - startTime) + "...");
 			throw new TimeoutException();
 		}
 		final long previouslyInspectedNodes = inspectedNodes++;
@@ -191,12 +190,9 @@ public class AI<S extends State<S, A>, A> {
 			return s.eval(player);
 
 		// transposition table lookup
-		long delta = System.currentTimeMillis();
 		final Entry<S, A> cachedEntry = transpositionTable.get(s.hashCode());
-		delta = System.currentTimeMillis() - delta;
-		if (delta > 50)
-			System.out.println("\tHashmap.get: " + MoNKey.formatTimeInterval(delta));
 		A bestOrRefutationMove = null, cachedMove = null;
+		long delta = System.currentTimeMillis();
 		if (cachedEntry != null) {
 			final SearchResult<A> cachedSearchResult = cachedEntry.pickSearchResult(s, depthLimit);
 			if (cachedSearchResult != null) {
@@ -221,6 +217,9 @@ public class AI<S extends State<S, A>, A> {
 				cachedMove = bestOrRefutationMove;
 			}
 		}
+		delta = System.currentTimeMillis() - delta;
+		if (delta > 50)
+			System.out.println("\tBlocco: " + MoNKey.formatTimeInterval(delta));
 
 		// check best/refutation move first
 		Integer v = null;
@@ -292,12 +291,9 @@ public class AI<S extends State<S, A>, A> {
 			return s.eval(player);
 
 		// transposition table lookup
-		long delta = System.currentTimeMillis();
-		final Entry<S, A> cachedEntry = transpositionTable.get(s.hashCode()); // !
-		delta = System.currentTimeMillis() - delta;
-		if (delta > 50)
-			System.out.println("\tHashmap.get: " + MoNKey.formatTimeInterval(delta));
+		final Entry<S, A> cachedEntry = transpositionTable.get(s.hashCode());
 		A bestOrRefutationMove = null, cachedMove = null;
+		long delta = System.currentTimeMillis();
 		if (cachedEntry != null) {
 			final SearchResult<A> cachedSearchResult = cachedEntry.pickSearchResult(s, depthLimit);
 			if (cachedSearchResult != null) {
@@ -322,6 +318,9 @@ public class AI<S extends State<S, A>, A> {
 				cachedMove = bestOrRefutationMove;
 			}
 		}
+		delta = System.currentTimeMillis() - delta;
+		if (delta > 50)
+			System.out.println("\tBlocco: " + MoNKey.formatTimeInterval(delta));
 
 		// check best/refutation move first
 		Integer v = null;
@@ -386,11 +385,12 @@ public class AI<S extends State<S, A>, A> {
 	 * @param newSearchResult The {@link monkey.ai.table.SearchResult} to be added.
 	 *                        Cannot be <code>null</code>.
 	 * @throws NullPointerException newSearchResult is <code>null</code>.
+	 * @throws TimeoutException     The time limit is almost over.
 	 * @author Stefano Volpe
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	protected void addSearchResult(Entry<S, A> cachedEntry, SearchResult<A> newSearchResult) {
+	protected void addSearchResult(Entry<S, A> cachedEntry, SearchResult<A> newSearchResult) throws TimeoutException {
 		long delta = System.currentTimeMillis();
 		if (cachedEntry == null)
 			transpositionTable.put(state.hashCode(), new Entry<S, A>(newSearchResult));
@@ -399,6 +399,8 @@ public class AI<S extends State<S, A>, A> {
 		delta = System.currentTimeMillis() - delta;
 		if (delta > 50)
 			System.out.println("\tAdd search result: " + MoNKey.formatTimeInterval(delta));
+		if (System.currentTimeMillis() - startTime > timeLimit * RELAXATION)
+			throw new TimeoutException();
 	}
 
 	/**
