@@ -188,6 +188,7 @@ public class AI<S extends State<S, A>, A> {
 
 		// transposition table lookup
 		final Entry<S, A> cachedEntry = transpositionTable.get(s.hashCode());
+		timeCheck();
 		A bestOrRefutationMove = null, cachedMove = null;
 		if (cachedEntry != null) {
 			final SearchResult<A> cachedSearchResult = cachedEntry.pickSearchResult(s, depthLimit);
@@ -286,6 +287,7 @@ public class AI<S extends State<S, A>, A> {
 
 		// transposition table lookup
 		final Entry<S, A> cachedEntry = transpositionTable.get(s.hashCode());
+		timeCheck();
 		A bestOrRefutationMove = null, cachedMove = null;
 		if (cachedEntry != null) {
 			final SearchResult<A> cachedSearchResult = cachedEntry.pickSearchResult(s, depthLimit);
@@ -416,7 +418,7 @@ public class AI<S extends State<S, A>, A> {
 	/** Utilities instance for generic objects. */
 	final private ObjectUtils objectUtils = new ObjectUtils();
 	/** The higher, the more time is used at most for each search. */
-	final private float RELAXATION = 0.97f;
+	final private float RELAXATION = 0.98f;
 	/** A transposition table for this instance of the {@link AI}. */
 	final private HashMap<Integer, Entry<S, A>> transpositionTable;
 	/** Start time of the current turn. */
