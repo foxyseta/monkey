@@ -3,8 +3,6 @@ package monkey.ai;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.concurrent.TimeoutException;
-
-import monkey.MoNKey;
 import monkey.ai.table.Entry;
 import monkey.ai.table.SearchResult;
 import monkey.ai.table.SearchResult.ScoreType;
@@ -192,7 +190,6 @@ public class AI<S extends State<S, A>, A> {
 		// transposition table lookup
 		final Entry<S, A> cachedEntry = transpositionTable.get(s.hashCode());
 		A bestOrRefutationMove = null, cachedMove = null;
-		long delta = System.currentTimeMillis();
 		if (cachedEntry != null) {
 			final SearchResult<A> cachedSearchResult = cachedEntry.pickSearchResult(s, depthLimit);
 			if (cachedSearchResult != null) {
@@ -217,9 +214,6 @@ public class AI<S extends State<S, A>, A> {
 				cachedMove = bestOrRefutationMove;
 			}
 		}
-		delta = System.currentTimeMillis() - delta;
-		if (delta > 50)
-			System.out.println("\tBlocco: " + MoNKey.formatTimeInterval(delta));
 
 		// check best/refutation move first
 		Integer v = null;
@@ -227,6 +221,8 @@ public class AI<S extends State<S, A>, A> {
 		if (bestOrRefutationMove != null) {
 			v = minValue(s.result(bestOrRefutationMove), alpha, beta, depthLimit - 1);
 			s.revert();
+			if (System.currentTimeMillis() - startTime > timeLimit * RELAXATION)
+				throw new TimeoutException();
 			if (v.compareTo(beta) >= 0) {
 				addSearchResult(cachedEntry, new SearchResult<A>(s.convertToHashedAction(bestOrRefutationMove), v,
 						ScoreType.LOWERBOUND, depthLimit, inspectedNodes - previouslyInspectedNodes));
@@ -246,6 +242,8 @@ public class AI<S extends State<S, A>, A> {
 					bestOrRefutationMove = toChild;
 				}
 				s.revert();
+				if (System.currentTimeMillis() - startTime > timeLimit * RELAXATION)
+					throw new TimeoutException();
 				if (v.compareTo(beta) >= 0) {
 					addSearchResult(cachedEntry, new SearchResult<A>(s.convertToHashedAction(bestOrRefutationMove), v,
 							ScoreType.LOWERBOUND, depthLimit, inspectedNodes - previouslyInspectedNodes));
@@ -293,7 +291,6 @@ public class AI<S extends State<S, A>, A> {
 		// transposition table lookup
 		final Entry<S, A> cachedEntry = transpositionTable.get(s.hashCode());
 		A bestOrRefutationMove = null, cachedMove = null;
-		long delta = System.currentTimeMillis();
 		if (cachedEntry != null) {
 			final SearchResult<A> cachedSearchResult = cachedEntry.pickSearchResult(s, depthLimit);
 			if (cachedSearchResult != null) {
@@ -318,9 +315,6 @@ public class AI<S extends State<S, A>, A> {
 				cachedMove = bestOrRefutationMove;
 			}
 		}
-		delta = System.currentTimeMillis() - delta;
-		if (delta > 50)
-			System.out.println("\tBlocco: " + MoNKey.formatTimeInterval(delta));
 
 		// check best/refutation move first
 		Integer v = null;
@@ -328,6 +322,8 @@ public class AI<S extends State<S, A>, A> {
 		if (bestOrRefutationMove != null) {
 			v = maxValue(s.result(bestOrRefutationMove), alpha, beta, depthLimit - 1);
 			s.revert();
+			if (System.currentTimeMillis() - startTime > timeLimit * RELAXATION)
+				throw new TimeoutException();
 			if (v.compareTo(alpha) <= 0) {
 				addSearchResult(cachedEntry, new SearchResult<A>(s.convertToHashedAction(bestOrRefutationMove), v,
 						ScoreType.UPPERBOUND, depthLimit, inspectedNodes - previouslyInspectedNodes));
@@ -347,6 +343,8 @@ public class AI<S extends State<S, A>, A> {
 					bestOrRefutationMove = toChild;
 				}
 				s.revert();
+				if (System.currentTimeMillis() - startTime > timeLimit * RELAXATION)
+					throw new TimeoutException();
 				if (v.compareTo(alpha) <= 0) {
 					addSearchResult(cachedEntry, new SearchResult<A>(s.convertToHashedAction(bestOrRefutationMove), v,
 							ScoreType.UPPERBOUND, depthLimit, inspectedNodes - previouslyInspectedNodes));
@@ -391,14 +389,10 @@ public class AI<S extends State<S, A>, A> {
 	 * @since 1.0
 	 */
 	protected void addSearchResult(Entry<S, A> cachedEntry, SearchResult<A> newSearchResult) throws TimeoutException {
-		long delta = System.currentTimeMillis();
 		if (cachedEntry == null)
 			transpositionTable.put(state.hashCode(), new Entry<S, A>(newSearchResult));
 		else
 			cachedEntry.add(newSearchResult);
-		delta = System.currentTimeMillis() - delta;
-		if (delta > 50)
-			System.out.println("\tAdd search result: " + MoNKey.formatTimeInterval(delta));
 		if (System.currentTimeMillis() - startTime > timeLimit * RELAXATION)
 			throw new TimeoutException();
 	}
@@ -414,7 +408,7 @@ public class AI<S extends State<S, A>, A> {
 	/** Utilities instance for generic objects. */
 	final private ObjectUtils objectUtils = new ObjectUtils();
 	/** The higher, the more time is used at most for each search. */
-	final private float RELAXATION = 0.99f;
+	final private float RELAXATION = 0.98f;
 	/** A transposition table for this instance of the {@link AI}. */
 	final private HashMap<Integer, Entry<S, A>> transpositionTable;
 	/** Start time of the current turn. */
