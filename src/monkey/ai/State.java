@@ -51,7 +51,7 @@ public interface State<Self extends State<Self, Action>, Action> extends Cloneab
 	public boolean isLegal(Action a);
 
 	/**
-	 * Defines the set of legal <code>Action</code>s.
+	 * Defines the set of legal <code>Action</code>s, excluding the irrelevant ones.
 	 *
 	 * @return An {@link java.lang.Iterable Iterator} containing the legal
 	 *         <code>Action</code>s for the state.
@@ -177,7 +177,7 @@ public interface State<Self extends State<Self, Action>, Action> extends Cloneab
 	public int ttSuggestedCapacity();
 
 	/**
-	 * Computes the number of legal actions for the current {@link State}.
+	 * Computes the number of legal, relevant actions for the current {@link State}.
 	 *
 	 * @return The number of legal actions.
 	 * @author Stefano Volpe

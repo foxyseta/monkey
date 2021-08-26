@@ -47,12 +47,12 @@ public class Board implements monkey.ai.State<Board, Position> {
 	 * @since 1.0
 	 */
 	public Board(int m, int n, int k) {
-		if (m <= 0)
-			throw new IllegalArgumentException("m <= 0");
-		if (n <= 0)
-			throw new IllegalArgumentException("n <= 0");
-		if (k <= 0)
-			throw new IllegalArgumentException("k <= 0");
+		// if (m <= 0)
+		// throw new IllegalArgumentException("m <= 0");
+		// if (n <= 0)
+		// throw new IllegalArgumentException("n <= 0");
+		// if (k <= 0)
+		// throw new IllegalArgumentException("k <= 0");
 		// constants
 		SIZE = (M = m) * (N = n);
 		K = k;
@@ -120,8 +120,8 @@ public class Board implements monkey.ai.State<Board, Position> {
 
 	@Override // inherit doc comment
 	public boolean isLegal(Position p) {
-		if (p == null)
-			throw new NullPointerException("p is null.");
+		// if (p == null)
+		// throw new NullPointerException("p is null.");
 		return p.ROWSNUMBER == M && p.COLUMNSNUMBER == N && cellStates[p.getRow()][p.getColumn()] == MNKCellState.FREE;
 	}
 
@@ -142,15 +142,17 @@ public class Board implements monkey.ai.State<Board, Position> {
 	 */
 	@Override
 	public Board result(Position a) {
-		if (a == null)
-			throw new IllegalArgumentException("Null moves are invalid in this game.");
-		if (state != MNKGameState.OPEN)
-			throw new IllegalCallerException("The game is already over.");
-		if (a.ROWSNUMBER != M || a.COLUMNSNUMBER != N)
-			throw new IllegalArgumentException("Referring to a board of different extents.");
+		// if (a == null)
+		// throw new IllegalArgumentException("Null moves are invalid in this game.");
+		// if (state != MNKGameState.OPEN)
+		// throw new IllegalCallerException("The game is already over.");
+		// if (a.ROWSNUMBER != M || a.COLUMNSNUMBER != N)
+		// throw new IllegalArgumentException("Referring to a board of different
+		// extents.");
 		final int row = a.getRow(), column = a.getColumn();
-		if (cellStates[row][column] != MNKCellState.FREE)
-			throw new IllegalArgumentException("(" + row + ", " + column + ") is not free.");
+		// if (cellStates[row][column] != MNKCellState.FREE)
+		// throw new IllegalArgumentException("(" + row + ", " + column + ") is not
+		// free.");
 		final Player p = player();
 		cellStates[row][column] = p == Player.P1 ? MNKCellState.P1 : MNKCellState.P2;
 		updateThreatsManagers(a);
@@ -170,17 +172,17 @@ public class Board implements monkey.ai.State<Board, Position> {
 	 */
 	@Override
 	public Board revert() {
-		try {
-			final Position a = history.pop();
-			final int row = a.getRow(), column = a.getColumn();
-			cellStates[row][column] = MNKCellState.FREE;
-			updateThreatsManagers(a);
-			updateAdjacencyCounters(a, -1);
-			state = MNKGameState.OPEN;
-			zobristHasher.addOrRemove(a, player());
-		} catch (java.util.EmptyStackException e) {
-			throw new IllegalCallerException("No previous action to revert.");
-		}
+		// try {
+		final Position a = history.pop();
+		final int row = a.getRow(), column = a.getColumn();
+		cellStates[row][column] = MNKCellState.FREE;
+		updateThreatsManagers(a);
+		updateAdjacencyCounters(a, -1);
+		state = MNKGameState.OPEN;
+		zobristHasher.addOrRemove(a, player());
+		// } catch (java.util.EmptyStackException e) {
+		// throw new IllegalCallerException("No previous action to revert.");
+		// }
 		return this;
 	}
 
@@ -194,12 +196,12 @@ public class Board implements monkey.ai.State<Board, Position> {
 		switch (state) {
 		case DRAW:
 			return DRAWUTILITY;
-		case OPEN:
-			throw new IllegalCallerException("The game is still open");
 		case WINP1:
 			return p == Player.P1 ? VICTORYUTILITY : LOSSUTILITY;
 		case WINP2:
 			return p == Player.P2 ? VICTORYUTILITY : LOSSUTILITY;
+		case OPEN:
+			throw new IllegalCallerException("The game is still open");
 		default:
 			throw new IllegalArgumentException("Unknown game state");
 		}
@@ -308,8 +310,9 @@ public class Board implements monkey.ai.State<Board, Position> {
 	public MNKCellState getCellState(Position p) {
 		if (p == null)
 			return null;
-		if (p.ROWSNUMBER != M || p.COLUMNSNUMBER != N)
-			throw new IllegalArgumentException("This Position is meant for a different grid.");
+		// if (p.ROWSNUMBER != M || p.COLUMNSNUMBER != N)
+		// throw new IllegalArgumentException("This Position is meant for a different
+		// grid.");
 		return cellStates[p.getRow()][p.getColumn()];
 	}
 
@@ -326,10 +329,11 @@ public class Board implements monkey.ai.State<Board, Position> {
 	 * @since 1.0
 	 */
 	public int getAdjacencyCounter(Position p) {
-		if (p == null)
-			throw new NullPointerException("This position is null.");
-		if (p.ROWSNUMBER != M || p.COLUMNSNUMBER != N)
-			throw new IllegalArgumentException("This Position is meant for a different grid.");
+		// if (p == null)
+		// throw new NullPointerException("This position is null.");
+		// if (p.ROWSNUMBER != M || p.COLUMNSNUMBER != N)
+		// throw new IllegalArgumentException("This Position is meant for a different
+		// grid.");
 		return adjacencyCounters[p.getRow()][p.getColumn()];
 	}
 
@@ -437,8 +441,8 @@ public class Board implements monkey.ai.State<Board, Position> {
 	 */
 	protected Position[] generateActionCandidates() {
 		Position[] res = new Position[SIZE];
-		int firstRow = 0, lastRow = M - 1, firstColumn = 0, lastColumn = N - 1;
-		int i = SIZE - 1, row = firstRow, column = firstColumn;
+		int firstRow = 0, lastRow = M - 1, firstColumn = 0, lastColumn = N - 1, i = SIZE - 1, row = firstRow,
+				column = firstColumn;
 		// Escargot
 		while (i >= 0) {
 			// Top left to top right
@@ -570,15 +574,16 @@ public class Board implements monkey.ai.State<Board, Position> {
 	 */
 	private void updateAdjacencyCounters(Position p, int offset) {
 		if (p != null) {
-			if (p.ROWSNUMBER != M || p.COLUMNSNUMBER != N)
-				throw new IllegalArgumentException("p is not meant for this grid.");
+			// if (p.ROWSNUMBER != M || p.COLUMNSNUMBER != N)
+			// throw new IllegalArgumentException("p is not meant for this grid.");
 			final int row = p.getRow(), column = p.getColumn(), maxRow = objectUtils.min(row + 1, M - 1),
 					maxColumn = objectUtils.min(column + 1, N - 1);
 			for (int i = objectUtils.max(0, row - 1); i <= maxRow; ++i)
 				for (int j = objectUtils.max(0, column - 1); j <= maxColumn; ++j)
 					if (i != row || j != column) {
-						if (adjacencyCounters[i][j] + offset < 0)
-							throw new IllegalArgumentException("offset would make (" + i + ", " + j + ") counter negative.");
+						// if (adjacencyCounters[i][j] + offset < 0)
+						// throw new IllegalArgumentException("offset would make (" + i + ", " + j + ")
+						// counter negative.");
 						adjacencyCounters[i][j] += offset;
 					}
 		}
@@ -641,8 +646,8 @@ public class Board implements monkey.ai.State<Board, Position> {
 		 */
 		@Override
 		public Position next() {
-			if (!hasNext())
-				throw new java.util.NoSuchElementException("No next element.");
+			// if (!hasNext())
+			// throw new java.util.NoSuchElementException("No next element.");
 			final int oldIndex = index;
 			if (history.empty())
 				index = actionsCandidates.length;

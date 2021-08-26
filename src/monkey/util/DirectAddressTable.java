@@ -37,12 +37,12 @@ public class DirectAddressTable<T> implements Cloneable, Iterable<T> {
 	 */
 	@SuppressWarnings("unchecked")
 	public DirectAddressTable(Class<T> type, ToIntFunction<T> keyFunction, int length) {
-		if (length < 0)
-			throw new IllegalArgumentException("length is negative");
-		if (type == null)
-			throw new NullPointerException("type is null");
-		if (keyFunction == null)
-			throw new NullPointerException("keyFunction is null");
+		// if (length < 0)
+		// throw new IllegalArgumentException("length is negative");
+		// if (type == null)
+		// throw new NullPointerException("type is null");
+		// if (keyFunction == null)
+		// throw new NullPointerException("keyFunction is null");
 		table = (T[]) java.lang.reflect.Array.newInstance(type, length);
 		toKey = keyFunction;
 	}
@@ -95,11 +95,12 @@ public class DirectAddressTable<T> implements Cloneable, Iterable<T> {
 	 * @since 1.0
 	 */
 	public T search(int key) {
-		try {
-			return table[key];
-		} catch (IndexOutOfBoundsException e) {
-			throw new IndexOutOfBoundsException(key + " is out of direct address table bounds [0;" + table.length + "[");
-		}
+		// try {
+		return table[key];
+		// } catch (IndexOutOfBoundsException e) {
+		// throw new IndexOutOfBoundsException(key + " is out of direct address table
+		// bounds [0;" + table.length + "[");
+		// }
 	}
 
 	/**
@@ -113,36 +114,14 @@ public class DirectAddressTable<T> implements Cloneable, Iterable<T> {
 	 */
 	public void insert(T element) {
 		final int key = toKey.applyAsInt(element);
-		try {
-			table[key] = element;
-		} catch (IndexOutOfBoundsException e) {
-			throw new IndexOutOfBoundsException(
-					element + "'s key (" + key + ") is out of direct address table bounds [0;" + table.length + "[");
-		}
+		// try {
+		table[key] = element;
+		// } catch (IndexOutOfBoundsException e) {
+		// throw new IndexOutOfBoundsException(
+		// element + "'s key (" + key + ") is out of direct address table bounds [0;" +
+		// table.length + "[");
+		// }
 	}
-
-	/**
-	 * Deletes an element from the table, if it was already present. Otherwise,
-	 * calling this method does nothing.
-	 *
-	 * @param element The element to be deleted. It may be <code>null</code>.
-	 * @throws IndexOutOfBoundsException The element's key is out of bounds.
-	 * @author Stefano Volpe
-	 * @version 1.0
-	 * @since 1.0
-	 */
-	public void delete(T element) {
-		final int key = toKey.applyAsInt(element);
-		try {
-			table[key] = null;
-		} catch (IndexOutOfBoundsException e) {
-			throw new IndexOutOfBoundsException(
-					element + "'s key (" + key + ") is out of direct address table bounds [0;" + table.length + "[");
-		}
-	}
-
-	/** Array used to store the data. */
-	private T[] table;
 
 	@Override // inherit doc comment
 	public Iterator<T> iterator() {
@@ -167,6 +146,9 @@ public class DirectAddressTable<T> implements Cloneable, Iterable<T> {
 		return res;
 	}
 
+	/** Array used to store the data. */
+	private T[] table;
+
 }
 
 /**
@@ -190,8 +172,8 @@ class DirectAddressTableIterator<T> implements Iterator<T> {
 	 * @since 1.0
 	 **/
 	public DirectAddressTableIterator(T[] t) {
-		if (t == null)
-			throw new NullPointerException("t is null.");
+		// if (t == null)
+		// throw new NullPointerException("t is null.");
 		table = t;
 	}
 
@@ -217,9 +199,9 @@ class DirectAddressTableIterator<T> implements Iterator<T> {
 	 */
 	@Override
 	public T next() {
-		if (hasNext())
-			return table[index++];
-		throw new java.util.NoSuchElementException("No next element.");
+		// if (hasNext())
+		return table[index++];
+		// throw new java.util.NoSuchElementException("No next element.");
 	}
 
 	/** The table to iterate through. */

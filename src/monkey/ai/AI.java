@@ -35,8 +35,8 @@ public class AI<S extends State<S, A>, A> {
 	 * @since 1.0
 	 */
 	public AI(Player p, S s0, long t) {
-		if (p == null || s0 == null)
-			throw new NullPointerException("Some of the arguments are null.");
+		// if (p == null || s0 == null)
+		// throw new NullPointerException("Some of the arguments are null.");
 		player = p;
 		state = s0;
 		timeLimit = t;
@@ -73,10 +73,10 @@ public class AI<S extends State<S, A>, A> {
 	 */
 	public A iterativeDeepeningSearch() {
 		startTime = System.currentTimeMillis();
-		if (state.terminalTest())
-			throw new IllegalArgumentException("s is a terminal state.");
-		if (player != state.player())
-			throw new IllegalArgumentException("It's not your turn.");
+		// if (state.terminalTest())
+		// throw new IllegalArgumentException("s is a terminal state.");
+		// if (player != state.player())
+		// throw new IllegalArgumentException("It's not your turn.");
 
 		final S backupState = state.clone();
 		final int maxLimit = state.overestimatedHeight();
@@ -179,8 +179,8 @@ public class AI<S extends State<S, A>, A> {
 	 */
 	protected int maxValue(S s, int alpha, int beta, int depthLimit) throws TimeoutException {
 		// exceptions/base case
-		if (s == null)
-			throw new NullPointerException("s is null.");
+		// if (s == null)
+		// throw new NullPointerException("s is null.");
 		timeCheck();
 		final long previouslyInspectedNodes = inspectedNodes++;
 		if (cutoffTest(s, depthLimit))
@@ -277,8 +277,8 @@ public class AI<S extends State<S, A>, A> {
 	 */
 	protected int minValue(S s, int alpha, int beta, int depthLimit) throws TimeoutException {
 		// exceptions/base case
-		if (s == null)
-			throw new NullPointerException("s is null.");
+		// if (s == null)
+		// throw new NullPointerException("s is null.");
 		timeCheck();
 		final long previouslyInspectedNodes = inspectedNodes++;
 		if (cutoffTest(s, depthLimit))

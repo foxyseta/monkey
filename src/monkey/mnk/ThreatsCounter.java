@@ -56,8 +56,8 @@ public class ThreatsCounter implements Cloneable {
 	 * @since 1.0
 	 */
 	public void increment(Player player) {
-		if (player == null)
-			throw new NullPointerException("The player can't be null.");
+		// if (player == null)
+		// throw new NullPointerException("The player can't be null.");
 		if (Player.P1 == player)
 			p1counter++;
 		else
@@ -77,15 +77,15 @@ public class ThreatsCounter implements Cloneable {
 	 * @since 1.0
 	 */
 	public void decrement(Player player) {
-		if (player == null)
-			throw new NullPointerException("The player can't be null.");
+		// if (player == null)
+		// throw new NullPointerException("The player can't be null.");
 		if (Player.P1 == player) {
-			if (p1counter == 0)
-				throw new IllegalCallerException("The counter can't be negative.");
+			// if (p1counter == 0)
+			// throw new IllegalCallerException("The counter can't be negative.");
 			--p1counter;
 		} else {
-			if (p2counter == 0)
-				throw new IllegalCallerException("The counter can't be negative.");
+			// if (p2counter == 0)
+			// throw new IllegalCallerException("The counter can't be negative.");
 			--p2counter;
 		}
 	}
@@ -103,8 +103,8 @@ public class ThreatsCounter implements Cloneable {
 	 * @since 1.0
 	 */
 	public int get(Player player) {
-		if (player == null)
-			throw new NullPointerException("The player can't be null.");
+		// if (player == null)
+		// throw new NullPointerException("The player can't be null.");
 		return Player.P1 == player ? p1counter : p2counter;
 	}
 
