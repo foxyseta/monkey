@@ -3,6 +3,8 @@ package monkey.ai;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.concurrent.TimeoutException;
+
+import monkey.MoNKey;
 import monkey.ai.table.Entry;
 import monkey.ai.table.SearchResult;
 import monkey.ai.table.SearchResult.ScoreType;
@@ -106,13 +108,13 @@ public class AI<S extends State<S, A>, A> {
 	 * @since 1.0
 	 */
 	public A bestNodeLimitedSearch(int depthLimit) throws TimeoutException {
-		int alpha = state.initialAlpha(player), beta = state.initialBeta(player), subtreeCount = state.countLegalActions(),
-				betterCount;
+		int alpha = state.initialAlpha(player), beta = state.initialBeta(player),
+				subtreeCount = state.countLegalActions(), betterCount;
 		A bestNode;
 		do {
 			bestNode = null;
 			int test = nextGuess(alpha, beta, subtreeCount);
-			// System.out.println("\t\t🌳× " + subtreeCount + ", 🧱 = " + test + " ∈ [" +
+			// System.out.println("\t\t🌳 × " + subtreeCount + ", 🧱 = " + test + " ∈ [" +
 			// alpha + ", " + beta + "]");
 			betterCount = 0;
 			Iterator<A> actions = state.actions();
@@ -189,23 +191,27 @@ public class AI<S extends State<S, A>, A> {
 			return s.eval(player);
 
 		// transposition table lookup
+		long delta = System.currentTimeMillis();
 		final Entry<S, A> cachedEntry = transpositionTable.get(s.hashCode());
+		delta = System.currentTimeMillis() - delta;
+		if (delta > 50)
+			System.out.println("\tHashmap.get: " + MoNKey.formatTimeInterval(delta));
 		A bestOrRefutationMove = null, cachedMove = null;
 		if (cachedEntry != null) {
 			final SearchResult<A> cachedSearchResult = cachedEntry.pickSearchResult(s, depthLimit);
 			if (cachedSearchResult != null) {
 				if (depthLimit <= cachedSearchResult.SEARCHDEPTH) {
 					switch (cachedSearchResult.FLAG) {
-					case TRUEVALUE: // purpose 1
-						return cachedSearchResult.SCORE;
-					case UPPERBOUND: // purpose 2
-						beta = objectUtils.min(beta, cachedSearchResult.SCORE);
-						break;
-					case LOWERBOUND: // purpose 2 (sic.)
-						alpha = objectUtils.max(alpha, cachedSearchResult.SCORE);
-						break;
-					default:
-						throw new InternalError("Unknown score type.");
+						case TRUEVALUE: // purpose 1
+							return cachedSearchResult.SCORE;
+						case UPPERBOUND: // purpose 2
+							beta = objectUtils.min(beta, cachedSearchResult.SCORE);
+							break;
+						case LOWERBOUND: // purpose 2 (sic.)
+							alpha = objectUtils.max(alpha, cachedSearchResult.SCORE);
+							break;
+						default:
+							throw new InternalError("Unknown score type.");
 					}
 					if (alpha >= beta)
 						return alpha;
@@ -286,23 +292,27 @@ public class AI<S extends State<S, A>, A> {
 			return s.eval(player);
 
 		// transposition table lookup
-		final Entry<S, A> cachedEntry = transpositionTable.get(s.hashCode());
+		long delta = System.currentTimeMillis();
+		final Entry<S, A> cachedEntry = transpositionTable.get(s.hashCode()); // !
+		delta = System.currentTimeMillis() - delta;
+		if (delta > 50)
+			System.out.println("\tHashmap.get: " + MoNKey.formatTimeInterval(delta));
 		A bestOrRefutationMove = null, cachedMove = null;
 		if (cachedEntry != null) {
 			final SearchResult<A> cachedSearchResult = cachedEntry.pickSearchResult(s, depthLimit);
 			if (cachedSearchResult != null) {
 				if (depthLimit <= cachedSearchResult.SEARCHDEPTH) {
 					switch (cachedSearchResult.FLAG) {
-					case TRUEVALUE: // purpose 1
-						return cachedSearchResult.SCORE;
-					case UPPERBOUND: // purpose 2
-						beta = objectUtils.min(beta, cachedSearchResult.SCORE);
-						break;
-					case LOWERBOUND: // purpose 2 (sic.)
-						alpha = objectUtils.max(alpha, cachedSearchResult.SCORE);
-						break;
-					default:
-						throw new InternalError("Unknown score type.");
+						case TRUEVALUE: // purpose 1
+							return cachedSearchResult.SCORE;
+						case UPPERBOUND: // purpose 2
+							beta = objectUtils.min(beta, cachedSearchResult.SCORE);
+							break;
+						case LOWERBOUND: // purpose 2 (sic.)
+							alpha = objectUtils.max(alpha, cachedSearchResult.SCORE);
+							break;
+						default:
+							throw new InternalError("Unknown score type.");
 					}
 					if (beta <= alpha)
 						return beta;
@@ -381,10 +391,14 @@ public class AI<S extends State<S, A>, A> {
 	 * @since 1.0
 	 */
 	protected void addSearchResult(Entry<S, A> cachedEntry, SearchResult<A> newSearchResult) {
+		long delta = System.currentTimeMillis();
 		if (cachedEntry == null)
 			transpositionTable.put(state.hashCode(), new Entry<S, A>(newSearchResult));
 		else
 			cachedEntry.add(newSearchResult);
+		delta = System.currentTimeMillis() - delta;
+		if (delta > 50)
+			System.out.println("\tAdd search result: " + MoNKey.formatTimeInterval(delta));
 	}
 
 	/**
