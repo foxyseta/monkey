@@ -181,8 +181,9 @@ public class AI<S extends State<S, A>, A> {
 		if (s == null)
 			throw new NullPointerException("s is null.");
 		if (System.currentTimeMillis() - startTime > timeLimit * RELAXATION) {
-		System.out.println(monkey.MoNKey.formatTimeInterval(System.currentTimeMillis() - startTime) + "...");
+			System.out.println(monkey.MoNKey.formatTimeInterval(System.currentTimeMillis() - startTime) + "...");
 			throw new TimeoutException();
+		}
 		final long previouslyInspectedNodes = inspectedNodes++;
 		if (cutoffTest(s, depthLimit))
 			return s.eval(player);
@@ -195,16 +196,16 @@ public class AI<S extends State<S, A>, A> {
 			if (cachedSearchResult != null) {
 				if (depthLimit <= cachedSearchResult.SEARCHDEPTH) {
 					switch (cachedSearchResult.FLAG) {
-						case TRUEVALUE: // purpose 1
-							return cachedSearchResult.SCORE;
-						case UPPERBOUND: // purpose 2
-							beta = objectUtils.min(beta, cachedSearchResult.SCORE);
-							break;
-						case LOWERBOUND: // purpose 2 (sic.)
-							alpha = objectUtils.max(alpha, cachedSearchResult.SCORE);
-							break;
-						default:
-							throw new InternalError("Unknown score type.");
+					case TRUEVALUE: // purpose 1
+						return cachedSearchResult.SCORE;
+					case UPPERBOUND: // purpose 2
+						beta = objectUtils.min(beta, cachedSearchResult.SCORE);
+						break;
+					case LOWERBOUND: // purpose 2 (sic.)
+						alpha = objectUtils.max(alpha, cachedSearchResult.SCORE);
+						break;
+					default:
+						throw new InternalError("Unknown score type.");
 					}
 					if (alpha >= beta)
 						return alpha;
