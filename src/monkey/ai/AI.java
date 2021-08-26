@@ -106,8 +106,8 @@ public class AI<S extends State<S, A>, A> {
 	 * @since 1.0
 	 */
 	public A bestNodeLimitedSearch(int depthLimit) throws TimeoutException {
-		int alpha = state.initialAlpha(player), beta = state.initialBeta(player),
-				subtreeCount = state.countLegalActions(), betterCount;
+		int alpha = state.initialAlpha(player), beta = state.initialBeta(player), subtreeCount = state.countLegalActions(),
+				betterCount;
 		A bestNode;
 		do {
 			bestNode = null;
@@ -180,7 +180,8 @@ public class AI<S extends State<S, A>, A> {
 		// exceptions/base case
 		if (s == null)
 			throw new NullPointerException("s is null.");
-		if (System.currentTimeMillis() - startTime > timeLimit * RELAXATION)
+		if (System.currentTimeMillis() - startTime > timeLimit * RELAXATION) {
+		System.out.println(monkey.MoNKey.formatTimeInterval(System.currentTimeMillis() - startTime) + "...");
 			throw new TimeoutException();
 		final long previouslyInspectedNodes = inspectedNodes++;
 		if (cutoffTest(s, depthLimit))
@@ -291,16 +292,16 @@ public class AI<S extends State<S, A>, A> {
 			if (cachedSearchResult != null) {
 				if (depthLimit <= cachedSearchResult.SEARCHDEPTH) {
 					switch (cachedSearchResult.FLAG) {
-						case TRUEVALUE: // purpose 1
-							return cachedSearchResult.SCORE;
-						case UPPERBOUND: // purpose 2
-							beta = objectUtils.min(beta, cachedSearchResult.SCORE);
-							break;
-						case LOWERBOUND: // purpose 2 (sic.)
-							alpha = objectUtils.max(alpha, cachedSearchResult.SCORE);
-							break;
-						default:
-							throw new InternalError("Unknown score type.");
+					case TRUEVALUE: // purpose 1
+						return cachedSearchResult.SCORE;
+					case UPPERBOUND: // purpose 2
+						beta = objectUtils.min(beta, cachedSearchResult.SCORE);
+						break;
+					case LOWERBOUND: // purpose 2 (sic.)
+						alpha = objectUtils.max(alpha, cachedSearchResult.SCORE);
+						break;
+					default:
+						throw new InternalError("Unknown score type.");
 					}
 					if (beta <= alpha)
 						return beta;

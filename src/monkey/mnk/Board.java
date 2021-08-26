@@ -192,16 +192,16 @@ public class Board implements monkey.ai.State<Board, Position> {
 	@Override // inherit doc comment
 	public int utility(Player p) {
 		switch (state) {
-			case DRAW:
-				return DRAWUTILITY;
-			case OPEN:
-				throw new IllegalCallerException("The game is still open");
-			case WINP1:
-				return p == Player.P1 ? VICTORYUTILITY : LOSSUTILITY;
-			case WINP2:
-				return p == Player.P2 ? VICTORYUTILITY : LOSSUTILITY;
-			default:
-				throw new IllegalArgumentException("Unknown game state");
+		case DRAW:
+			return DRAWUTILITY;
+		case OPEN:
+			throw new IllegalCallerException("The game is still open");
+		case WINP1:
+			return p == Player.P1 ? VICTORYUTILITY : LOSSUTILITY;
+		case WINP2:
+			return p == Player.P2 ? VICTORYUTILITY : LOSSUTILITY;
+		default:
+			throw new IllegalArgumentException("Unknown game state");
 		}
 	}
 
@@ -578,8 +578,7 @@ public class Board implements monkey.ai.State<Board, Position> {
 				for (int j = objectUtils.max(0, column - 1); j <= maxColumn; ++j)
 					if (i != row || j != column) {
 						if (adjacencyCounters[i][j] + offset < 0)
-							throw new IllegalArgumentException(
-									"offset would make (" + i + ", " + j + ") counter negative.");
+							throw new IllegalArgumentException("offset would make (" + i + ", " + j + ") counter negative.");
 						adjacencyCounters[i][j] += offset;
 					}
 		}
@@ -604,11 +603,13 @@ public class Board implements monkey.ai.State<Board, Position> {
 		 * @since 1.0
 		 */
 		public BoardIterator() {
-			if (terminalTest())
+			if (history.empty())
+				index = 0;
+			else if (terminalTest())
 				index = actionsCandidates.length;
 			else
 				while (index < actionsCandidates.length && (getCellState(actionsCandidates[index]) != MNKCellState.FREE
-						|| getAdjacencyCounter(actionsCandidates[index]) == 0 && !history.empty()))
+						|| getAdjacencyCounter(actionsCandidates[index]) == 0))
 					++index;
 		}
 
@@ -640,14 +641,16 @@ public class Board implements monkey.ai.State<Board, Position> {
 		 */
 		@Override
 		public Position next() {
-			if (hasNext()) {
-				final int oldIndex = index;
+			if (!hasNext())
+				throw new java.util.NoSuchElementException("No next element.");
+			final int oldIndex = index;
+			if (history.empty())
+				index = actionsCandidates.length;
+			else
 				do
 					++index;
 				while (index < actionsCandidates.length && getCellState(actionsCandidates[index]) != MNKCellState.FREE);
-				return actionsCandidates[oldIndex];
-			}
-			throw new java.util.NoSuchElementException("No next element.");
+			return actionsCandidates[oldIndex];
 		}
 
 		/** The index of the next element, or the length of the table if it is over. */
@@ -655,9 +658,18 @@ public class Board implements monkey.ai.State<Board, Position> {
 
 	}
 
-	@Override // inherit doc comment
+	/**
+	 * {@inheritDoc} <br>
+	 * Takes Θ(1) time in the best case, but Θ({@link #SIZE}) time in the average
+	 * and worst cases.
+	 */
+	@Override
 	public int countLegalActions() {
-		return SIZE - history.size();
+		int counter;
+		final Iterator<Position> iterator = actions();
+		for (counter = 0; iterator.hasNext(); ++counter)
+			iterator.next();
+		return counter;
 	}
 
 	/** Utilities instance for generic objects. */
