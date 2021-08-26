@@ -77,6 +77,7 @@ public class AI<S extends State<S, A>, A> {
 			throw new IllegalArgumentException("s is a terminal state.");
 		if (player != state.player())
 			throw new IllegalArgumentException("It's not your turn.");
+
 		final S backupState = state.clone();
 		final int maxLimit = state.overestimatedHeight();
 		A res = null;
@@ -105,9 +106,9 @@ public class AI<S extends State<S, A>, A> {
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	public A bestNodeLimitedSearch(int depthLimit) throws TimeoutException {
-		int alpha = state.initialAlpha(player), beta = state.initialBeta(player),
-				subtreeCount = state.countLegalActions(), betterCount;
+	protected A bestNodeLimitedSearch(int depthLimit) throws TimeoutException {
+		int alpha = state.initialAlpha(player), beta = state.initialBeta(player), subtreeCount = state.countLegalActions(),
+				betterCount;
 		A bestNode;
 		do {
 			bestNode = null;
@@ -126,9 +127,9 @@ public class AI<S extends State<S, A>, A> {
 				}
 				state.revert();
 			}
-			if (betterCount == 0) {
+			if (betterCount == 0)
 				beta = test;
-			} else if (betterCount > 1) {
+			else if (betterCount > 1) {
 				subtreeCount = betterCount;
 				alpha = test;
 			}
@@ -180,9 +181,7 @@ public class AI<S extends State<S, A>, A> {
 		// exceptions/base case
 		if (s == null)
 			throw new NullPointerException("s is null.");
-		if (System.currentTimeMillis() - startTime > timeLimit * RELAXATION) {
-			throw new TimeoutException();
-		}
+		timeCheck();
 		final long previouslyInspectedNodes = inspectedNodes++;
 		if (cutoffTest(s, depthLimit))
 			return s.eval(player);
@@ -195,16 +194,16 @@ public class AI<S extends State<S, A>, A> {
 			if (cachedSearchResult != null) {
 				if (depthLimit <= cachedSearchResult.SEARCHDEPTH) {
 					switch (cachedSearchResult.FLAG) {
-						case TRUEVALUE: // purpose 1
-							return cachedSearchResult.SCORE;
-						case UPPERBOUND: // purpose 2
-							beta = objectUtils.min(beta, cachedSearchResult.SCORE);
-							break;
-						case LOWERBOUND: // purpose 2 (sic.)
-							alpha = objectUtils.max(alpha, cachedSearchResult.SCORE);
-							break;
-						default:
-							throw new InternalError("Unknown score type.");
+					case TRUEVALUE: // purpose 1
+						return cachedSearchResult.SCORE;
+					case UPPERBOUND: // purpose 2
+						beta = objectUtils.min(beta, cachedSearchResult.SCORE);
+						break;
+					case LOWERBOUND: // purpose 2 (sic.)
+						alpha = objectUtils.max(alpha, cachedSearchResult.SCORE);
+						break;
+					default:
+						throw new InternalError("Unknown score type.");
 					}
 					if (alpha >= beta)
 						return alpha;
@@ -221,8 +220,7 @@ public class AI<S extends State<S, A>, A> {
 		if (bestOrRefutationMove != null) {
 			v = minValue(s.result(bestOrRefutationMove), alpha, beta, depthLimit - 1);
 			s.revert();
-			if (System.currentTimeMillis() - startTime > timeLimit * RELAXATION)
-				throw new TimeoutException();
+			timeCheck();
 			if (v.compareTo(beta) >= 0) {
 				addSearchResult(cachedEntry, new SearchResult<A>(s.convertToHashedAction(bestOrRefutationMove), v,
 						ScoreType.LOWERBOUND, depthLimit, inspectedNodes - previouslyInspectedNodes));
@@ -242,8 +240,7 @@ public class AI<S extends State<S, A>, A> {
 					bestOrRefutationMove = toChild;
 				}
 				s.revert();
-				if (System.currentTimeMillis() - startTime > timeLimit * RELAXATION)
-					throw new TimeoutException();
+				timeCheck();
 				if (v.compareTo(beta) >= 0) {
 					addSearchResult(cachedEntry, new SearchResult<A>(s.convertToHashedAction(bestOrRefutationMove), v,
 							ScoreType.LOWERBOUND, depthLimit, inspectedNodes - previouslyInspectedNodes));
@@ -282,8 +279,7 @@ public class AI<S extends State<S, A>, A> {
 		// exceptions/base case
 		if (s == null)
 			throw new NullPointerException("s is null.");
-		if (System.currentTimeMillis() - startTime > timeLimit * RELAXATION)
-			throw new TimeoutException();
+		timeCheck();
 		final long previouslyInspectedNodes = inspectedNodes++;
 		if (cutoffTest(s, depthLimit))
 			return s.eval(player);
@@ -296,16 +292,16 @@ public class AI<S extends State<S, A>, A> {
 			if (cachedSearchResult != null) {
 				if (depthLimit <= cachedSearchResult.SEARCHDEPTH) {
 					switch (cachedSearchResult.FLAG) {
-						case TRUEVALUE: // purpose 1
-							return cachedSearchResult.SCORE;
-						case UPPERBOUND: // purpose 2
-							beta = objectUtils.min(beta, cachedSearchResult.SCORE);
-							break;
-						case LOWERBOUND: // purpose 2 (sic.)
-							alpha = objectUtils.max(alpha, cachedSearchResult.SCORE);
-							break;
-						default:
-							throw new InternalError("Unknown score type.");
+					case TRUEVALUE: // purpose 1
+						return cachedSearchResult.SCORE;
+					case UPPERBOUND: // purpose 2
+						beta = objectUtils.min(beta, cachedSearchResult.SCORE);
+						break;
+					case LOWERBOUND: // purpose 2 (sic.)
+						alpha = objectUtils.max(alpha, cachedSearchResult.SCORE);
+						break;
+					default:
+						throw new InternalError("Unknown score type.");
 					}
 					if (beta <= alpha)
 						return beta;
@@ -322,8 +318,7 @@ public class AI<S extends State<S, A>, A> {
 		if (bestOrRefutationMove != null) {
 			v = maxValue(s.result(bestOrRefutationMove), alpha, beta, depthLimit - 1);
 			s.revert();
-			if (System.currentTimeMillis() - startTime > timeLimit * RELAXATION)
-				throw new TimeoutException();
+			timeCheck();
 			if (v.compareTo(alpha) <= 0) {
 				addSearchResult(cachedEntry, new SearchResult<A>(s.convertToHashedAction(bestOrRefutationMove), v,
 						ScoreType.UPPERBOUND, depthLimit, inspectedNodes - previouslyInspectedNodes));
@@ -343,8 +338,7 @@ public class AI<S extends State<S, A>, A> {
 					bestOrRefutationMove = toChild;
 				}
 				s.revert();
-				if (System.currentTimeMillis() - startTime > timeLimit * RELAXATION)
-					throw new TimeoutException();
+				timeCheck();
 				if (v.compareTo(alpha) <= 0) {
 					addSearchResult(cachedEntry, new SearchResult<A>(s.convertToHashedAction(bestOrRefutationMove), v,
 							ScoreType.UPPERBOUND, depthLimit, inspectedNodes - previouslyInspectedNodes));
@@ -375,6 +369,21 @@ public class AI<S extends State<S, A>, A> {
 	}
 
 	/**
+	 * Asserts the fact that the time is not almost over, or throws an exception if
+	 * this is not the case. This can be useful right after a frequent and/or
+	 * time-consuming operation.
+	 *
+	 * @throws TimeoutException
+	 * @author Stefano Volpe
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	protected void timeCheck() throws TimeoutException {
+		if (System.currentTimeMillis() - startTime > timeLimit * RELAXATION)
+			throw new TimeoutException();
+	}
+
+	/**
 	 * Adds a new {@link SearchResult} to the {@link #transpositionTable}.
 	 *
 	 * @param cachedEntry     The correct retrieved {@link monkey.ai.table.Entry},
@@ -388,13 +397,12 @@ public class AI<S extends State<S, A>, A> {
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	protected void addSearchResult(Entry<S, A> cachedEntry, SearchResult<A> newSearchResult) throws TimeoutException {
+	private void addSearchResult(Entry<S, A> cachedEntry, SearchResult<A> newSearchResult) throws TimeoutException {
 		if (cachedEntry == null)
 			transpositionTable.put(state.hashCode(), new Entry<S, A>(newSearchResult));
 		else
 			cachedEntry.add(newSearchResult);
-		if (System.currentTimeMillis() - startTime > timeLimit * RELAXATION)
-			throw new TimeoutException();
+		timeCheck();
 	}
 
 	/**
