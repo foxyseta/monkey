@@ -43,7 +43,7 @@ public class ZobristHasher implements Cloneable {
 			public Position apply(Position p) {
 				if (p == null)
 					return null;
-				validateSquareBoard(p);
+				// validateSquareBoard(p);
 				return new Position(p.ROWSNUMBER, p.COLUMNSNUMBER, p.getColumn(), p.COLUMNSNUMBER - p.getRow() - 1);
 			}
 
@@ -72,7 +72,7 @@ public class ZobristHasher implements Cloneable {
 			public Position apply(Position p) {
 				if (p == null)
 					return null;
-				validateSquareBoard(p);
+				// validateSquareBoard(p);
 				return new Position(p.ROWSNUMBER, p.COLUMNSNUMBER, p.ROWSNUMBER - p.getColumn() - 1, p.getRow());
 			}
 
@@ -87,7 +87,7 @@ public class ZobristHasher implements Cloneable {
 			public Position apply(Position p) {
 				if (p == null)
 					return null;
-				validateSquareBoard(p);
+				// validateSquareBoard(p);
 				return new Position(p.ROWSNUMBER, p.COLUMNSNUMBER, p.getColumn(), p.getRow());
 			}
 
@@ -115,7 +115,7 @@ public class ZobristHasher implements Cloneable {
 			public Position apply(Position p) {
 				if (p == null)
 					return null;
-				validateSquareBoard(p);
+				// validateSquareBoard(p);
 				return new Position(p.ROWSNUMBER, p.COLUMNSNUMBER, p.ROWSNUMBER - p.getColumn() - 1,
 						p.COLUMNSNUMBER - p.getRow() - 1);
 			}
@@ -266,10 +266,11 @@ public class ZobristHasher implements Cloneable {
 	 * @since 1.0
 	 */
 	public void addOrRemove(Position position, Player player) {
-		if (position == null || player == null)
-			throw new NullPointerException("Both arguments must be non-null.");
-		if (position.ROWSNUMBER != disjuncts.length || position.COLUMNSNUMBER != disjuncts[0].length)
-			throw new IllegalArgumentException("Incompatible extents.");
+		// if (position == null || player == null)
+		// throw new NullPointerException("Both arguments must be non-null.");
+		// if (position.ROWSNUMBER != disjuncts.length || position.COLUMNSNUMBER !=
+		// disjuncts[0].length)
+		// throw new IllegalArgumentException("Incompatible extents.");
 		symmetryUsed = null;
 		for (Symmetry s : symmetries) {
 			final int candidate = hashCodeCandidates[s.ordinal()] ^= getDisjunct(s.apply(position), player);
@@ -330,10 +331,10 @@ public class ZobristHasher implements Cloneable {
 	 * @since 1.0
 	 */
 	protected int[][][] generateDisjuncts(int m, int n) {
-		if (m <= 0)
-			throw new IllegalArgumentException("m <= 0");
-		if (n <= 0)
-			throw new IllegalArgumentException("n <= 0");
+		// if (m <= 0)
+		// throw new IllegalArgumentException("m <= 0");
+		// if (n <= 0)
+		// throw new IllegalArgumentException("n <= 0");
 		int[][][] res = new int[m][n][PLAYERS];
 		Random r = new Random(SEED);
 		for (int[][] grid : res)
@@ -357,10 +358,11 @@ public class ZobristHasher implements Cloneable {
 	 * @since 1.0
 	 */
 	protected int getDisjunct(Position position, Player player) {
-		if (position == null || player == null)
-			throw new NullPointerException("Both arguments must be non-null.");
-		if (position.ROWSNUMBER != disjuncts.length || position.COLUMNSNUMBER != disjuncts[0].length)
-			throw new IllegalArgumentException("Incompatible extents.");
+		// if (position == null || player == null)
+		// throw new NullPointerException("Both arguments must be non-null.");
+		// if (position.ROWSNUMBER != disjuncts.length || position.COLUMNSNUMBER !=
+		// disjuncts[0].length)
+		// throw new IllegalArgumentException("Incompatible extents.");
 		return disjuncts[position.getRow()][position.getColumn()][player.ordinal()];
 	}
 

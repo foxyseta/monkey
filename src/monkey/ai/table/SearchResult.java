@@ -16,7 +16,7 @@ package monkey.ai.table;
  * @version 1.0
  * @since 1.0
  */
-public class SearchResult<Action> implements Cloneable, Comparable<SearchResult<Action>> {
+public class SearchResult<Action> implements Comparable<SearchResult<Action>> {
 
 	/**
 	 * A <code>ScoreType</code> indicates the nature of the {@link #SCORE}.
@@ -70,34 +70,16 @@ public class SearchResult<Action> implements Cloneable, Comparable<SearchResult<
 	 * @since 1.0
 	 */
 	public SearchResult(Action move, int score, ScoreType flag, int searchDepth, long searchedNodes) {
-		if (move == null || flag == null)
-			throw new NullPointerException("move, result and flag can't be null.");
-		if (searchDepth <= 0 || searchedNodes <= 0)
-			throw new IllegalArgumentException("searchDepth and searchNodes can't be negative values or zeros.");
+		// if (move == null || flag == null)
+		// throw new NullPointerException("move, result and flag can't be null.");
+		// if (searchDepth <= 0 || searchedNodes <= 0)
+		// throw new IllegalArgumentException("searchDepth and searchNodes can't be
+		// negative values or zeros.");
 		MOVE = move;
 		SCORE = score;
 		FLAG = flag;
 		SEARCHDEPTH = searchDepth;
 		SEARCHEDNODES = searchedNodes;
-	}
-
-	/**
-	 * Creates a clone of this object.
-	 *
-	 * @return The desired clone.
-	 * @author Gaia Clerici
-	 * @version 1.0
-	 * @since 1.0
-	 */
-	@Override
-	@SuppressWarnings("unchecked")
-	public SearchResult<Action> clone() {
-		try {
-			return (SearchResult<Action>) super.clone();
-		} catch (CloneNotSupportedException e) {
-			// Should never happen: we support clone
-			throw new InternalError(e.toString());
-		}
 	}
 
 	/**
@@ -113,8 +95,8 @@ public class SearchResult<Action> implements Cloneable, Comparable<SearchResult<
 	 * @since 1.0
 	 */
 	public int compareTo(SearchResult<Action> s) {
-		if (s == null)
-			throw new NullPointerException("s can't be null.");
+		// if (s == null)
+		// throw new NullPointerException("s can't be null.");
 		if (SEARCHEDNODES < s.SEARCHEDNODES)
 			return -1;
 		if (SEARCHEDNODES == s.SEARCHEDNODES)

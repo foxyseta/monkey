@@ -25,36 +25,9 @@ public class Entry<S extends monkey.ai.State<S, A>, A> {
 	 * @since 1.0
 	 */
 	public Entry(SearchResult<A> searchResult) {
-		if (searchResult == null)
-			throw new NullPointerException("searchResult can't be null.");
+		// if (searchResult == null)
+		// throw new NullPointerException("searchResult can't be null.");
 		first = searchResult;
-	}
-
-	/**
-	 * A getter for the first {@link SearchResult}.
-	 *
-	 * @see #getSecond
-	 * @return The (non-<code>null</code>) first {@link SearchResult}.
-	 * @author Gaia Clerici
-	 * @version 1.0
-	 * @since 1.0
-	 */
-	public SearchResult<A> getFirst() {
-		return first;
-	}
-
-	/**
-	 * A getter for the second {@link SearchResult}.
-	 *
-	 * @see #getFirst
-	 * @return The second {@link SearchResult}, or <code>null</code> if it does not
-	 *         exist.
-	 * @author Gaia Clerici
-	 * @version 1.0
-	 * @since 1.0
-	 */
-	public SearchResult<A> getSecond() {
-		return second;
 	}
 
 	/**
@@ -96,8 +69,8 @@ public class Entry<S extends monkey.ai.State<S, A>, A> {
 	 * @since 1.0
 	 */
 	public void add(SearchResult<A> searchResult) {
-		if (searchResult == null)
-			throw new NullPointerException("searchResult can't be null.");
+		// if (searchResult == null)
+		// throw new NullPointerException("searchResult can't be null.");
 		if (searchResult.compareTo(first) >= 0) {
 			second = first;
 			first = searchResult;

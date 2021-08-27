@@ -18,6 +18,7 @@ TESTER_CLASS = monkey.Tester
 
 # Command line options
 OPTIONS = -cp "$(LIB_DIR)/*:$(BUILD_DIR)/" -Xmx8G
+COMPILE_OPTIONS = -Werror
 OPTIONS_DEBUG = $(OPTIONS) -Xdebug \
 								-Xrunjdwp:transport=dt_socket,address=5000,server=y,suspend=y 
 
@@ -46,7 +47,7 @@ test:
 # Runs some preliminar checks (debug mode)
 test-debug:
 	@echo "Testing..."
-	@$(JR) $(OPTIONS_DEBUG) $(TESTER_CLASS)
+	@$(JR)  $(OPTIONS_DEBUG) $(TESTER_CLASS)
 
 # Rebuilds the whole project from zero
 build: clean-build
@@ -54,7 +55,7 @@ build: clean-build
 	@mkdir -p $(BUILD_DIR)
 	@$(JC) -cp "$(LIB_DIR)/*" -d "$(BUILD_DIR)/" \
 	 -sourcepath "$(SRC_DIR)/" "$(SRC_DIR)/$(PLAYER_FILE)" \
-	 "$(SRC_DIR)/$(TESTER_FILE)" -Werror
+	 "$(SRC_DIR)/$(TESTER_FILE)" $(COMPILE_OPTIONS)
 
 # Rebuilds the whole project from zero (debug mode)
 build-debug: clean-build
@@ -62,7 +63,7 @@ build-debug: clean-build
 	@mkdir -p $(BUILD_DIR)
 	@$(JC) -g -cp "$(LIB_DIR)/*" -d "$(BUILD_DIR)/" -sourcepath "$(SRC_DIR)/" \
 	 "$(SRC_DIR)/$(PLAYER_FILE)" "$(SRC_DIR)/$(PLAYER_FILE)" \
-	 "$(SRC_DIR)/$(TESTER_FILE)" -Werror
+	 "$(SRC_DIR)/$(TESTER_FILE)" $(COMPILE_OPTIONS)
 
 # Rebuilds documentation from zero
 docs: clean-docs

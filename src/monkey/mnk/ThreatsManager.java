@@ -39,10 +39,10 @@ public class ThreatsManager implements Cloneable {
 	 * @since 1.0
 	 */
 	public ThreatsManager(int l, Board b) {
-		if (l <= 1)
-			throw new IllegalArgumentException("l is not greater than 1.");
-		if (b == null)
-			throw new NullPointerException("b is null.");
+		// if (l <= 1)
+		// throw new IllegalArgumentException("l is not greater than 1.");
+		// if (b == null)
+		// throw new NullPointerException("b is null.");
 		L = l;
 		board = b;
 		// alignments
@@ -101,10 +101,10 @@ public class ThreatsManager implements Cloneable {
 	 * @since 1.0
 	 */
 	public void updateAlignments(Position pos, Player pl) {
-		if (pos == null || pl == null)
-			throw new NullPointerException("Either pos, pl, or cellStates are null.");
-		if (pos.ROWSNUMBER != board.M || pos.COLUMNSNUMBER != board.N)
-			throw new IllegalArgumentException("M-N-K incompatibility.");
+		// if (pos == null || pl == null)
+		// throw new NullPointerException("Either pos, pl, or cellStates are null.");
+		// if (pos.ROWSNUMBER != board.M || pos.COLUMNSNUMBER != board.N)
+		// throw new IllegalArgumentException("M-N-K incompatibility.");
 		final int row = pos.getRow(), column = pos.getColumn();
 		final boolean add = board.getCellState(pos) != MNKCellState.FREE;
 		// horizontal alignments
@@ -219,8 +219,8 @@ public class ThreatsManager implements Cloneable {
 	 * @since 1.0
 	 */
 	public void setBoard(Board b) {
-		if (b.M != board.M || b.N != board.N)
-			throw new IllegalArgumentException("The dimensions of the grid changed.");
+		// if (b.M != board.M || b.N != board.N)
+		// throw new IllegalArgumentException("The dimensions of the grid changed.");
 		board = b;
 	}
 
@@ -236,8 +236,8 @@ public class ThreatsManager implements Cloneable {
 	 * @since 1.0
 	 */
 	public int count(Threat t, Player p) {
-		if (t == null || p == null)
-			throw new NullPointerException("Either t or p are null.");
+		// if (t == null || p == null)
+		// throw new NullPointerException("Either t or p are null.");
 		return counters.search(t.ordinal()).get(p);
 	}
 
@@ -270,10 +270,11 @@ public class ThreatsManager implements Cloneable {
 	 * @since 1.0
 	 */
 	private int toKey(Alignment a) {
-		if (a == null)
-			throw new NullPointerException("Null alignment.");
-		if (a.FIRSTCELL.ROWSNUMBER != board.M || a.FIRSTCELL.COLUMNSNUMBER != board.N)
-			throw new IllegalArgumentException("Incompatible grid extents.");
+		// if (a == null)
+		// throw new NullPointerException("Null alignment.");
+		// if (a.FIRSTCELL.ROWSNUMBER != board.M || a.FIRSTCELL.COLUMNSNUMBER !=
+		// board.N)
+		// throw new IllegalArgumentException("Incompatible grid extents.");
 		final int row = a.FIRSTCELL.getRow(), column = a.FIRSTCELL.getColumn();
 		switch (a.DIRECTION) {
 		case HORIZONTAL: // [0 .. B * M - 1]
@@ -307,10 +308,11 @@ public class ThreatsManager implements Cloneable {
 	 * @since 1.0
 	 */
 	private void updateAlignmentContent(Alignment query, boolean add, Player player) {
-		if (query == null || player == null)
-			throw new NullPointerException("Either query or player are null");
-		if (query.FIRSTCELL.ROWSNUMBER != board.M || query.FIRSTCELL.COLUMNSNUMBER != board.N)
-			throw new IllegalArgumentException("M-N-K incompatibility.");
+		// if (query == null || player == null)
+		// throw new NullPointerException("Either query or player are null");
+		// if (query.FIRSTCELL.ROWSNUMBER != board.M || query.FIRSTCELL.COLUMNSNUMBER !=
+		// board.N)
+		// throw new IllegalArgumentException("M-N-K incompatibility.");
 		Alignment result = alignments.search(toKey(query));
 		if (result == null) {
 			query.clear();
@@ -318,14 +320,15 @@ public class ThreatsManager implements Cloneable {
 		}
 		final Threat oldThreat = result.getThreat();
 		final Player oldThreatener = result.getThreatener();
-		try {
-			if (add)
-				result.addMark(player, board);
-			else
-				result.removeMark(player, board);
-		} catch (IllegalCallerException e) {
-			throw new IllegalArgumentException("Cannot " + (add ? "add" : "remove") + " any more marks.");
-		}
+		// try {
+		if (add)
+			result.addMark(player, board);
+		else
+			result.removeMark(player, board);
+		// } catch (IllegalCallerException e) {
+		// throw new IllegalArgumentException("Cannot " + (add ? "add" : "remove") + "
+		// any more marks.");
+		// }
 		final Threat newThreat = result.getThreat();
 		final Player newThreatener = result.getThreatener();
 		if (newThreat != oldThreat || newThreatener != oldThreatener) {
@@ -355,10 +358,11 @@ public class ThreatsManager implements Cloneable {
 	 * @since 1.0
 	 */
 	private void updateAlignmentExtremity(Alignment query, boolean first, MNKCellState state) {
-		if (query == null)
-			throw new NullPointerException("query is null.");
-		if (query.FIRSTCELL.ROWSNUMBER != board.M || query.FIRSTCELL.COLUMNSNUMBER != board.N)
-			throw new IllegalArgumentException("M-N-K incompatibility.");
+		// if (query == null)
+		// throw new NullPointerException("query is null.");
+		// if (query.FIRSTCELL.ROWSNUMBER != board.M || query.FIRSTCELL.COLUMNSNUMBER !=
+		// board.N)
+		// throw new IllegalArgumentException("M-N-K incompatibility.");
 		Alignment result = alignments.search(toKey(query));
 		if (result == null) {
 			query.clear();

@@ -1,7 +1,5 @@
 package monkey.mnk;
 
-import monkey.util.Pair;
-
 /**
  * A <code>Position</code> refers to a single cell of the {@link Board}. It
  * features bounds checking and helper operations.
@@ -33,11 +31,12 @@ public class Position implements Cloneable {
 	 * @since 1.0
 	 */
 	public Position(int rowsNumber, int columnsNumber, int row, int column) {
-		if (rowsNumber < 0 || columnsNumber < 0)
-			throw new IllegalArgumentException("rowsNumber or columnsNumber aren't valid");
+		// if (rowsNumber < 0 || columnsNumber < 0)
+		// throw new IllegalArgumentException("rowsNumber or columnsNumber aren't
+		// valid");
 		ROWSNUMBER = rowsNumber;
 		COLUMNSNUMBER = columnsNumber;
-		validate(row, column);
+		// validate(row, column);
 		this.row = row;
 		this.column = column;
 	}
@@ -109,21 +108,6 @@ public class Position implements Cloneable {
 	}
 
 	/**
-	 * Setter for row index.
-	 *
-	 * @see #setColumn
-	 * @param row Row index.
-	 * @throws IndexOutOfBoundsException Row out of bounds.
-	 * @author Gaia Clerici
-	 * @version 1.0
-	 * @since 1.0
-	 */
-	public void setRow(int row) {
-		validateRow(row);
-		this.row = row;
-	}
-
-	/**
 	 * Getter for column index.
 	 *
 	 * @see #getRow
@@ -134,72 +118,6 @@ public class Position implements Cloneable {
 	 */
 	public int getColumn() {
 		return column;
-	}
-
-	/**
-	 * Setter for column index.
-	 *
-	 * @see #setRow
-	 * @param column Row index.
-	 * @throws IndexOutOfBoundsException Column out of bounds.
-	 * @author Gaia Clerici
-	 * @version 1.0
-	 * @since 1.0
-	 */
-	public void setColumn(int column) {
-		validateColumn(column);
-		this.column = column;
-	}
-
-	/**
-	 * Computes the offset of this {@link Position} from <code>p</code>.
-	 *
-	 * @param p Starting point from which to compute the offset.
-	 * @return A {@link monkey.util.Pair Pair} containing row and column offsets.
-	 * @throws NullPointerException <code>p</code> is null.
-	 * @author Gaia Clerici
-	 * @version 1.0
-	 * @since 1.0
-	 */
-	public Pair<Integer, Integer> offsetFrom(Position p) {
-		return new Pair<Integer, Integer>(row - p.getRow(), column - p.getColumn());
-	}
-
-	/**
-	 * Moves this {@link Position} of the specified offset.
-	 *
-	 * @param offset The offset used to move this {@link Position}.
-	 * @return A reference to this object after the update.
-	 * @throws NullPointerException      <code>offset</code> is null.
-	 * @throws IndexOutOfBoundsException Moving this {@link Position} outside of
-	 *                                   <code>b</code>'s bounds.
-	 * @author Gaia Clerici
-	 * @version 1.0
-	 * @since 1.0
-	 */
-	public Position move(Pair<Integer, Integer> offset) {
-		if (offset == null)
-			throw new NullPointerException("offset is null");
-		return move(offset.getKey(), offset.getValue());
-	}
-
-	/**
-	 * Moves this {@link Position} of the specified row and column offsets.
-	 *
-	 * @param rows    The row offset used to move this {@link Position}.
-	 * @param columns The column offset used to move this {@link Position}.
-	 * @return A reference to this object after the update.
-	 * @throws IndexOutOfBoundsException Moving this {@link Position} outside of
-	 *                                   <code>b</code>'s bounds.
-	 * @author Gaia Clerici
-	 * @version 1.0
-	 * @since 1.0
-	 */
-	public Position move(int rows, int columns) {
-		validate(row + rows, column + columns);
-		row += rows;
-		column += columns;
-		return this;
 	}
 
 	/**
@@ -232,7 +150,7 @@ public class Position implements Cloneable {
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	private void validateRow(int row) {
+	protected void validateRow(int row) {
 		if (row >= ROWSNUMBER || row < 0)
 			throw new IndexOutOfBoundsException("This row isn't valid");
 	}
@@ -247,7 +165,7 @@ public class Position implements Cloneable {
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	private void validateColumn(int column) {
+	protected void validateColumn(int column) {
 		if (column >= COLUMNSNUMBER || column < 0)
 			throw new IndexOutOfBoundsException("This row isn't valid");
 	}
@@ -262,7 +180,7 @@ public class Position implements Cloneable {
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	private void validate(int row, int column) {
+	protected void validate(int row, int column) {
 		validateRow(row);
 		validateColumn(column);
 	}

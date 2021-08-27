@@ -62,23 +62,6 @@ public enum Threat {
 	}
 
 	/**
-	 * Computes the {@link Threat.Category Category} of this {@link Threat}.
-	 * 
-	 * @see Threat.Category
-	 * @return The desired (non-null) {@link Threat.Category Category}.
-	 * @author Gaia Clerici
-	 * @version 1.0
-	 * @since 1.0
-	 */
-	public Category category() {
-		if (this == Threat.ONE)
-			return Category.OPEN;
-		if (this == Threat.THREE)
-			return Category.CLOSED;
-		return Category.HALFOPEN;
-	}
-
-	/**
 	 * Checks whether this kind of {@link Threat} features a hole or not.
 	 *
 	 * @return <code>true</code> if there is a hole, <code>false</code> otherwise.

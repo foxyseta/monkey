@@ -85,16 +85,21 @@ public class Alignment implements Cloneable {
 	 * @since 1.0
 	 */
 	public Alignment(Position firstCell, Direction direction, int length, MNKCellState firstExt, MNKCellState secondExt) {
-		if (length <= 0)
-			throw new IllegalArgumentException("length can't be negative or zero.");
-		if (firstCell == null || direction == null)
-			throw new NullPointerException("firstCell or direction are null.");
-		if (direction != Direction.VERTICAL && firstCell.getColumn() + length > firstCell.COLUMNSNUMBER)
-			throw new IndexOutOfBoundsException("Last cell out of firstCell's horizontal bounds.");
-		if ((direction == Direction.VERTICAL || direction == Direction.PRIMARY_DIAGONAL)
-				&& firstCell.getRow() + length > firstCell.ROWSNUMBER
-				|| direction == Direction.SECONDARY_DIAGONAL && firstCell.getRow() - length < -1)
-			throw new IndexOutOfBoundsException("Last cell out of firstCell's vertical bounds.");
+		// if (length <= 0)
+		// throw new IllegalArgumentException("length can't be negative or zero.");
+		// if (firstCell == null || direction == null)
+		// throw new NullPointerException("firstCell or direction are null.");
+		// if (direction != Direction.VERTICAL && firstCell.getColumn() + length >
+		// firstCell.COLUMNSNUMBER)
+		// throw new IndexOutOfBoundsException("Last cell out of firstCell's horizontal
+		// bounds.");
+		// if ((direction == Direction.VERTICAL || direction ==
+		// Direction.PRIMARY_DIAGONAL)
+		// && firstCell.getRow() + length > firstCell.ROWSNUMBER
+		// || direction == Direction.SECONDARY_DIAGONAL && firstCell.getRow() - length <
+		// -1)
+		// throw new IndexOutOfBoundsException("Last cell out of firstCell's vertical
+		// bounds.");
 		FIRSTCELL = firstCell;
 		DIRECTION = direction;
 		LENGTH = length;
@@ -137,23 +142,6 @@ public class Alignment implements Cloneable {
 	}
 
 	/**
-	 * The number of marks for a certain {@link monkey.ai.Player Player} in this
-	 * {@link Alignment}.
-	 *
-	 * @param p The {@link monkey.ai.Player Player} whose score will be returned.
-	 * @throws NullPointerException p is null.
-	 * @return The specified {@link monkey.ai.Player Player}'s score.
-	 * @author Gaia Clerici
-	 * @version 1.0
-	 * @since 1.0
-	 */
-	public int score(Player p) {
-		if (p == null)
-			throw new NullPointerException("p is null.");
-		return p == Player.P1 ? p1Cells : p2Cells;
-	}
-
-	/**
 	 * The number of free cells in this {@link Alignment}.
 	 *
 	 * @return Number of free cells in this {@link Alignment}.
@@ -163,18 +151,6 @@ public class Alignment implements Cloneable {
 	 */
 	public int getFreeCells() {
 		return LENGTH - p1Cells - p2Cells;
-	}
-
-	/**
-	 * A getter for the current {@link Alignment.State State}.
-	 *
-	 * @return The current {@link Alignment.State State}.
-	 * @author Gaia Clerici
-	 * @version 1.0
-	 * @since 1.0
-	 */
-	public State getState() {
-		return state;
 	}
 
 	/**
@@ -219,10 +195,10 @@ public class Alignment implements Cloneable {
 	 * @since 1.0
 	 */
 	public void addMark(Player p, Board b) {
-		if (p == null)
-			throw new NullPointerException("p is null.");
-		if (getFreeCells() == 0)
-			throw new IllegalCallerException("No free cells to be marked.");
+		// if (p == null)
+		// throw new NullPointerException("p is null.");
+		// if (getFreeCells() == 0)
+		// throw new IllegalCallerException("No free cells to be marked.");
 		if (p == Player.P1) {
 			++p1Cells;
 			if (p1Cells == LENGTH)
@@ -253,15 +229,15 @@ public class Alignment implements Cloneable {
 	 * @since 1.0
 	 */
 	public void removeMark(Player p, Board b) {
-		if (p == null)
-			throw new NullPointerException("p is null.");
+		// if (p == null)
+		// throw new NullPointerException("p is null.");
 		if (p == Player.P1) {
-			if (p1Cells == 0)
-				throw new IllegalCallerException("No marked cells to be removed");
+			// if (p1Cells == 0)
+			// throw new IllegalCallerException("No marked cells to be removed");
 			--p1Cells;
 		} else {
-			if (p2Cells == 0)
-				throw new IllegalCallerException("No marked cells to be removed");
+			// if (p2Cells == 0)
+			// throw new IllegalCallerException("No marked cells to be removed");
 			--p2Cells;
 		}
 		state = p1Cells == 0 ? p2Cells == 0 ? State.EMPTY : State.P2PARTIAL : p2Cells == 0 ? State.P1PARTIAL : State.MIXED;
@@ -299,12 +275,13 @@ public class Alignment implements Cloneable {
 	 */
 	public void setFirstExtremity(MNKCellState cell, Board b) {
 		if (cell != firstExtremity) {
-			if (firstExtremity == null)
-				throw new IllegalCallerException("The first extremity is out of the board.");
-			if (cell == null)
-				throw new IllegalArgumentException("The first extremity is not out of board.");
-			if (firstExtremity != MNKCellState.FREE && cell != MNKCellState.FREE)
-				throw new IllegalArgumentException("Can not ovveride a marked cell.");
+			// if (firstExtremity == null)
+			// throw new IllegalCallerException("The first extremity is out of the board.");
+			// if (cell == null)
+			// throw new IllegalArgumentException("The first extremity is not out of
+			// board.");
+			// if (firstExtremity != MNKCellState.FREE && cell != MNKCellState.FREE)
+			// throw new IllegalArgumentException("Can not ovveride a marked cell.");
 			firstExtremity = cell;
 			computeThreat(b);
 		}
@@ -327,12 +304,14 @@ public class Alignment implements Cloneable {
 	 */
 	public void setSecondExtremity(MNKCellState cell, Board b) {
 		if (cell != secondExtremity) {
-			if (secondExtremity == null)
-				throw new IllegalCallerException("The second extremity is out of the board.");
-			if (cell == null)
-				throw new IllegalArgumentException("The second extremity is not out of board.");
-			if (secondExtremity != MNKCellState.FREE && cell != MNKCellState.FREE)
-				throw new IllegalArgumentException("Can not ovveride a marked cell.");
+			// if (secondExtremity == null)
+			// throw new IllegalCallerException("The second extremity is out of the
+			// board.");
+			// if (cell == null)
+			// throw new IllegalArgumentException("The second extremity is not out of
+			// board.");
+			// if (secondExtremity != MNKCellState.FREE && cell != MNKCellState.FREE)
+			// throw new IllegalArgumentException("Can not ovveride a marked cell.");
 			secondExtremity = cell;
 			computeThreat(b);
 		}
