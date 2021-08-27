@@ -45,7 +45,7 @@ public class MoNKey implements MNKPlayer {
 			ai.update(new Position(m, n, MC[MC.length - 2]));
 		if (MC.length > 0)
 			ai.update(new Position(m, n, MC[MC.length - 1]));
-		final Position p = ai.iterativeDeepeningSearch();
+		final Position p = m * n > BIGGAME ? ai.immediateSearch() : ai.iterativeDeepeningSearch();
 		System.out.println(formatTimeInterval(System.currentTimeMillis() - startTime));
 		return new MNKCell(p.getRow(), p.getColumn());
 	}
@@ -81,6 +81,11 @@ public class MoNKey implements MNKPlayer {
 	private int m;
 	/** Number of columns. */
 	private int n;
+	/**
+	 * Maximum number of cells of a configuration commonly considered small enough
+	 * to be explored.
+	 */
+	final static private int BIGGAME = 100;
 	/** Conversion factor from seconds to milliseconds. */
 	final static private int S_TO_MS = 1000;
 

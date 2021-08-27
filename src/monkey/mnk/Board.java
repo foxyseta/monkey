@@ -608,14 +608,14 @@ public class Board implements monkey.ai.State<Board, Position> {
 		 * @since 1.0
 		 */
 		public BoardIterator() {
-			if (history.empty())
-				index = 0;
-			else if (terminalTest())
-				index = actionsCandidates.length;
-			else
-				while (index < actionsCandidates.length && (getCellState(actionsCandidates[index]) != MNKCellState.FREE
-						|| getAdjacencyCounter(actionsCandidates[index]) == 0))
-					++index;
+			if (!history.empty()) {
+				if (terminalTest())
+					index = actionsCandidates.length;
+				else
+					while (index < actionsCandidates.length && (getCellState(actionsCandidates[index]) != MNKCellState.FREE
+							|| getAdjacencyCounter(actionsCandidates[index]) == 0))
+						++index;
+			}
 		}
 
 		/**
@@ -654,7 +654,8 @@ public class Board implements monkey.ai.State<Board, Position> {
 			else
 				do
 					++index;
-				while (index < actionsCandidates.length && getCellState(actionsCandidates[index]) != MNKCellState.FREE);
+				while (index < actionsCandidates.length && (getCellState(actionsCandidates[index]) != MNKCellState.FREE
+						|| getAdjacencyCounter(actionsCandidates[index]) == 0));
 			return actionsCandidates[oldIndex];
 		}
 
@@ -669,7 +670,7 @@ public class Board implements monkey.ai.State<Board, Position> {
 	 * and worst cases.
 	 */
 	@Override
-	public int countLegalActions() {
+	public int countRelevantActions() {
 		int counter;
 		final Iterator<Position> iterator = actions();
 		for (counter = 0; iterator.hasNext(); ++counter)
