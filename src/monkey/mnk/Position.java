@@ -185,6 +185,19 @@ public class Position implements Cloneable {
 		validateColumn(column);
 	}
 
+	/**
+	 * Returns a string representation of the object.
+	 *
+	 * @return A string representation of this object.
+	 * @author Gaia Clerici
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	@Override
+	public String toString() {
+		return "(" + row + ", " + column + ")";
+	}
+
 	/** Current row index. */
 	private int row;
 	/** Current column index */

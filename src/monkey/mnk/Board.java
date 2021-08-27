@@ -194,16 +194,16 @@ public class Board implements monkey.ai.State<Board, Position> {
 	@Override // inherit doc comment
 	public int utility(Player p) {
 		switch (state) {
-		case DRAW:
-			return DRAWUTILITY;
-		case WINP1:
-			return p == Player.P1 ? VICTORYUTILITY : LOSSUTILITY;
-		case WINP2:
-			return p == Player.P2 ? VICTORYUTILITY : LOSSUTILITY;
-		case OPEN:
-			throw new IllegalCallerException("The game is still open");
-		default:
-			throw new IllegalArgumentException("Unknown game state");
+			case DRAW:
+				return DRAWUTILITY;
+			case WINP1:
+				return p == Player.P1 ? VICTORYUTILITY : LOSSUTILITY;
+			case WINP2:
+				return p == Player.P2 ? VICTORYUTILITY : LOSSUTILITY;
+			case OPEN:
+				throw new IllegalCallerException("The game is still open");
+			default:
+				throw new IllegalArgumentException("Unknown game state");
 		}
 	}
 
@@ -669,11 +669,11 @@ public class Board implements monkey.ai.State<Board, Position> {
 	 * and worst cases.
 	 */
 	@Override
-	public int countLegalActions() {
+	public int countRelevantActions() {
 		int counter;
 		final Iterator<Position> iterator = actions();
 		for (counter = 0; iterator.hasNext(); ++counter)
-			iterator.next();
+			System.out.println("\taction: " + iterator.next());
 		return counter;
 	}
 

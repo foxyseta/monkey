@@ -184,7 +184,7 @@ public interface State<Self extends State<Self, Action>, Action> extends Cloneab
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	public int countLegalActions();
+	public int countRelevantActions();
 
 	/**
 	 * Let r be the hashing representant for this {@link State}; if a is a legal

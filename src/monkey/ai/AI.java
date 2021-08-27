@@ -64,9 +64,9 @@ public class AI<S extends State<S, A>, A> {
 	 * P. Norvig, <i>Artificial Intelligence: A Modern Approach</i>, 3rd ed.,
 	 * Prentice Hall, p. 88f.
 	 *
-	 * @return A legal action to be played.
 	 * @throws IllegalArgumentException The player does not have the move or if the
 	 *                                  state is terminal.
+	 * @return A legal action to be played.
 	 * @author Gaia Clerici
 	 * @version 1.0
 	 * @since 1.0
@@ -94,6 +94,43 @@ public class AI<S extends State<S, A>, A> {
 
 	/**
 	 * When called in a state in which the player has the move, selects one of the
+	 * legal actions to be played using immediate search. See the project report.
+	 *
+	 * @throws IllegalArgumentException The player does not have the move or if the
+	 *                                  state is terminal.
+	 * @return A legal action to be played.
+	 * @author Gaia Clerici
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	public A immediateSearch() {
+		// if (state.terminalTest())
+		// throw new IllegalArgumentException("s is a terminal state.");
+		// if (player != state.player())
+		// throw new IllegalArgumentException("It's not your turn.");
+		final java.util.ArrayList<A> bestMoves = new java.util.ArrayList<A>(state.countRelevantActions());
+		final Iterator<A> actions = state.actions();
+		A action = actions.next();
+		int maxEval = state.result(action).eval(player);
+		state.revert();
+		bestMoves.add(action);
+		while (actions.hasNext()) {
+			action = actions.next();
+			final int currentEval = state.result(action).eval(player);
+			state.revert();
+			if (currentEval >= maxEval) {
+				if (currentEval > maxEval) {
+					maxEval = currentEval;
+					bestMoves.clear();
+				}
+				bestMoves.add(action);
+			}
+		}
+		return bestMoves.get(random.nextInt(bestMoves.size()));
+	}
+
+	/**
+	 * When called in a state in which the player has the move, selects one of the
 	 * legal actions to be played using best node search with limited depth. See
 	 * Dmitrijs Rutko, <i>Fuzzified Algorithm for Game Tree Search with Statistical
 	 * and Analytical Evaluation</i>, in <i>Scientific Papers</i>, vol. 770, 2011,
@@ -107,8 +144,8 @@ public class AI<S extends State<S, A>, A> {
 	 * @since 1.0
 	 */
 	protected A bestNodeLimitedSearch(int depthLimit) throws TimeoutException {
-		int alpha = state.initialAlpha(player), beta = state.initialBeta(player), subtreeCount = state.countLegalActions(),
-				betterCount;
+		int alpha = state.initialAlpha(player), beta = state.initialBeta(player),
+				subtreeCount = state.countRelevantActions(), betterCount;
 		A bestNode;
 		do {
 			bestNode = null;
@@ -195,16 +232,16 @@ public class AI<S extends State<S, A>, A> {
 			if (cachedSearchResult != null) {
 				if (depthLimit <= cachedSearchResult.SEARCHDEPTH) {
 					switch (cachedSearchResult.FLAG) {
-					case TRUEVALUE: // purpose 1
-						return cachedSearchResult.SCORE;
-					case UPPERBOUND: // purpose 2
-						beta = objectUtils.min(beta, cachedSearchResult.SCORE);
-						break;
-					case LOWERBOUND: // purpose 2 (sic.)
-						alpha = objectUtils.max(alpha, cachedSearchResult.SCORE);
-						break;
-					default:
-						throw new InternalError("Unknown score type.");
+						case TRUEVALUE: // purpose 1
+							return cachedSearchResult.SCORE;
+						case UPPERBOUND: // purpose 2
+							beta = objectUtils.min(beta, cachedSearchResult.SCORE);
+							break;
+						case LOWERBOUND: // purpose 2 (sic.)
+							alpha = objectUtils.max(alpha, cachedSearchResult.SCORE);
+							break;
+						default:
+							throw new InternalError("Unknown score type.");
 					}
 					if (alpha >= beta)
 						return alpha;
@@ -294,16 +331,16 @@ public class AI<S extends State<S, A>, A> {
 			if (cachedSearchResult != null) {
 				if (depthLimit <= cachedSearchResult.SEARCHDEPTH) {
 					switch (cachedSearchResult.FLAG) {
-					case TRUEVALUE: // purpose 1
-						return cachedSearchResult.SCORE;
-					case UPPERBOUND: // purpose 2
-						beta = objectUtils.min(beta, cachedSearchResult.SCORE);
-						break;
-					case LOWERBOUND: // purpose 2 (sic.)
-						alpha = objectUtils.max(alpha, cachedSearchResult.SCORE);
-						break;
-					default:
-						throw new InternalError("Unknown score type.");
+						case TRUEVALUE: // purpose 1
+							return cachedSearchResult.SCORE;
+						case UPPERBOUND: // purpose 2
+							beta = objectUtils.min(beta, cachedSearchResult.SCORE);
+							break;
+						case LOWERBOUND: // purpose 2 (sic.)
+							alpha = objectUtils.max(alpha, cachedSearchResult.SCORE);
+							break;
+						default:
+							throw new InternalError("Unknown score type.");
 					}
 					if (beta <= alpha)
 						return beta;
@@ -428,5 +465,7 @@ public class AI<S extends State<S, A>, A> {
 	 * search.
 	 */
 	private long inspectedNodes;
+	/** Random number generator. */
+	final private java.util.Random random = new java.util.Random(System.currentTimeMillis());
 
 }
