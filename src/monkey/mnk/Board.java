@@ -194,16 +194,16 @@ public class Board implements monkey.ai.State<Board, Position> {
 	@Override // inherit doc comment
 	public int utility(Player p) {
 		switch (state) {
-			case DRAW:
-				return DRAWUTILITY;
-			case WINP1:
-				return p == Player.P1 ? VICTORYUTILITY : LOSSUTILITY;
-			case WINP2:
-				return p == Player.P2 ? VICTORYUTILITY : LOSSUTILITY;
-			case OPEN:
-				throw new IllegalCallerException("The game is still open");
-			default:
-				throw new IllegalArgumentException("Unknown game state");
+		case DRAW:
+			return DRAWUTILITY;
+		case WINP1:
+			return p == Player.P1 ? VICTORYUTILITY : LOSSUTILITY;
+		case WINP2:
+			return p == Player.P2 ? VICTORYUTILITY : LOSSUTILITY;
+		case OPEN:
+			throw new IllegalCallerException("The game is still open");
+		default:
+			throw new IllegalArgumentException("Unknown game state");
 		}
 	}
 
@@ -608,14 +608,14 @@ public class Board implements monkey.ai.State<Board, Position> {
 		 * @since 1.0
 		 */
 		public BoardIterator() {
-			if (history.empty())
-				index = 0;
-			else if (terminalTest())
-				index = actionsCandidates.length;
-			else
-				while (index < actionsCandidates.length && (getCellState(actionsCandidates[index]) != MNKCellState.FREE
-						|| getAdjacencyCounter(actionsCandidates[index]) == 0))
-					++index;
+			if (!history.empty()) {
+				if (terminalTest())
+					index = actionsCandidates.length;
+				else
+					while (index < actionsCandidates.length && (getCellState(actionsCandidates[index]) != MNKCellState.FREE
+							|| getAdjacencyCounter(actionsCandidates[index]) == 0))
+						++index;
+			}
 		}
 
 		/**
@@ -654,7 +654,8 @@ public class Board implements monkey.ai.State<Board, Position> {
 			else
 				do
 					++index;
-				while (index < actionsCandidates.length && getCellState(actionsCandidates[index]) != MNKCellState.FREE);
+				while (index < actionsCandidates.length && (getCellState(actionsCandidates[index]) != MNKCellState.FREE
+						|| getAdjacencyCounter(actionsCandidates[index]) == 0));
 			return actionsCandidates[oldIndex];
 		}
 
@@ -673,7 +674,7 @@ public class Board implements monkey.ai.State<Board, Position> {
 		int counter;
 		final Iterator<Position> iterator = actions();
 		for (counter = 0; iterator.hasNext(); ++counter)
-			System.out.println("\taction: " + iterator.next());
+			iterator.next();
 		return counter;
 	}
 
