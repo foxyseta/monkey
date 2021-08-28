@@ -4,10 +4,17 @@
 \usepackage[T1]{fontenc}
 \usepackage{amsmath,amssymb,amsthm}
 \usepackage{enumerate}
+
 \usepackage{epigraph}
+\renewcommand{\epigraphrule}{0pt}
+\renewcommand{\textflush}{flushepinormal}
+\setlength{\epigraphwidth}{0.275\textwidth}
+\renewenvironment{flushepinormal}{}{\vspace*{-\baselineskip}}
+
 \usepackage{fontspec}
 \usepackage{graphicx}
 \usepackage{hyperref}
+\usepackage{verbatim}
 
 \graphicspath{ {./images/} }
 
@@ -33,6 +40,7 @@
 \begin{document}
 
 \maketitle
+\thispagestyle{empty}
 
 \begin{figure}[h]
   \includegraphics[width=0.75\textwidth]{monkey}
@@ -53,33 +61,93 @@
 
 Il gioco \emph{m,n,k-game} è deterministico, a turni, a due giocatori, a somma
 zero e con informazione perfetta. In una partita, i due agenti si alternano nel
-marcare una cella vuota in una griglia di dimensione \emph{m} \times \emph{n}
+marcare una cella vuota in una griglia di dimensione \emph{m}\texttimes \emph{n}
 con un simbolo del proprio colore. Se un giocatore allinea in orizzontale,
 verticale o diagonale almeno \emph{k} simboli, questi vince la partita e il suo
 avversario la perde. Se non rimangono più celle vuote sulla griglia, la partita
 finisce in pareggio.
 
-\subsection{Il metagioco: il torneo}
+\subsection{Il torneo: la classifica dei giocatori}
 
 Ogni volta che, all'interno del torneo, un giocatore conclude una partita, egli
 guadagna: 
 \begin{itemize}
-  \item 3 punti in caso di una vittoria come secondo giocatore, ma non a tavolino;
+  \item 3 punti in caso di una vittoria come secondo giocatore, ma non a
+    tavolino;
   \item 2 punti in caso di una vittoria come primo giocatore o a tavolino;
   \item 1 punto in caso di un pareggio;
-  \item 0 punti in caso si una sconfitta.
+  \item 0 punti in caso di una sconfitta.
 \end{itemize}
 
 \noindent 
-Per ognuna delle seguenti configurazioni, ciascun giocatore del torneo gioca
+Per ognuna delle configurazioni previste dal torneo, ciascun giocatore gioca
 esattamente quattro partite contro ogni altro partecipante, di cui due come
 primo giocatore e due come secondo giocatore.
 
-% TODO: tabella configurazioni
+\begin{table}[h!]
+\centering
+\begin{tabular}{ | c | c | c | }
+  \hline
+  M & N & K \\
+  \hline
+  3 & 3 & 3 \\
+  \hline
+  4 & 3 & 3 \\
+  \hline
+  4 & 4 & 3 \\
+  \hline
+  4 & 4 & 4 \\
+  \hline
+  5 & 4 & 4 \\
+  \hline
+  5 & 5 & 4 \\
+  \hline
+  5 & 5 & 5 \\
+  \hline
+  6 & 4 & 4 \\
+  \hline
+  6 & 5 & 4 \\
+  \hline
+  6 & 6 & 4 \\
+  \hline
+  6 & 6 & 5 \\
+  \hline
+  6 & 6 & 6 \\
+  \hline
+  7 & 4 & 4 \\
+  \hline
+  7 & 5 & 4 \\
+  \hline
+  7 & 6 & 4 \\
+  \hline
+  7 & 7 & 4 \\
+  \hline
+  7 & 5 & 5 \\
+  \hline
+  7 & 6 & 5 \\
+  \hline
+  7 & 7 & 5 \\
+  \hline
+  7 & 7 & 6 \\
+  \hline
+  7 & 7 & 7 \\
+  \hline
+  8 & 8 & 4 \\
+  \hline
+  10 & 10 & 5 \\
+  \hline
+  50 & 50 & 10 \\
+  \hline
+  70 & 70 & 10 \\
+  \hline
+\end{tabular}
+  \caption{configurazioni previste dal torneo.}
+  \label{table:1}
+\end{table}
 
-\subsection{Obiettivo: il giocatore}
+\subsection{L'obiettivo: il giocatore}
 
-\subsection{L'interfaccia: il pacchetto \verb!mnkgame!}
+\subsection{L'interfaccia: il pacchetto \texttt{mnkgame}}
 
 \section{Analisi del problema}
 
