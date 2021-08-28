@@ -232,16 +232,16 @@ public class AI<S extends State<S, A>, A> {
 			if (cachedSearchResult != null) {
 				if (depthLimit <= cachedSearchResult.SEARCHDEPTH) {
 					switch (cachedSearchResult.FLAG) {
-					case TRUEVALUE: // purpose 1
-						return cachedSearchResult.SCORE;
-					case UPPERBOUND: // purpose 2
-						beta = objectUtils.min(beta, cachedSearchResult.SCORE);
-						break;
-					case LOWERBOUND: // purpose 2 (sic.)
-						alpha = objectUtils.max(alpha, cachedSearchResult.SCORE);
-						break;
-					default:
-						throw new InternalError("Unknown score type.");
+						case TRUEVALUE: // purpose 1
+							return cachedSearchResult.SCORE;
+						case UPPERBOUND: // purpose 2
+							beta = objectUtils.min(beta, cachedSearchResult.SCORE);
+							break;
+						case LOWERBOUND: // purpose 2 (sic.)
+							alpha = objectUtils.max(alpha, cachedSearchResult.SCORE);
+							break;
+						default:
+							throw new InternalError("Unknown score type.");
 					}
 					if (alpha >= beta)
 						return alpha;
@@ -331,16 +331,16 @@ public class AI<S extends State<S, A>, A> {
 			if (cachedSearchResult != null) {
 				if (depthLimit <= cachedSearchResult.SEARCHDEPTH) {
 					switch (cachedSearchResult.FLAG) {
-					case TRUEVALUE: // purpose 1
-						return cachedSearchResult.SCORE;
-					case UPPERBOUND: // purpose 2
-						beta = objectUtils.min(beta, cachedSearchResult.SCORE);
-						break;
-					case LOWERBOUND: // purpose 2 (sic.)
-						alpha = objectUtils.max(alpha, cachedSearchResult.SCORE);
-						break;
-					default:
-						throw new InternalError("Unknown score type.");
+						case TRUEVALUE: // purpose 1
+							return cachedSearchResult.SCORE;
+						case UPPERBOUND: // purpose 2
+							beta = objectUtils.min(beta, cachedSearchResult.SCORE);
+							break;
+						case LOWERBOUND: // purpose 2 (sic.)
+							alpha = objectUtils.max(alpha, cachedSearchResult.SCORE);
+							break;
+						default:
+							throw new InternalError("Unknown score type.");
 					}
 					if (beta <= alpha)
 						return beta;
@@ -412,7 +412,7 @@ public class AI<S extends State<S, A>, A> {
 	 * this is not the case. This can be useful right after a frequent and/or
 	 * time-consuming operation.
 	 *
-	 * @throws TimeoutException
+	 * @throws TimeoutException The time limit is almost over.
 	 * @author Stefano Volpe
 	 * @version 1.0
 	 * @since 1.0
