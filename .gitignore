@@ -29,5 +29,8 @@ hs_err_pid*
 *.out
 *.gz
 *_temp.tex
+*.fls
+*.toc
+*.fdb_latexmk
 
 !MNKGame*.jar # not available anywhere else!

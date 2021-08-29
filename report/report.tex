@@ -1,5 +1,4 @@
-\documentclass[a4paper]{article}
-\usepackage[utf8]{inputenc}
+\documentclass{article}
 \usepackage[italian]{babel}
 \usepackage[T1]{fontenc}
 \usepackage{amsmath,amssymb,amsthm}
@@ -79,8 +78,11 @@ guadagna:
   \item 0 punti in caso di una sconfitta.
 \end{itemize}
 
-\noindent 
-Per ognuna delle configurazioni previste dal torneo, ciascun giocatore gioca
+\noindent
+Le regole del torneo considerano una vittoria "a tavolino" quando l'avversario
+non restituisce una mossa entro il tempo limite (approssimativo) di 10 secondi,
+o comunque un mossa illegale (già occupata o esterna alla griglia).
+Per ognuna delle seguenti configurazioni, ciascun giocatore gioca
 esattamente quattro partite contro ogni altro partecipante, di cui due come
 primo giocatore e due come secondo giocatore.
 
@@ -147,9 +149,80 @@ primo giocatore e due come secondo giocatore.
 
 \subsection{L'obiettivo: il giocatore}
 
-\subsection{L'interfaccia: il pacchetto \texttt{mnkgame}}
+Lo scopo del progetto è lo sviluppo di una intelligenza arttficiale per il
+giocatore di \emph{m,n,k-game}. Se qualità della risposta e costo temporale
+sono prioritari, lo stesso non vale per il costo in memoria: devono comunque
+essere evitati sprechi.
+
+\subsection{L'interfaccia: \texttt{mnkgame.MNKPlayer}}
+
+L'interfaccia che l'intelligenza artificiale deve implementare è contenuta nel
+pacchetto \verb!mnkgame!. Oltre a un metodo per la selezione della mossa
+desiderata, ne viene concesso un altro invocato in fase di inizializzazione
+prima di ogni partita.
 
 \section{Analisi del problema}
+
+\subsection{Il valore di gioco teorico}
+
+Per alcune configurazioni, il valore di gioco teorico è già stato dimostrato.
+Herik, Uiterwijk e Rijswijck hanno raccolto tali risultati della letteratura
+precedente nella seguente tabella.
+
+\begin{table}[h!]
+  \centering
+  \begin{tabular}{ | c | c | c | }
+    \hline
+    mnk-game (k=1,2) & Vittoria per il primo giocatore \\
+    \hline
+    333-game (Tris) & Pareggio \\
+    \hline
+    mn3-game (m \geq 4,n \geq 3) & Vittoria per il primo giocatore \\
+    \hline
+    m44-game (m \leq 8) & Pareggio \\
+    \hline
+    mn4-game (m \leq 5,n \leq 5) & Pareggio \\
+    \hline
+    mn4-game (m \geq 6,n \geq 5) & Vittoria per il primo giocatore \\
+    \hline
+    mn5-game (m \leq 6,n \leq 6) & Pareggio \\
+    \hline
+    15,15,5-game (Go-Moku) & Vittoria per il primo giocatore \\
+    \hline
+    mnk-game (k \geq 8) & Pareggio \\
+    \hline
+  \end{tabular}
+    \caption{valori di gioco di \emph{m,n,k-game}}
+    \label{table:2}
+  \end{table}
+
+Tramite l'argomento del "furto di strategia", usato per la prima volta da John
+Nash nel 1949, si dimostra che nessuno dei valori di gioco teorico non ancora
+aggiunto alla tabella è una vittoria per il secondo giocatore.
+
+\subsection{L'albero di gioco}
+
+Herik, Uiterwijk e Rijswijck classificano \emph{m,n,k-game} come di "categoria
+3", ovvero con un'alta complessità dello spazio degli stati e una bassa
+complessità dell'albero di gioco. Per poter quantificare meglio il numero di
+stati effettivamente appartenenti al nostro albero di gioco, faremo uso del
+numero di celle della griglia come indice della dimensione dell'istanza del
+problema. Esso vale:
+
+\begin{center}
+  $s = m \times n$
+\end{center}
+
+Cominciamo osservando che il numero di figli \emph{f} di un qualsiasi nodo non
+terminale a profondità \emph{p} coincide con il numero di celle rimaste vuote,
+e cioè:
+
+\begin{center}
+  $f = s - p$
+\end{center}
+
+
+
 
 \section{Strumenti}
 
