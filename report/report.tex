@@ -176,8 +176,9 @@ prima di ogni partita.
 Molte istanze del problema in questione si presentano come giochi a sé stanti,
 talvolta arrichiti con limitazioni imposte dalle regole: ne sono esempi Tris,
 Go-Moku e Renju. Per alcune configurazioni, il valore di gioco teorico è già
-stato dimostrato. Herik, Uiterwijk e Rijswijck \cite{VANDENHERIK2002277} hanno
-raccolto tali risultati dalla letteratura precedente nella seguente tabella.
+stato dimostrato. Van den Herik, Uiterwijk e van Rijswijck
+\cite{VANDENHERIK2002277} hanno raccolto tali risultati dalla letteratura
+precedente nella seguente tabella.
 
 \begin{table}[h!]
   \centering
@@ -213,7 +214,7 @@ giocatore.
 
 \subsection{L'albero di gioco}
 
-Herik, Uiterwijk e Rijswijck \cite{VANDENHERIK2002277} classificano
+Van den Herik, Uiterwijk e van Rijswijck \cite{VANDENHERIK2002277} classificano
 \emph{m,n,k-game} come di ``categoria 3'', ovvero con un'alta complessità dello
 spazio degli stati e una bassa complessità dell'albero di gioco. Per poter
 quantificare meglio il numero di stati effettivamente appartenenti al nostro
@@ -278,8 +279,8 @@ della potatura alfa-beta, che si colloca invece nei metodi a forza bruta.
 
 In primo luogo, viste le imposizioni sul tempo di esecuzione, il nostro
 algoritmo ha necessariamente bisogno di un limite di profondità $d$.
-L'interfaccia delle due funzioni per una "classica" potatura alfa-beta risulta
-quindi essere:
+L'interfaccia delle due funzioni per una "classica" potatura alfa-beta
+\cite{at.UBO029034619980101} risulta quindi essere:
 \begin{itemize}
   \item $\proc{Max-Value}(s, \alpha, \beta, d)$: applica la ricerca
     al nodo che rappresenta lo stato $s$ assumendo che esso sia di massimo;
@@ -289,12 +290,64 @@ quindi essere:
 In entrambi i casi, $\alpha$ e $\beta$ fungono da parametri della potatura,
 mentre $d$ è il limite di profondità imposto. La mutuale ricorsione di queste
 due procedure è responsabile di un'esplorazione a profondità limitata
-dell'albero. La loro implementazione non viene riportata in quanto piuttosto
-canonica, eccezion fatta per l'uso di una tabella delle trasposizioni.
+dell'albero; tale ricerca supporta il dietrofront (\emph{backtracking}) tramite
+le funzioni $\proc{Result}(s, a)$ e $\proc{Revert}(s)$. La loro
+implementazione non viene riportata in quanto piuttosto canonica, eccezion fatta
+per l'uso di una tabella delle trasposizioni. Tale tavola \emph{hash} è a due
+livelli e fa uso dello schema di rimpiazzamento $\proc{TwoBig1}$: Breuker,
+Uiterwijk e van den Herik \cite{BREUKER-UITERWIJK-VANDENHERIK}
+\cite{edsdbl.journals.icga.BreukerUH9619960101} ne hanno dimostrato la
+superiorità rispetto a $\proc{Deep}$, $\proc{New}$, $\proc{Old}$, $\proc{Big1}$,
+$\proc{BigAll}$ e $\proc{TwoDeep}$.
+
+La variante della potatura alfa-beta scelta, che fa uso di $\proc{Max-Value}$ e
+$\proc{Min-Value}$, è la ricerca del nodo migliore (\emph{best node search}, o
+\emph{BNS}) di Rutko \cite{edseul.200009163084620110101}, che porta a
+prestazioni migliori rispetto a tutte le varianti precedenti, vale a dire
+$\proc{PVS}$, $\proc{Negascout}$, $\proc{NegaC*}$, $\proc{SSS*}$,
+$\proc{Dual*}$, $\proc{MTD}(f)$. Il nostro algoritmo presenta varie differenze
+rispetto alla versione originale:
+\begin{itemize}
+    \item il chiamante specifica il limite di profondità $d$ desiderato;
+    \item il calcolo degli inizializzatori per $\alpha$ e $\beta$ viene delegato
+      nelle linee \ref{li:initial-alpha} e \ref{li:initial-beta} allo stato
+      corrente $s$, che può così effettuare considerazioni specifiche per il
+      gioco in questione;
+    \item proprio come per $\proc{Max-Value}$ e $\proc{Min-Value}$, gli unici
+      sottoalberi ispezionati sono quelli considerati ``rilevanti'' da $s$ (vedi
+      \ref{pattern-search}).
+\end{itemize}
+
+\begin{codebox}
+  \Procname{$\proc{Best-Node-Search}(s, d)$}
+  \li  $\alpha \gets \proc{Initial-Alpha}(s)$ \label{li:initial-alpha}
+  \li  $\beta \gets \proc{Initial-Beta}(s)$ \label{li:initial-beta}
+  \li  $\id{subtree-count} \gets \proc{Count-Relevant-Children}(s)$
+  \li  $\id{better-count} \gets 0$
+  \li  \Repeat
+  \li    $\id{best-node} \gets \const{nil}$
+  \li    $\id{test} \gets \proc{Next-Guess}(\alpha, \beta, \id{subtree-count})$
+  \li    \For ogni azione rilevante $a$ di $s$
+  \li      \Do
+             $\id{inspected-nodes} \gets 0$
+  \li        \If $\proc{Min-Value}(\proc{Result}(s, a), test - 1, test, d) \geq test)$
+  \li          \Then
+                 $\id{better-count} \gets \id{better-count} + 1$
+  \li            \If $\id{best-node} \isequal \const{nil}$
+  \li              \Then
+                     $\id{best-node} \gets $a$$
+  \li              \End
+               \End
+  \li        $\proc{Revert}(s)$
+  % TODO
+  \li      \End
+  \li  \Until $(\beta - \alpha < 2 \mbox{ or } \id{better-count} \isequal 1)
+       \mbox{ and } \id{better-count} \neq 0$
+\end{codebox}
 
 \subsubsection{Confronto fra mosse}
 
-\subsection{\texttt{monkey.mnk}}
+\subsection{\texttt{monkey.mnk}} \label{pattern-search}
 
 \section{Conclusioni}
 

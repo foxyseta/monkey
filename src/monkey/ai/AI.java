@@ -83,7 +83,7 @@ public class AI<S extends State<S, A>, A> {
 		A res = null;
 		for (int depthLimit = 0; depthLimit <= maxLimit; ++depthLimit)
 			try {
-				// System.out.println("\t🙈 = " + depthLimit);
+				// System.err.println("\t🙈 = " + depthLimit);
 				res = bestNodeLimitedSearch(depthLimit);
 			} catch (TimeoutException e) {
 				state = backupState;
@@ -150,7 +150,7 @@ public class AI<S extends State<S, A>, A> {
 		do {
 			bestNode = null;
 			int test = nextGuess(alpha, beta, subtreeCount);
-			// System.out.println("\t\t🌳 × " + subtreeCount + ", 🧱 = " + test + " ∈ [" +
+			// System.err.println("\t\t🌳 × " + subtreeCount + ", 🧱 = " + test + " ∈ [" +
 			// alpha + ", " + beta + "]");
 			betterCount = 0;
 			Iterator<A> actions = state.actions();
@@ -232,16 +232,16 @@ public class AI<S extends State<S, A>, A> {
 			if (cachedSearchResult != null) {
 				if (depthLimit <= cachedSearchResult.SEARCHDEPTH) {
 					switch (cachedSearchResult.FLAG) {
-						case TRUEVALUE: // purpose 1
-							return cachedSearchResult.SCORE;
-						case UPPERBOUND: // purpose 2
-							beta = objectUtils.min(beta, cachedSearchResult.SCORE);
-							break;
-						case LOWERBOUND: // purpose 2 (sic.)
-							alpha = objectUtils.max(alpha, cachedSearchResult.SCORE);
-							break;
-						default:
-							throw new InternalError("Unknown score type.");
+					case TRUEVALUE: // purpose 1
+						return cachedSearchResult.SCORE;
+					case UPPERBOUND: // purpose 2
+						beta = objectUtils.min(beta, cachedSearchResult.SCORE);
+						break;
+					case LOWERBOUND: // purpose 2 (sic.)
+						alpha = objectUtils.max(alpha, cachedSearchResult.SCORE);
+						break;
+					default:
+						throw new InternalError("Unknown score type.");
 					}
 					if (alpha >= beta)
 						return alpha;
@@ -331,16 +331,16 @@ public class AI<S extends State<S, A>, A> {
 			if (cachedSearchResult != null) {
 				if (depthLimit <= cachedSearchResult.SEARCHDEPTH) {
 					switch (cachedSearchResult.FLAG) {
-						case TRUEVALUE: // purpose 1
-							return cachedSearchResult.SCORE;
-						case UPPERBOUND: // purpose 2
-							beta = objectUtils.min(beta, cachedSearchResult.SCORE);
-							break;
-						case LOWERBOUND: // purpose 2 (sic.)
-							alpha = objectUtils.max(alpha, cachedSearchResult.SCORE);
-							break;
-						default:
-							throw new InternalError("Unknown score type.");
+					case TRUEVALUE: // purpose 1
+						return cachedSearchResult.SCORE;
+					case UPPERBOUND: // purpose 2
+						beta = objectUtils.min(beta, cachedSearchResult.SCORE);
+						break;
+					case LOWERBOUND: // purpose 2 (sic.)
+						alpha = objectUtils.max(alpha, cachedSearchResult.SCORE);
+						break;
+					default:
+						throw new InternalError("Unknown score type.");
 					}
 					if (beta <= alpha)
 						return beta;
