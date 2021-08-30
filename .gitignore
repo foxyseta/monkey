@@ -27,6 +27,7 @@ hs_err_pid*
 *.aux
 *.bbl
 *.bcf
+*.blg
 *.fdb_latexmk
 *.fls
 *.gz

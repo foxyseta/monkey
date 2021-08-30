@@ -1,5 +1,6 @@
 \documentclass{article}
 \usepackage[italian]{babel}
+\usepackage{csquotes}
 \usepackage[T1]{fontenc}
 \usepackage{amsmath,amssymb,amsthm}
 \usepackage{clrscode3e}
@@ -230,8 +231,38 @@ terminale a profondità $p$ coincide con il numero di celle rimaste vuote, e
 cioè:
 
 \begin{equation}
-  f = s - p
+  f(p) = s - p
 \end{equation}
+
+Se assumessimo che tutte le foglie dell'albero si trovassero a profondità $s$,
+potremmo facilmente calcolare il numero di nodi $n$ a una data profondità $p$:
+
+\begin{equation}
+  n(p) = \frac{s!}{f(p)!}
+\end{equation}
+
+Quindi, sempre sotto questa ipotesi, il numero di nodi dell'albero sarebbe dato
+da:
+
+\begin{equation}
+ \overline{n_{tot}} = \sum_{p = 0}^{s} n(p) = \sum_{p = 0}^{s} \frac{s!}{f(p)!} = s! \sum_{p = 0}^{s} \frac{1}{p!} = \Theta (s!)
+\end{equation}
+
+Una stima per difetto dell'effettivo numero di nodi è fornita dall'albero di
+gioco le cui partite terminano tutte nel minor numero di mosse possibili.
+Essendo ragionevole assumere
+
+\begin{equation}
+  m, n > 1 \wedge k \leq m, n
+\end{equation}
+
+si ha $2k - 1 < s$ e quindi:
+
+\begin{equation}
+  n_{tot} = \Omega ((2k - 1)!)
+\end{equation}
+
+
 
 \section{Strumenti}
 
@@ -335,7 +366,7 @@ rispetto alla versione originale:
                  $\id{better-count} \gets \id{better-count} + 1$
   \li            \If $\id{best-node} \isequal \const{nil}$
   \li              \Then
-                     $\id{best-node} \gets $a$$
+                     $\id{best-node} \gets a$
   \li              \End
                \End
   \li        $\proc{Revert}(s)$
