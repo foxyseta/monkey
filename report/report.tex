@@ -465,6 +465,21 @@ segnalino questo tipo di occorrenze.
   \li  \Return $\id{res}$
 \end{codebox}
 
+Le varianti della potatura alfa-beta sono generalmente descritte in letteratura
+tramite risultati sperimentali, anziché notazione asintotica. Assumiamo quindi
+di avere a che fare con un comportamento equiparabile a quello della potatura
+alfa-beta classica; siccome tale algoritmo di ricerca è avvantaggiato da
+euristiche per l'ordinamento statico (dipendente dal gioco) e dinamico (grazie
+alla tabella delle trasposizioni) delle mosse, si è soliti quantificarne il
+costo nel caso di una potatura estremamente fortunata ma comunque applicata
+alla stima "per eccesso" del nostro albero di gioco. In questa versione
+semplificata del problema, il numero di nodi esaminati da
+$\id{Iterative-Deepening-Search}$ è:
+
+\begin{equation}
+  n_{IDS} = % TODO
+\end{equation}
+
 \subsubsection{Confronto fra mosse}
 
 Questa secondo modo di individuare una mossa promettente ne estrae una in modo
@@ -498,6 +513,11 @@ limita ad analizzare le azioni considerate ``rilevanti''.
         \End
   \li  \Return \proc{Random}(\id{best-moves})
 \end{codebox}
+
+Banalmente, il numero di nodi esaminati da $\proc{Immediate-Search}$ coincide
+con le azioni rilevanti per lo stato corrente; nel caso peggiore, in cui la
+funzione di valutazione assegna lo stesso valore a ciascuna di esse,
+$\id{best-moves}$ le memorizzerà tutte.
 
 \subsection{\texttt{monkey.mnk}}
 
