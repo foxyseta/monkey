@@ -308,10 +308,12 @@ per i giochi di ``categoria 3'' l'uso di metodi basati sulla conoscenza,
 abbiamo optato per una scelta più tradizionalista: una sintesi di più varianti
 della potatura alfa-beta, che si colloca invece nei metodi a forza bruta.
 
+\begin{sloppypar}
 In primo luogo, viste le imposizioni sul tempo di esecuzione, il nostro
 algoritmo ha necessariamente bisogno di un limite di profondità $d$.
 L'interfaccia delle due funzioni per una "classica" potatura alfa-beta
-\cite{at.UBO029034619980101} risulta quindi essere:
+\cite{at.UBO029034619980101.200--202} risulta quindi essere:
+\end{sloppypar}
 \begin{itemize}
   \item $\proc{Max-Value}(s, \alpha, \beta, d)$: applica la ricerca
     al nodo che rappresenta lo stato $s$ assumendo che esso sia di massimo;
@@ -321,12 +323,15 @@ L'interfaccia delle due funzioni per una "classica" potatura alfa-beta
 In entrambi i casi, $\alpha$ e $\beta$ fungono da parametri della potatura,
 mentre $d$ è il limite di profondità imposto. La mutuale ricorsione di queste
 due procedure è responsabile di un'esplorazione a profondità limitata
-dell'albero; tale ricerca supporta il dietrofront (\emph{backtracking}) tramite
-le funzioni $\proc{Result}(s, a)$ e $\proc{Revert}(s)$. La loro
-implementazione non viene riportata in quanto piuttosto canonica, eccezion fatta
-per l'uso di una tabella delle trasposizioni. Tale tavola \emph{hash} è a due
-livelli e fa uso dello schema di rimpiazzamento $\proc{TwoBig1}$: Breuker,
-Uiterwijk e van den Herik \cite{BREUKER-UITERWIJK-VANDENHERIK}
+dell'albero; tale ricerca supporta il dietrofront
+\cite{at.UBO029034619980101.108} (\emph{backtracking}) tramite le funzioni
+$\proc{Result}(s, a)$ e $\proc{Revert}(s)$.
+La loro implementazione non viene riportata in quanto piuttosto canonica,
+eccezion fatta per ripetuti controlli sullo scadere del tempo di gioco e per
+l'uso di una tabella delle trasposizioni \cite{CN020689428}. Tale tavola
+\emph{hash} è a due livelli e fa uso dello schema di rimpiazzamento
+$\proc{TwoBig1}$: Breuker, Uiterwijk e van den Herik
+\cite{BREUKER-UITERWIJK-VANDENHERIK}
 \cite{edsdbl.journals.icga.BreukerUH9619960101} ne hanno dimostrato la
 superiorità rispetto a $\proc{Deep}$, $\proc{New}$, $\proc{Old}$, $\proc{Big1}$,
 $\proc{BigAll}$ e $\proc{TwoDeep}$.
@@ -346,7 +351,22 @@ rispetto alla versione originale:
       gioco in questione;
     \item proprio come per $\proc{Max-Value}$ e $\proc{Min-Value}$, gli unici
       sottoalberi ispezionati sono quelli considerati ``rilevanti'' da $s$ (vedi
-      \ref{pattern-search}).
+      \ref{pattern-search});
+    \begin{sloppypar}
+    \item se più sottoalberi superano una prova, $\id{best-node}$ ne memorizza
+      sempre il primo. Questo permette di approfittare del fatto che
+      l'interfaccia \verb!monkey.ai.State! promette un'iterazione sulle azioni
+      rilevanti in ordine decrescente di aspettative;
+    \end{sloppypar}
+    \item l'algoritmo originale, ispirandosi a $\id{Negamax}$, sostituiva alla
+      chiamata a $\proc{Min-Value}$ della linea \ref{li:min-value} una a
+      $\proc{Max-Value}$ con argomenti e valore resituito negati di segno. La
+      nostra accezione di ``giochi a somma zero'' designa però i giochi a somma
+      costante, per i quali tale espediente non è utilizzabile nel caso
+      generale: evitarlo ci permette di fare uso di funzioni di valutazione
+      degli stati asimmetriche rispetto ai due giocatori;
+    \item la nostra esplorazione dell'albero, come già detto, supporta il
+      dietrofront (linea \ref{li:backtracking}).
 \end{itemize}
 
 \begin{codebox}
@@ -354,35 +374,138 @@ rispetto alla versione originale:
   \li  $\alpha \gets \proc{Initial-Alpha}(s)$ \label{li:initial-alpha}
   \li  $\beta \gets \proc{Initial-Beta}(s)$ \label{li:initial-beta}
   \li  $\id{subtree-count} \gets \proc{Count-Relevant-Children}(s)$
-  \li  $\id{better-count} \gets 0$
   \li  \Repeat
   \li    $\id{best-node} \gets \const{nil}$
   \li    $\id{test} \gets \proc{Next-Guess}(\alpha, \beta, \id{subtree-count})$
+  \li    $\id{better-count} \gets 0$
   \li    \For ogni azione rilevante $a$ di $s$
   \li      \Do
-             $\id{inspected-nodes} \gets 0$
-  \li        \If $\proc{Min-Value}(\proc{Result}(s, a), test - 1, test, d) \geq test)$
+             \If $\proc{Min-Value}(\proc{Result}(s, a), test - 1, test, d) \geq
+             test)$ \label{li:min-value}
   \li          \Then
                  $\id{better-count} \gets \id{better-count} + 1$
   \li            \If $\id{best-node} \isequal \const{nil}$
   \li              \Then
                      $\id{best-node} \gets a$
-  \li              \End
+                   \End
                \End
-  \li        $\proc{Revert}(s)$
-  % TODO
-  \li      \End
+  \li        $\proc{Revert}(s)$ \label{li:backtracking}
+           \End
+  \li    \If $\id{better-count} \isequal 0$
+  \li      \Then $\beta \gets \id{test}$
+  \li    \ElseIf $\id{better-count} > 1$
+  \li      \Then
+             $\id{subtree-count} \gets \id{better-count}$
+  \li        $\alpha \gets \id{test}$
+           \End
   \li  \Until $(\beta - \alpha < 2 \mbox{ or } \id{better-count} \isequal 1)
        \mbox{ and } \id{better-count} \neq 0$
+  \li  \Return $\id{best-node}$
+\end{codebox}
+
+\begin{codebox}
+  \Procname{$\proc{Next-Guess}(\alpha, \beta, \id{subtree-count})$}
+  \li  \Return $\alpha + \frac{(\beta - \alpha) (\id{subtree-count} - 1)}
+       {\id{subtree-count}}$
+\end{codebox}
+
+Il limite di profondità $d$ è stabililto da una ricerca ad approfondimento
+iterativo. Rispetto alla versione proposta da Russel e Norvig, la nostra
+differisce sotto alcuni aspetti e ne espande altri che erano stati
+originariamente solo accennati dagli autori:
+\begin{itemize}
+    \item l'intervallo dei possibili limiti di profondità ha un estremo
+      superiore finito la cui scelta può dipendere da considerazioni specifiche
+      su un gioco e uno stato particolari (linea \ref{li:max-limit});
+    \item qualora una chiamata a $\proc{Best-Node-Search}$ segnali lo scadere
+      del tempo, viene restituita la mossa calcolata con la più profonda ricerca
+      completata;
+    \item La linea \ref{li:setup-backup} memorizza una copia dello stato di
+      gioco di partenza. In questo modo, in caso di terminazione urgente dovuta
+      allo scadere del tempo di gioco, è possibile ripristinare alla linea
+      \ref{li:restore-backup} tale copia con costo temporale costante. Nessuna
+      pila di chiamate $\proc{Best-Node-Search}$, $\proc{Max-Value}$ e
+      $\proc{Min-Value}$ dovrà così affannarsi a invertire l'effetto di più
+      mosse di gioco una per una.
+\end{itemize}
+\begin{sloppypar}
+Lo pseudocodice che segue impiega un semplice sistema di gestione delle
+eccezioni alla linea \ref{li:try}. Questo ha permesso di codificare
+$\proc{Best-Node-Search}$ facendo affidamento al principio dell'``acchiappa e
+rilascia'', e ignorando così la gestione delle scadenze temporali, che viene
+delegata a ipotetiche implementazioni di $\proc{Max-Value}$ e
+$\proc{Min-Value}$. Ovviamente, è comunque possibile (e fruttuoso a livello di
+prestazioni) fare affidamento a valori restituiti dalle varie funzioni che
+segnalino questo tipo di occorrenze.
+\end{sloppypar}
+
+\begin{codebox}
+  \Procname{$\proc{Iterative-Deepening-Search}(s)$}
+  \li  $\id{backup-state} \gets \proc{copy}(s)$ \label{li:setup-backup}
+  \li  $\id{max-limit} \gets \proc{Overestimated-Height}(s)$
+       \label{li:max-limit}
+  \li  $\id{res} \gets \const{nil}$
+  \li  \For $d \gets 0$ \To $\id{max-limit}$
+  \li    \Do
+           \kw{try} \label{li:try}
+  \li        \Do
+               $\id{res} \gets \proc{Best-Node-Search}(d)$
+             \End
+  \li      \kw{catch} $\const{timeout-exception}$
+  \li        \Do
+               $s \gets \id{backup-state}$ \label{li:restore-backup}
+  \li          \If $\id{res} \neq \const{nil}$
+  \li            \Then
+                   \Return $\id{res}$
+                 \End
+  \li          \Comment fallback action
+  \li          \Return $\proc{First-Relevant-Action}(s)$
+             \End
+         \End
+  \li  \Return $\id{res}$
 \end{codebox}
 
 \subsubsection{Confronto fra mosse}
+
+Questa secondo modo di individuare una mossa promettente ne estrae una in modo
+pseudorandomico fra quelle che, applicate allo stato attuale, massimizzano la
+funzione di valutazione. Anche questo algoritmo supporta il dietrofront e si
+limita ad analizzare le azioni considerate ``rilevanti''.
+
+\begin{codebox}
+  \Procname{$\proc{Immediate-Search}(s)$}
+  \li  $\id{best-moves} \gets$
+       {\fontspec[ Path = fonts/ ]{Symbola}\emph{\symbol{"2205}}}
+  \li  $\id{max-eval} \gets \const{nil}$
+  \li \For ogni azione rilevante $a$ di $s$
+  \li   \Do
+          $\id{current-eval} \gets \proc{Eval}(\proc{Result}(s, a))$
+  \li     $\proc{Revert}(s)$
+  \li     \If $\id{max-eval} \isequal \const{nil}$
+  \li       \Then
+              $\id{max-eval} \gets \id{current-eval}$
+  \li         $\id{best-moves} \gets \id{best-moves} \cup \{ a \}$
+  \li     \ElseIf $\id{current-eval} \geq \id{max-eval}$
+  \li       \Then
+              \If $\id{current-eval} > \id{max-eval}$
+  \li           \Then
+                  $\id{max-eval} \gets \id{current-eval}$
+  \li             $\id{best-moves} \gets$
+                  {\fontspec[ Path = fonts/ ]{Symbola}\emph{\symbol{"2205}}}
+                \End
+  \li         $\id{best-moves} \gets \id{best-moves} \cup \{ a \}$
+          \End
+        \End
+  \li  \Return \proc{Random}(\id{best-moves})
+\end{codebox}
 
 \subsection{\texttt{monkey.mnk}} \label{pattern-search}
 
 \section{Conclusioni}
 
 \section{Ricerche future}
+
+\pagebreak
 
 \begin{sloppypar}
 \printbibliography[
