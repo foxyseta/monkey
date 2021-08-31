@@ -245,7 +245,8 @@ Quindi, sempre sotto questa ipotesi, il numero di nodi dell'albero sarebbe dato
 da:
 
 \begin{equation}
- \overline{n_{tot}} = \sum_{p = 0}^{s} n(p) = \sum_{p = 0}^{s} \frac{s!}{f(p)!} = s! \sum_{p = 0}^{s} \frac{1}{p!} = \varTheta(s!)
+ \overline{n_{tot}} = \sum_{p = 0}^{s} n(p) = \sum_{p = 0}^{s} \frac{s!}{f(p)!}
+  = s! \sum_{p = 0}^{s} \frac{1}{p!} = \varTheta(s!)
 \end{equation}
 
 Una stima per difetto dell'effettivo numero di nodi è fornita dall'albero di
@@ -290,10 +291,12 @@ Durante lo sviluppo del progetto, sono stati impiegati i seguenti strumenti:
 \begin{itemize}
   \item Vim e Visual Studio Code come \emph{editor} di codice;
   \item \verb!make! per la compilazione automatizzata; 
-  \item OpenJDK Runtime Environment 11.0.12 e Java\texttrademark SE Runtime Environment 15 come piattaforme Java;
+  \item OpenJDK Runtime Environment 11.0.12 e Java\texttrademark SE Runtime
+    Environment 15 come piattaforme Java;
   \item Git per il controllo di versione;
   \item GitHub Actions per l'integrazione e lo sviluppo continui;
-  \item AlmaStart per la ricerca integrata nella base di dati del sistema bibliotecario di ateneo;
+  \item AlmaStart per la ricerca integrata nella base di dati del sistema
+    bibliotecario di ateneo;
   \item \LaTeXe{} per la preparazione della relazione di progetto.
 \end{itemize}
 
@@ -499,22 +502,6 @@ segnalino questo tipo di occorrenze.
   \li  \Return $\id{res}$
 \end{codebox}
 
-Le varianti della potatura alfa-beta sono generalmente descritte in letteratura
-tramite risultati sperimentali, anziché notazione asintotica. Assumiamo quindi
-di avere a che fare con un comportamento equiparabile a quello della potatura
-alfa-beta classica; siccome tale algoritmo di ricerca è avvantaggiato da
-euristiche per l'ordinamento statico (dipendente dal gioco) e dinamico (grazie
-alla tabella delle trasposizioni) delle mosse, si è soliti quantificarne il
-costo nel caso di una potatura estremamente fortunata ma comunque applicata
-alla stima "per eccesso" del nostro albero di gioco. In questa versione
-semplificata del problema, il numero di nodi esaminati da
-$\id{Iterative-Deepening-Search}$ su un albero di gioco convergente con altezza
-$d$ è:
-
-\begin{equation}
-  n_{IDS} = \sum_{i = 0}^{d} O(\frac{i}{2}! \cdot 2^\frac{i}{2})
-\end{equation}
-
 In memoria sarà necessario solamente conservare due stati di gioco alla volta,
 la tabella delle trasposizioni, la pila implicita delle chiamate ($O(d)$) e
 altre variabili di costo in memoria costante.
@@ -562,8 +549,8 @@ $\id{best-moves}$ le memorizzerà tutte.
 
 La rappresentazione dello stato di un \emph{m,n,k-game} fa ampio uso
 dell'approccio incrementale: la maggior parte delle informazioni derivate
-riguardanti la situazione attuale vengono salvate nella rappresentazione stessa. In questo
-modo, non devono essere calcolato ogni volta da capo né quando vengono
+riguardanti la situazione attuale vengono salvate nella rappresentazione stessa.
+In questo modo, non devono essere calcolato ogni volta da capo né quando vengono
 richieste più volte, né quando lo stato viene minimizzato.
 
 \subsubsection{Stato iniziale}
@@ -571,35 +558,121 @@ richieste più volte, né quando lo stato viene minimizzato.
 In fase di costruzione, vengono istanziati (i costi riportati tra parentesi
 sono sia temporali che spaziali):
 \begin{itemize}
-  \item una matrice rappresentante la griglia di gioco (\varTheta(s));
-  \item un elenco di tutte le posizioni di gioco in ordine di valore decrescente (\varTheta(s));
-  \item tabelle ad indirizzamento diretto che tengano traccia delle condizioni di ogni possibile allineamento di lunghezza $k$, $k - 1$ o $k - 2$ (\varTheta(s));
-  \item una matrice di codici pseudorandomici per l'\emph{hashing} (\varTheta(s));
-  \item altre variabili in quantità costante (\varTheta(1)).
+  \item una matrice rappresentante la griglia di gioco ($\varTheta(s)$);
+  \item un elenco di tutte le posizioni di gioco in ordine di valore decrescente
+    ($\varTheta(s)$);
+  \item tabelle ad indirizzamento diretto che tengano traccia delle condizioni
+    di ogni possibile allineamento di lunghezza $k$, $k - 1$ o $k - 2$
+    ($\varTheta(s)$);
+  \item una matrice di codici pseudorandomici per l'\emph{hashing}
+    ($\varTheta(s)$);
+  \item altre variabili in quantità costante ($\varTheta(1)$).
 \end{itemize}
 
 Sia il tempo che la memoria richiesti appartengono quindi alla classe di costo
-\varTheta(s). Si noti che neanche un'implementazione minimale della sola
+$\varTheta(s)$. Si noti che neanche un'implementazione minimale della sola
 griglia di gioco potrebbe rimanere in una classe di costo inferiore. 
 
 \subsubsection{Inizializzatori per $\alpha$ e $\beta$}
 
-Basandosi sulla \ref{table:2}, è possibile calcolare inizializzatori per
+Basandosi sulla tabella \ref{table:2}, è possibile calcolare inizializzatori per
 $\alpha$ e $\beta$ in tempo e spazio costanti.
 
 \subsubsection{Azioni} \label{pattern-search}
 
-Ciascuno stato di gioco fornisce un'iterazione su le proprie mosse legali e
-rilevanti di costo complessivo \varTheta(s) nel caso pessimo e \varTheta(1) nel
-caso ottimo.
+Ciascuno stato di gioco fornisce un'iterazione sulle proprie mosse legali e
+rilevanti di costo complessivo $\varTheta(s)$ nel caso pessimo e $\varTheta(1)$
+nel caso ottimo. L'ordinamento è già stato determinato staticamente in fase di
+costruzione: è quello della ``chiocciola'', vale a dire a spirale a partire dal
+centro. In questo modo, viene data più rilevanza alle posizioni centrali,
+generalmente considerate più forti. In maniera analoga alla ricerca per schemi
+\cite{VANDENHERIK2002277}, ci si limita alla enumerazione delle mosse
+appartenenti a un certo "schema di minacce" $\psi$ considerato l'area
+attualmente degna di nota della griglia. In questa implementazione, viene
+congetturato che essa coincida con l'insieme delle celle vuote adiacenti anche
+in diagonale a una piena o, qualora non ve ne fossero, al singoletto contenente
+solo la posizione centrale.
 
 \subsubsection{Modello di transizione}
 
+Ogni volta che un simbolo viene aggiunto/rimosso dalla griglia, le seguenti
+operazioni vengono effettuate:
+\begin{itemize}
+  \item aggiornamento della cella coinvolta ($\varTheta(1)$);
+  \item aggiornamento dei contatori delle minacce influenzate ($\varTheta(k)$);
+  \item aggiornamento dei contatori di celle piene adiacenti ($\varTheta(1)$);
+  \item eventuale aggiornamento dell'esito della partita ($\varTheta(1)$);
+  \item aggiornamento della cronologia di gioco ($\varTheta(1)$);
+  \item aggiornamento del codice \emph{hash}.
+\end{itemize}
+
+Complessivamente, il costo in tempo è di $\varTheta(k)$, mentre quello in
+memoria è costante.
+
 \subsubsection{Funzione di valutazione}
+
+Al fine di evitare approcci rudimentali come le euristiche di Shevchenko e Chua
+Hock Chuan, \verb!monkey.mnk.Board! fa uso della seguente versione semplificata
+della funzione di valutazione di Abdoulaye-Houndji-Ezin-Aglin \cite{abdoulaye}:
+
+\begin{equation}
+\begin{split}
+  f ={} &100 p_{k - 2, 2} + 80 p_{k - 1, 1} + 250 p_{k - 1, 2} + 1000000 p_k \\
+  & - 1300 q_{k - 2, 2} - 2000 q_{k - 1, 1} + 5020 q_{k - 1, 2} + 1000000 q_k
+\end{split}
+\end{equation}
+
+nella quale $p_{i, 1}$ è il numero di minacce semiaperte di dimensione $i$ del
+giocatore; $p_{i, 2}$ è il numero di minacce aperte di dimensione $i$ del
+giocatore; $p_i$ è il numero di minacce senza buchi di dimensione $i$ del
+giocatore; $q_{i, 1}$ è il numero di minacce semiaperte di dimensione $i$
+dell'avversario; $q_{i, 2}$ è il numero di minacce aperte di dimensione $i$
+dell'avversario; $q_i$ è il numero di minacce senza buchi di dimensione $i$
+dell'avversario. Grazie all'approccio incrementale, tale calcolo viene sempre
+effettuato in tempo e spazio costanti.
 
 \subsubsection{Funzione di \emph{hashing}}
 
+Il metodo di \emph{hashing} proposto da Zobrist
+\cite{edsoai.ocn79990521120120101} è semplice, in tempo costante e accompagnato
+da una letturatura ben più corposa delle sue controparti come BHC. Usando un
+seme costante per la generazione dei disgiunti, è possibile verificarne la
+validità staticamente. Per esempio, è utile accertarsi che tale seme generi
+disgiunti distinti due a due.
+
+Per aumentare il numero di ricerche con successo all'interno della tabella delle
+trasposizioni, a trasposizioni simmetriche (fino a otto su una griglia quadrata,
+o fino a quattro in caso contrario) viene assegnato lo stesso codice
+\emph{hash}, e sempre in tempo costante. Questo permette di evitare di esplorare
+più volte sottoalberi di fatto equivalenti. Gli effettivi vantaggi di questo
+accorgimento sono stati dimostrati sperimentalmente da Schiffel \cite{schiffel}.
+
 \section{Conclusioni}
+
+Anche se {
+    \fontspec[ Path = fonts/ ]{Symbola}
+    \symbol{"1F17C}\symbol{"1F435}\symbol{"1F17D}\symbol{"1F17A}ey
+} è stato in grado di giocare in maniera più che competitiva contro un giocatore
+umano, quantificarne le prestazioni complessive non si è rivelato possibile.
+L'informazione mancante è un'accurata stima asintotica del numero $n_{BNS}$
+dei nodi ispezionati da $\proc{Best-Node-Search}$. Esso, come nel caso delle
+altre varianti della potatura alfa-beta, viene di norma misurato solo
+sperimentalmente. Al momento tali ricerche sono state effettuate solo per la
+versione originale dell'algoritmo, e solo per alberi con fattore di
+ramificazione omogeneo. Se in futuro si dovesse proseguire con le richerce in
+questa direzione, si potrebbe derivare il numero di nodi raggiunti da
+$\proc{Iterative-Deepening-Search}$ al variare di $s$:
+
+\begin{equation}
+  n_{IDS}(s) = \sum_{i = 0}^{s} n_{BNS}
+\end{equation}
+
+Questo porterebbe quindi al calcolo del costo temporale della procedura
+$\proc{Iterative-Deepening-Search}$:
+
+\begin{equation}
+  T(s) = n_{IDS}(s) \Theta(k) = \Theta(n_{IDS}(s) k)
+\end{equation}
 
 \section{Ricerche future}
 
