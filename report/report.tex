@@ -245,7 +245,7 @@ Quindi, sempre sotto questa ipotesi, il numero di nodi dell'albero sarebbe dato
 da:
 
 \begin{equation}
- \overline{n_{tot}} = \sum_{p = 0}^{s} n(p) = \sum_{p = 0}^{s} \frac{s!}{f(p)!} = s! \sum_{p = 0}^{s} \frac{1}{p!} = \Theta (s!)
+ \overline{n_{tot}} = \sum_{p = 0}^{s} n(p) = \sum_{p = 0}^{s} \frac{s!}{f(p)!} = s! \sum_{p = 0}^{s} \frac{1}{p!} = \varTheta(s!)
 \end{equation}
 
 Una stima per difetto dell'effettivo numero di nodi è fornita dall'albero di
@@ -259,12 +259,46 @@ Essendo ragionevole assumere
 si ha $2k - 1 < s$ e quindi:
 
 \begin{equation}
-  n_{tot} = \Omega ((2k - 1)!)
+  n_{tot} = \varOmega((2k - 1)!)
 \end{equation}
 
+Una stima per eccesso dell'effettivo numero di nodi è fornita dall'albero di
+gioco le cui partite terminano tutte nel maggior numero di mosse possibili:
 
+\begin{equation}
+  n_{tot} = O(s!)
+\end{equation}
+
+\subsection{Gli allineamenti}
+
+La seguente formula permette di calcolare il numero $a$ di allineamenti
+orizzontali ($a_{hor}$), verticali ($a_{ver}$) e diagonali ($a_{dia}$) di
+lunghezza $k$ in una griglia di dimensione $m \times n$:
+
+\begin{equation}
+\begin{split}
+  a & = a_{hor} + a_{ver} + a_{dia} = \\
+  & = m (n - k + 1) + n (m - k + 1) + 2 (n + m - 1) (\min(m, n) - k + 1) = \\
+  & = \varTheta(s)
+\end{split}
+\end{equation}
 
 \section{Strumenti}
+
+Durante lo sviluppo del progetto, sono stati impiegati i seguenti strumenti:
+
+\begin{itemize}
+  \item Vim e Visual Studio Code come \emph{editor} di codice;
+  \item \verb!make! per la compilazione automatizzata; 
+  \item OpenJDK Runtime Environment 11.0.12 e Java\texttrademark SE Runtime Environment 15 come piattaforme Java;
+  \item Git per il controllo di versione;
+  \item GitHub Actions per l'integrazione e lo sviluppo continui;
+  \item AlmaStart per la ricerca integrata nella base di dati del sistema bibliotecario di ateneo;
+  \item \LaTeXe{} per la preparazione della relazione di progetto.
+\end{itemize}
+
+Per disporre di ulteriore supporto computazionale, si è infine fatto uso da
+remoto delle macchine gestite dal Dipartimento.
 
 \section{Scelte progettuali}
 
@@ -358,7 +392,7 @@ rispetto alla versione originale:
       l'interfaccia \verb!monkey.ai.State! promette un'iterazione sulle azioni
       rilevanti in ordine decrescente di aspettative;
     \end{sloppypar}
-    \item l'algoritmo originale, ispirandosi a $\id{Negamax}$, sostituiva alla
+    \item l'algoritmo originale, ispirandosi a $\proc{Negamax}$, sostituiva alla
       chiamata a $\proc{Min-Value}$ della linea \ref{li:min-value} una a
       $\proc{Max-Value}$ con argomenti e valore resituito negati di segno. La
       nostra accezione di ``giochi a somma zero'' designa però i giochi a somma
@@ -474,11 +508,16 @@ alla tabella delle trasposizioni) delle mosse, si è soliti quantificarne il
 costo nel caso di una potatura estremamente fortunata ma comunque applicata
 alla stima "per eccesso" del nostro albero di gioco. In questa versione
 semplificata del problema, il numero di nodi esaminati da
-$\id{Iterative-Deepening-Search}$ è:
+$\id{Iterative-Deepening-Search}$ su un albero di gioco convergente con altezza
+$d$ è:
 
 \begin{equation}
-  n_{IDS} = % TODO
+  n_{IDS} = \sum_{i = 0}^{d} O(\frac{i}{2}! \cdot 2^\frac{i}{2})
 \end{equation}
+
+In memoria sarà necessario solamente conservare due stati di gioco alla volta,
+la tabella delle trasposizioni, la pila implicita delle chiamate ($O(d)$) e
+altre variabili di costo in memoria costante.
 
 \subsubsection{Confronto fra mosse}
 
@@ -521,11 +560,38 @@ $\id{best-moves}$ le memorizzerà tutte.
 
 \subsection{\texttt{monkey.mnk}}
 
+La rappresentazione dello stato di un \emph{m,n,k-game} fa ampio uso
+dell'approccio incrementale: la maggior parte delle informazioni derivate
+riguardanti la situazione attuale vengono salvate nella rappresentazione stessa. In questo
+modo, non devono essere calcolato ogni volta da capo né quando vengono
+richieste più volte, né quando lo stato viene minimizzato.
+
 \subsubsection{Stato iniziale}
+
+In fase di costruzione, vengono istanziati (i costi riportati tra parentesi
+sono sia temporali che spaziali):
+\begin{itemize}
+  \item una matrice rappresentante la griglia di gioco (\varTheta(s));
+  \item un elenco di tutte le posizioni di gioco in ordine di valore decrescente (\varTheta(s));
+  \item tabelle ad indirizzamento diretto che tengano traccia delle condizioni di ogni possibile allineamento di lunghezza $k$, $k - 1$ o $k - 2$ (\varTheta(s));
+  \item una matrice di codici pseudorandomici per l'\emph{hashing} (\varTheta(s));
+  \item altre variabili in quantità costante (\varTheta(1)).
+\end{itemize}
+
+Sia il tempo che la memoria richiesti appartengono quindi alla classe di costo
+\varTheta(s). Si noti che neanche un'implementazione minimale della sola
+griglia di gioco potrebbe rimanere in una classe di costo inferiore. 
 
 \subsubsection{Inizializzatori per $\alpha$ e $\beta$}
 
+Basandosi sulla \ref{table:2}, è possibile calcolare inizializzatori per
+$\alpha$ e $\beta$ in tempo e spazio costanti.
+
 \subsubsection{Azioni} \label{pattern-search}
+
+Ciascuno stato di gioco fornisce un'iterazione su le proprie mosse legali e
+rilevanti di costo complessivo \varTheta(s) nel caso pessimo e \varTheta(1) nel
+caso ottimo.
 
 \subsubsection{Modello di transizione}
 
