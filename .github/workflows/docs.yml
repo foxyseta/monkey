@@ -31,12 +31,11 @@ jobs:
     steps:
       - name: Set up Git repository
         uses: actions/checkout@v2
-      - name: Install biber
-        run: "sudo apt-get install biber -y"
       - name: Compile LaTeX document
-        uses: lihram/tectonic-nix@v1.0
+        uses: birjolaxew/tectonic-biber-action@master
         with:
-          file: "-o . report/report.tex"
+          files: "report/report.tex"
+          tectonic_args: "-o ."
       - name: Remove report sources
         run: "rm -rf report/* && mv report.pdf report/"
       - name: Deploy to Github Pages
