@@ -83,7 +83,7 @@ public class AI<S extends State<S, A>, A> {
 		A res = null;
 		for (int depthLimit = 0; depthLimit <= maxLimit; ++depthLimit)
 			try {
-				// System.out.println("\t🙈 = " + depthLimit);
+				// System.err.println("\t🙈 = " + depthLimit);
 				res = bestNodeLimitedSearch(depthLimit);
 			} catch (TimeoutException e) {
 				state = backupState;
@@ -150,7 +150,7 @@ public class AI<S extends State<S, A>, A> {
 		do {
 			bestNode = null;
 			int test = nextGuess(alpha, beta, subtreeCount);
-			// System.out.println("\t\t🌳 × " + subtreeCount + ", 🧱 = " + test + " ∈ [" +
+			// System.err.println("\t\t🌳 × " + subtreeCount + ", 🧱 = " + test + " ∈ [" +
 			// alpha + ", " + beta + "]");
 			betterCount = 0;
 			Iterator<A> actions = state.actions();
@@ -412,7 +412,7 @@ public class AI<S extends State<S, A>, A> {
 	 * this is not the case. This can be useful right after a frequent and/or
 	 * time-consuming operation.
 	 *
-	 * @throws TimeoutException
+	 * @throws TimeoutException The time limit is almost over.
 	 * @author Stefano Volpe
 	 * @version 1.0
 	 * @since 1.0
@@ -455,7 +455,7 @@ public class AI<S extends State<S, A>, A> {
 	/** Utilities instance for generic objects. */
 	final private ObjectUtils objectUtils = new ObjectUtils();
 	/** The higher, the more time is used at most for each search. */
-	final private float RELAXATION = 0.98f;
+	final private float RELAXATION = 0.95f;
 	/** A transposition table for this instance of the {@link AI}. */
 	final private HashMap<Integer, Entry<S, A>> transpositionTable;
 	/** Start time of the current turn. */

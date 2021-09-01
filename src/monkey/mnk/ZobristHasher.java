@@ -312,7 +312,7 @@ public class ZobristHasher implements Cloneable {
 			test[i] = r.nextInt();
 			for (int j = 0; j < i; ++j)
 				if (test[j] == test[i]) {
-					System.out.println("Failed: #" + j + " and #" + i + " have the same value.");
+					System.err.println("Failed: #" + j + " and #" + i + " have the same value.");
 					return false;
 				}
 		}

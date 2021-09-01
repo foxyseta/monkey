@@ -24,10 +24,17 @@ hs_err_pid*
 
 # docs
 /docs/
-*.pdf
 *.aux
-*.out
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
 *.gz
+*.out
+*.pdf
+*.run.xml
+*.toc
 *_temp.tex
 
 !MNKGame*.jar # not available anywhere else!

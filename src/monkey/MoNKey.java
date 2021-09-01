@@ -40,13 +40,14 @@ public class MoNKey implements MNKPlayer {
 	 */
 	@Override
 	public MNKCell selectCell(MNKCell[] FC, MNKCell[] MC) {
-		final long startTime = System.currentTimeMillis();
+		// final long startTime = System.currentTimeMillis();
 		if (MC.length > 1)
 			ai.update(new Position(m, n, MC[MC.length - 2]));
 		if (MC.length > 0)
 			ai.update(new Position(m, n, MC[MC.length - 1]));
 		final Position p = m * n > BIGGAME ? ai.immediateSearch() : ai.iterativeDeepeningSearch();
-		System.out.println(formatTimeInterval(System.currentTimeMillis() - startTime));
+		// System.err.println(formatTimeInterval(System.currentTimeMillis() -
+		// startTime));
 		return new MNKCell(p.getRow(), p.getColumn());
 	}
 

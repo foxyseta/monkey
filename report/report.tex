@@ -1,13 +1,25 @@
-\documentclass[a4paper]{article}
-\usepackage[utf8]{inputenc}
+\documentclass{article}
 \usepackage[italian]{babel}
+\usepackage{csquotes}
 \usepackage[T1]{fontenc}
 \usepackage{amsmath,amssymb,amsthm}
+\usepackage{clrscode3e}
+
+\usepackage{biblatex}
+\addbibresource{./bibliography.bib}
+
 \usepackage{enumerate}
+
 \usepackage{epigraph}
+\renewcommand{\epigraphrule}{0pt}
+\renewcommand{\textflush}{flushepinormal}
+\setlength{\epigraphwidth}{0.275\textwidth}
+\renewenvironment{flushepinormal}{}{\vspace*{-\baselineskip}}
+
 \usepackage{fontspec}
 \usepackage{graphicx}
 \usepackage{hyperref}
+\usepackage{verbatim}
 
 \graphicspath{ {./images/} }
 
@@ -33,12 +45,13 @@
 \begin{document}
 
 \maketitle
+\thispagestyle{empty}
 
 \begin{figure}[h]
   \includegraphics[width=0.75\textwidth]{monkey}
   \centering
-  \caption{\href{https://unsplash.com/photos/daC7ji1EMHM}{una scimmia
-  (foto di Bob Brewer)}}
+  \caption{\href{https://unsplash.com/photos/daC7ji1EMHM}{una scimmia (foto di
+  Bob Brewer)}}
 \end{figure}
 
 \pagebreak
@@ -47,22 +60,674 @@
 
 \tableofcontents
 
-\section{Introduzione}
+\pagebreak
 
 \section{Specifiche}
 
+\subsection{Il gioco: \emph{m,n,k-game}}
+
+Il gioco \emph{m,n,k-game} è deterministico, a turni, a due giocatori, a somma
+zero e con informazione perfetta. In una partita, i due agenti si alternano nel
+marcare una cella vuota in una griglia di dimensione $m\times n$ con un simbolo
+del proprio colore. Se un giocatore allinea in orizzontale, verticale o
+diagonale almeno \emph{k} simboli, questi vince la partita e il suo avversario
+la perde. Se non rimangono più celle vuote sulla griglia, la partita finisce
+in pareggio.
+
+\subsection{Il torneo: la classifica dei giocatori} \label{tournament}
+
+Ogni volta che, all'interno del torneo, un giocatore conclude una partita, egli
+guadagna: 
+\begin{itemize}
+  \item 3 punti in caso di una vittoria come secondo giocatore, ma non a
+    tavolino;
+  \item 2 punti in caso di una vittoria come primo giocatore o a tavolino;
+  \item 1 punto in caso di un pareggio;
+  \item 0 punti in caso di una sconfitta.
+\end{itemize}
+
+\noindent
+Le regole del torneo considerano una vittoria ``a tavolino'' quando l'avversario
+non restituisce una mossa entro il tempo limite (approssimativo) di 10 secondi,
+o comunque sceglie un mossa illegale (già occupata o esterna alla griglia). Non
+è dato conoscere l'identità dell'avversario. Per ognuna delle configurazioni in
+tabella \ref{table:1}, ciascun agente gioca esattamente quattro partite contro
+ogni altro partecipante, di cui due come primo giocatore e due come secondo
+giocatore.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{ | c | c | c | }
+  \hline
+  M & N & K \\
+  \hline
+  3 & 3 & 3 \\
+  \hline
+  4 & 3 & 3 \\
+  \hline
+  4 & 4 & 3 \\
+  \hline
+  4 & 4 & 4 \\
+  \hline
+  5 & 4 & 4 \\
+  \hline
+  5 & 5 & 4 \\
+  \hline
+  5 & 5 & 5 \\
+  \hline
+  6 & 4 & 4 \\
+  \hline
+  6 & 5 & 4 \\
+  \hline
+  6 & 6 & 4 \\
+  \hline
+  6 & 6 & 5 \\
+  \hline
+  6 & 6 & 6 \\
+  \hline
+  7 & 4 & 4 \\
+  \hline
+  7 & 5 & 4 \\
+  \hline
+  7 & 6 & 4 \\
+  \hline
+  7 & 7 & 4 \\
+  \hline
+  7 & 5 & 5 \\
+  \hline
+  7 & 6 & 5 \\
+  \hline
+  7 & 7 & 5 \\
+  \hline
+  7 & 7 & 6 \\
+  \hline
+  7 & 7 & 7 \\
+  \hline
+  8 & 8 & 4 \\
+  \hline
+  10 & 10 & 5 \\
+  \hline
+  50 & 50 & 10 \\
+  \hline
+  70 & 70 & 10 \\
+  \hline
+\end{tabular}
+  \caption{configurazioni previste dal torneo.}
+  \label{table:1}
+\end{table}
+
+\subsection{L'obiettivo: il giocatore}
+
+Lo scopo del progetto è lo sviluppo di un'intelligenza artificiale in Java per
+un giocatore di \emph{m,n,k-game}. Se qualità della risposta e costo temporale
+sono prioritari, lo stesso non vale per il costo in memoria, anche se devono
+comunque essere evitati sprechi. Infine, a parità dei fattori di cui sopra, la
+precedenza spetta alle strategie concettualmente più semplici.
+
+\subsection{L'interfaccia: \texttt{mnkgame.MNKPlayer}}
+
+L'interfaccia che l'intelligenza artificiale deve implementare è contenuta nel
+pacchetto \verb!mnkgame!. Oltre a un metodo per la selezione della mossa
+desiderata, ne viene concesso un altro invocato in fase di inizializzazione
+prima di ogni partita.
+
 \section{Analisi del problema}
+
+\subsection{Il valore di gioco teorico}
+
+Molte istanze del problema in questione si presentano come giochi a sé stanti,
+talvolta arrichiti con limitazioni imposte dalle regole: ne sono esempi Tris,
+Go-Moku e Renju. Per alcune configurazioni, il valore di gioco teorico è già
+stato dimostrato. Van den Herik, Uiterwijk e van Rijswijck
+\cite{VANDENHERIK2002277} hanno raccolto tali risultati dalla letteratura
+precedente in tabella \ref{table:2}.
+
+\begin{table}[h!]
+  \centering
+  \begin{tabular}{ | c | c | c | }
+    \hline
+    mnk-game (k=1,2) & Vittoria per il primo giocatore \\
+    \hline
+    333-game (Tris) & Pareggio \\
+    \hline
+    mn3-game ($m \geq 4, n \geq 3$) & Vittoria per il primo giocatore \\
+    \hline
+    m44-game ($m \leq 8$) & Pareggio \\
+    \hline
+    mn4-game ($m \leq 5,n \leq 5$) & Pareggio \\
+    \hline
+    mn4-game ($m \geq 6,n \geq 5$) & Vittoria per il primo giocatore \\
+    \hline
+    mn5-game ($m \leq 6,n \leq 6$) & Pareggio \\
+    \hline
+    15,15,5-game (Go-Moku) & Vittoria per il primo giocatore \\
+    \hline
+    mnk-game ($k \geq 8$) & Pareggio \\
+    \hline
+  \end{tabular}
+    \caption{valori di gioco di \emph{m,n,k-game}}
+    \label{table:2}
+  \end{table}
+
+Tramite l'argomento del ``furto di strategia'', usato per la prima volta da John
+Nash nel 1949 \cite{at.UBO716493520180101}, si dimostra che nessuno dei valori
+di gioco teorico non ancora aggiunto alla tabella è una vittoria per il secondo
+giocatore.
+
+\subsection{L'albero di gioco}
+
+Van den Herik, Uiterwijk e van Rijswijck \cite{VANDENHERIK2002277} classificano
+\emph{m,n,k-game} come di ``categoria 3'', ovvero con un'alta complessità dello
+spazio degli stati e una bassa complessità dell'albero di gioco. Per poter
+quantificare meglio il numero di stati effettivamente appartenenti al nostro
+albero di gioco, faremo uso del numero $s$ di celle della griglia come indice
+della dimensione dell'istanza del problema. Esso vale:
+
+\begin{equation}
+s = m \times n
+\end{equation}
+
+Cominciamo osservando che il numero di figli $f$ di un qualsiasi nodo non
+terminale a profondità $p$ coincide con il numero di celle rimaste vuote, e
+cioè:
+
+\begin{equation}
+  f(p) = s - p
+\end{equation}
+
+Se assumessimo che tutte le foglie dell'albero si trovassero a profondità $s$,
+potremmo facilmente calcolare il numero di nodi $n$ a una data profondità $p$:
+
+\begin{equation}
+  n(p) = \frac{s!}{f(p)!}
+\end{equation}
+
+Quindi, sempre sotto questa ipotesi, il numero di nodi dell'albero sarebbe dato
+da:
+
+\begin{equation}
+ \overline{n_{tot}} = \sum_{p = 0}^{s} n(p) = \sum_{p = 0}^{s} \frac{s!}{f(p)!}
+  = s! \sum_{p = 0}^{s} \frac{1}{p!} = \varTheta(s!)
+\end{equation}
+
+Una stima per difetto dell'effettivo numero di nodi è fornita dall'albero di
+gioco le cui partite terminano tutte nel minor numero di mosse possibili.
+Essendo ragionevole assumere
+
+\begin{equation}
+  m, n > 1 \wedge k \leq m, n
+\end{equation}
+
+si ha $2k - 1 < s$ e quindi:
+
+\begin{equation}
+  n_{tot} = \varOmega((2k - 1)!)
+\end{equation}
+
+Una stima per eccesso dell'effettivo numero di nodi è fornita dall'albero di
+gioco le cui partite terminano tutte nel maggior numero di mosse possibili:
+
+\begin{equation}
+  n_{tot} = O(s!)
+\end{equation}
+
+\subsection{Gli allineamenti}
+
+La seguente formula permette di calcolare il numero $a$ di allineamenti
+orizzontali ($a_{hor}$), verticali ($a_{ver}$) e diagonali ($a_{dia}$) di
+lunghezza $k$ in una griglia di dimensione $m \times n$:
+
+\begin{equation}
+\begin{split}
+  a & = a_{hor} + a_{ver} + a_{dia} = \\
+  & = m (n - k + 1) + n (m - k + 1) + 2 (n + m - 1) (\min(m, n) - k + 1) = \\
+  & = \varTheta(s)
+\end{split}
+\end{equation}
 
 \section{Strumenti}
 
+Durante lo sviluppo del progetto, sono stati impiegati i seguenti strumenti:
+
+\begin{itemize}
+  \item Vim e Visual Studio Code come \emph{editor} di codice;
+  \item \verb!make! per la compilazione automatizzata; 
+  \item OpenJDK Runtime Environment 11.0.12 e Java\texttrademark{} SE Runtime
+    Environment 15 come piattaforme Java;
+  \item Git per il controllo di versione;
+  \item GitHub Actions per l'integrazione e lo sviluppo continui;
+  \item AlmaStart per la ricerca integrata nella base di dati del sistema
+    bibliotecario di ateneo;
+  \item \LaTeXe{} per la preparazione della relazione di progetto.
+\end{itemize}
+
+Per disporre di ulteriore supporto computazionale, si è infine fatto uso da
+remoto delle macchine gestite dal Dipartimento.
+
 \section{Scelte progettuali}
 
-\section{Risultati}
+Oltre a \verb!MoNKey.java!, che implementa \verb!mnkgame.MNKPlayer!, e
+\verb!Tester.java!, classe di collaudo del progetto, \verb!monkey! disponde di
+tre sottopacchetti:
+\begin{itemize}
+  \item \verb!monkey.util! fornisce strutture dati e algoritmi di uso generale
+    ma non presenti nella libreria standard Java;
+  \item \verb!monkey.ai! definisce un'intelligenza artificale per un generico
+    gioco a turni a due giocatori i cui stati siano istanze di un'unica classe
+    implementante \verb!monkey.ai.State!;
+  \item \verb!monkey.mnk! espone la rappresentazione di \emph{m,n,k-game}
+    implementando \verb!monkey.ai.State!.
+\end{itemize}
 
-\section{Ricerche future}
+\subsection{\texttt{monkey.util}}
+
+\begin{sloppypar}
+Questo pacchetto sopperisce alle mancanze della libreria standard con i metodi
+per il calcolo del minimo e del massimo fra due elementi, nonché con una mappa
+implementata come tabella ad indirizzamento diretto
+\cite{at.UBO708344820100101}. Da notare che, fatta eccezione per
+l'inizializzazione della suddetta mappa (che ha un costo temporale lineare nella
+propria capacità), tutti i metodi di questo pacchetto hanno costo costante.
+\end{sloppypar}
+
+\subsection{\texttt{monkey.ai}}
+
+L'intelligenza artificiale progettata propone due diversi algoritmi per la
+scelta della mossa: il primo effettua una ricerca all'interno dell'albero di
+gioco, mentre il secondo esegue un più veloce ma meno accurato confronto fra le
+mosse al momento disponibili. Quest'ultimo è pensato per le configurazioni
+troppo impegnative per il primo algoritmo. Spetta a \verb!MoNKey.java! decidere
+a quale metodo fare affidamento basandosi su $s$.
+
+\subsubsection{Ricerca nell'albero di gioco}
+
+Nonostante Herik, Uiterwijk e Rijswijck \cite{VANDENHERIK2002277} raccomandino
+per i giochi di ``categoria 3'' l'uso di metodi basati sulla conoscenza,
+abbiamo optato per una scelta più tradizionalista: una sintesi di più varianti
+della potatura alfa-beta, che si colloca invece nei metodi a forza bruta.
+
+\begin{sloppypar}
+In primo luogo, viste le imposizioni sul tempo di esecuzione, il nostro
+algoritmo ha necessariamente bisogno di un limite di profondità $d$.
+L'interfaccia delle due funzioni per una "classica" potatura alfa-beta
+\cite{at.UBO029034619980101.200--202} risulta quindi essere:
+\end{sloppypar}
+\begin{itemize}
+  \item $\proc{Max-Value}(s, \alpha, \beta, d)$: applica la ricerca
+    al nodo che rappresenta lo stato $s$ assumendo che esso sia di massimo;
+  \item $\proc{Min-Value}(s, \alpha, \beta, d)$: applica la ricerca
+    al nodo che rappresenta lo stato $s$ assumendo che esso sia di minimo.
+\end{itemize}
+In entrambi i casi, $\alpha$ e $\beta$ fungono da parametri della potatura,
+mentre $d$ è il limite di profondità imposto. La mutuale ricorsione di queste
+due procedure è responsabile di un'esplorazione a profondità limitata
+dell'albero; tale ricerca supporta il dietrofront
+\cite{at.UBO029034619980101.108} (\emph{backtracking}) tramite le funzioni
+$\proc{Result}(s, a)$ e $\proc{Revert}(s)$.
+La loro implementazione non viene riportata in quanto piuttosto canonica,
+eccezion fatta per ripetuti controlli sullo scadere del tempo di gioco e per
+l'uso di una tabella delle trasposizioni \cite{CN020689428}. Tale tavola
+\emph{hash} è a due livelli e fa uso dello schema di rimpiazzamento
+$\proc{TwoBig1}$: Breuker, Uiterwijk e van den Herik
+\cite{BREUKER-UITERWIJK-VANDENHERIK}
+\cite{edsdbl.journals.icga.BreukerUH9619960101} ne hanno dimostrato la
+superiorità rispetto a $\proc{Deep}$, $\proc{New}$, $\proc{Old}$, $\proc{Big1}$,
+$\proc{BigAll}$ e $\proc{TwoDeep}$.
+
+La variante della potatura alfa-beta scelta, che fa uso di $\proc{Max-Value}$ e
+$\proc{Min-Value}$, è la ricerca del nodo migliore (\emph{best node search}, o
+\emph{BNS}) di Rutko \cite{edseul.200009163084620110101}, che porta a
+prestazioni migliori rispetto a tutte le varianti precedenti, vale a dire
+$\proc{PVS}$, $\proc{Negascout}$, $\proc{NegaC*}$, $\proc{SSS*}$,
+$\proc{Dual*}$, $\proc{MTD}(f)$. Il nostro algoritmo presenta varie differenze
+rispetto alla versione originale:
+\begin{itemize}
+    \item il chiamante specifica il limite di profondità $d$ desiderato;
+    \item il calcolo degli inizializzatori per $\alpha$ e $\beta$ viene delegato
+      nelle linee \ref{li:initial-alpha} e \ref{li:initial-beta} allo stato
+      corrente $s$, che può così effettuare considerazioni specifiche per il
+      gioco in questione;
+    \item proprio come per $\proc{Max-Value}$ e $\proc{Min-Value}$, gli unici
+      sottoalberi ispezionati sono quelli considerati ``rilevanti'' da $s$ (vedi
+      \ref{pattern-search});
+    \begin{sloppypar}
+    \item se più sottoalberi superano una prova, $\id{best-node}$ ne memorizza
+      sempre il primo. Questo permette di approfittare del fatto che
+      l'interfaccia \verb!monkey.ai.State! promette un'iterazione sulle azioni
+      rilevanti in ordine decrescente di aspettative;
+    \end{sloppypar}
+    \item l'algoritmo originale, ispirandosi a $\proc{Negamax}$, sostituiva alla
+      chiamata a $\proc{Min-Value}$ della linea \ref{li:min-value} una a
+      $\proc{Max-Value}$ con argomenti e valore resituito negati di segno. La
+      nostra accezione di ``giochi a somma zero'' designa però i giochi a somma
+      costante, per i quali tale espediente non è utilizzabile nel caso
+      generale: evitarlo ci permette di fare uso di funzioni di valutazione
+      degli stati asimmetriche rispetto ai due giocatori;
+    \item la nostra esplorazione dell'albero, come già detto, supporta il
+      dietrofront (linea \ref{li:backtracking}).
+\end{itemize}
+
+\begin{codebox}
+  \Procname{$\proc{Best-Node-Search}(s, d)$}
+  \li  $\alpha \gets \proc{Initial-Alpha}(s)$ \label{li:initial-alpha}
+  \li  $\beta \gets \proc{Initial-Beta}(s)$ \label{li:initial-beta}
+  \li  $\id{subtree-count} \gets \proc{Count-Relevant-Children}(s)$
+  \li  \Repeat
+  \li    $\id{best-node} \gets \const{nil}$
+  \li    $\id{test} \gets \proc{Next-Guess}(\alpha, \beta, \id{subtree-count})$
+  \li    $\id{better-count} \gets 0$
+  \li    \For ogni azione rilevante $a$ di $s$
+  \li      \Do
+             \If $\proc{Min-Value}(\proc{Result}(s, a), test - 1, test, d) \geq
+             test)$ \label{li:min-value}
+  \li          \Then
+                 $\id{better-count} \gets \id{better-count} + 1$
+  \li            \If $\id{best-node} \isequal \const{nil}$
+  \li              \Then
+                     $\id{best-node} \gets a$
+                   \End
+               \End
+  \li        $\proc{Revert}(s)$ \label{li:backtracking}
+           \End
+  \li    \If $\id{better-count} \isequal 0$
+  \li      \Then $\beta \gets \id{test}$
+  \li    \ElseIf $\id{better-count} > 1$
+  \li      \Then
+             $\id{subtree-count} \gets \id{better-count}$
+  \li        $\alpha \gets \id{test}$
+           \End
+  \li  \Until $(\beta - \alpha < 2 \mbox{ or } \id{better-count} \isequal 1)
+       \mbox{ and } \id{better-count} \neq 0$
+  \li  \Return $\id{best-node}$
+\end{codebox}
+
+\begin{codebox}
+  \Procname{$\proc{Next-Guess}(\alpha, \beta, \id{subtree-count})$}
+  \li  \Return $\alpha + \frac{(\beta - \alpha) (\id{subtree-count} - 1)}
+       {\id{subtree-count}}$
+\end{codebox}
+
+Il limite di profondità $d$ è stabililto da una ricerca ad approfondimento
+iterativo. Rispetto alla versione proposta da Russel e Norvig
+\cite{at.UBO029034619980101.109--111}, la nostra differisce sotto alcuni aspetti
+e ne espande altri che erano stati originariamente solo accennati dagli autori:
+\begin{itemize}
+    \item l'intervallo dei possibili limiti di profondità ha un estremo
+      superiore finito la cui scelta può dipendere da considerazioni specifiche
+      su un gioco e uno stato particolari (linea \ref{li:max-limit});
+    \item qualora una chiamata a $\proc{Best-Node-Search}$ segnali lo scadere
+      del tempo, viene restituita la mossa calcolata con la più profonda ricerca
+      completata;
+    \item la linea \ref{li:setup-backup} memorizza una copia dello stato di
+      gioco di partenza. In questo modo, in caso di terminazione urgente dovuta
+      allo scadere del tempo di gioco, è possibile ripristinare alla linea
+      \ref{li:restore-backup} tale copia con costo temporale costante. Nessuna
+      pila di chiamate $\proc{Best-Node-Search}$, $\proc{Max-Value}$ e
+      $\proc{Min-Value}$ dovrà così affannarsi a invertire l'effetto di più
+      mosse di gioco una per una.
+\end{itemize}
+\begin{sloppypar}
+Lo pseudocodice che segue impiega un semplice sistema di gestione delle
+eccezioni alla linea \ref{li:try}. Questo ha permesso di codificare
+$\proc{Best-Node-Search}$ facendo affidamento al principio dell'``acchiappa e
+rilascia'', e ignorando così la gestione delle scadenze temporali, che viene
+delegata a ipotetiche implementazioni di $\proc{Max-Value}$ e
+$\proc{Min-Value}$. Ovviamente, è comunque possibile (e fruttuoso a livello di
+prestazioni) fare affidamento a valori restituiti dalle varie funzioni che
+segnalino questo tipo di occorrenze.
+\end{sloppypar}
+
+\begin{codebox}
+  \Procname{$\proc{Iterative-Deepening-Search}(s)$}
+  \li  $\id{backup-state} \gets \proc{copy}(s)$ \label{li:setup-backup}
+  \li  $\id{max-limit} \gets \proc{Overestimated-Height}(s)$
+       \label{li:max-limit}
+  \li  $\id{res} \gets \const{nil}$
+  \li  \For $d \gets 0$ \To $\id{max-limit}$
+  \li    \Do
+           \kw{try} \label{li:try}
+  \li        \Do
+               $\id{res} \gets \proc{Best-Node-Search}(d)$
+             \End
+  \li      \kw{catch} $\const{timeout-exception}$
+  \li        \Do
+               $s \gets \id{backup-state}$ \label{li:restore-backup}
+  \li          \If $\id{res} \neq \const{nil}$
+  \li            \Then
+                   \Return $\id{res}$
+                 \End
+  \li          \Comment fallback action
+  \li          \Return $\proc{First-Relevant-Action}(s)$
+             \End
+         \End
+  \li  \Return $\id{res}$
+\end{codebox}
+
+In memoria sarà necessario solamente conservare due stati di gioco alla volta,
+la tabella delle trasposizioni, la pila implicita delle chiamate ($O(d)$) e
+altre variabili di costo in memoria costante.
+
+\subsubsection{Confronto fra mosse}
+
+Questa secondo modo di individuare una mossa promettente ne estrae una in modo
+pseudorandomico fra quelle che, applicate allo stato attuale, massimizzano la
+funzione di valutazione. Anche questo algoritmo supporta il dietrofront e si
+limita ad analizzare le azioni considerate ``rilevanti''.
+
+\begin{codebox}
+  \Procname{$\proc{Immediate-Search}(s)$}
+  \li  $\id{best-moves} \gets$
+       {\fontspec[ Path = fonts/ ]{Symbola}\emph{\symbol{"2205}}}
+  \li  $\id{max-eval} \gets \const{nil}$
+  \li \For ogni azione rilevante $a$ di $s$
+  \li   \Do
+          $\id{current-eval} \gets \proc{Eval}(\proc{Result}(s, a))$
+  \li     $\proc{Revert}(s)$
+  \li     \If $\id{max-eval} \isequal \const{nil}$
+  \li       \Then
+              $\id{max-eval} \gets \id{current-eval}$
+  \li         $\id{best-moves} \gets \id{best-moves} \cup \{ a \}$
+  \li     \ElseIf $\id{current-eval} \geq \id{max-eval}$
+  \li       \Then
+              \If $\id{current-eval} > \id{max-eval}$
+  \li           \Then
+                  $\id{max-eval} \gets \id{current-eval}$
+  \li             $\id{best-moves} \gets$
+                  {\fontspec[ Path = fonts/ ]{Symbola}\emph{\symbol{"2205}}}
+                \End
+  \li         $\id{best-moves} \gets \id{best-moves} \cup \{ a \}$
+          \End
+        \End
+  \li  \Return \proc{Random}(\id{best-moves})
+\end{codebox}
+
+Banalmente, il numero di nodi esaminati da $\proc{Immediate-Search}$ coincide
+con le azioni rilevanti per lo stato corrente; nel caso peggiore, in cui la
+funzione di valutazione assegna lo stesso valore a ciascuna di esse,
+$\id{best-moves}$ le memorizzerà tutte.
+
+\subsection{\texttt{monkey.mnk}}
+
+La rappresentazione dello stato di un \emph{m,n,k-game} fa ampio uso
+dell'approccio incrementale: la maggior parte delle informazioni derivate
+riguardanti la situazione attuale vengono salvate nella rappresentazione stessa.
+In questo modo, non devono essere calcolate ogni volta da capo né quando vengono
+richieste più volte, né quando lo stato viene minimizzato.
+
+\subsubsection{Stato iniziale}
+
+In fase di costruzione, vengono istanziati (i costi riportati tra parentesi
+sono sia temporali che spaziali):
+\begin{itemize}
+  \item una matrice rappresentante la griglia di gioco ($\varTheta(s)$);
+  \item un elenco di tutte le posizioni di gioco in ordine di valore decrescente
+    ($\varTheta(s)$);
+  \item tabelle ad indirizzamento diretto che tengano traccia delle condizioni
+    di ogni possibile allineamento di lunghezza $k$, $k - 1$ o $k - 2$
+    ($\varTheta(s)$);
+  \item una matrice di codici pseudorandomici per l'\emph{hashing}
+    ($\varTheta(s)$);
+  \item altre variabili in quantità costante ($\varTheta(1)$).
+\end{itemize}
+
+Sia il tempo che la memoria richiesti appartengono quindi alla classe di costo
+$\varTheta(s)$. Si noti che neanche un'implementazione minimale della sola
+griglia di gioco potrebbe rimanere in una classe di costo inferiore. 
+
+\subsubsection{Inizializzatori per $\alpha$ e $\beta$}
+
+Basandosi sulla tabella \ref{table:2}, è possibile calcolare inizializzatori per
+$\alpha$ e $\beta$ in tempo e spazio costanti.
+
+\subsubsection{Azioni} \label{pattern-search}
+
+Ciascuno stato di gioco fornisce un'iterazione sulle proprie mosse legali e
+rilevanti di costo complessivo $\varTheta(s)$ nel caso pessimo e $\varTheta(1)$
+nel caso ottimo. L'ordinamento è già stato determinato staticamente in fase di
+costruzione: è quello della ``chiocciola'', vale a dire a spirale a partire dal
+centro. In questo modo, viene data più rilevanza alle posizioni centrali,
+generalmente considerate più forti. In maniera analoga alla ricerca per schemi
+\cite{VANDENHERIK2002277}, ci si limita alla enumerazione delle mosse
+appartenenti a un certo "schema di minacce" $\psi$ considerato l'area
+attualmente degna di nota della griglia. In questa implementazione, viene
+congetturato che essa coincida con l'insieme delle celle vuote adiacenti anche
+in diagonale a una piena o, qualora non ve ne fossero, al singoletto contenente
+solo la posizione centrale.
+
+\subsubsection{Modello di transizione}
+
+Ogni volta che un simbolo viene aggiunto/rimosso dalla griglia, le seguenti
+operazioni vengono effettuate:
+\begin{itemize}
+  \item aggiornamento della cella coinvolta ($\varTheta(1)$);
+  \item aggiornamento dei contatori delle minacce influenzate ($\varTheta(k)$);
+  \item aggiornamento dei contatori di celle piene adiacenti ($\varTheta(1)$);
+  \item eventuale aggiornamento dell'esito della partita ($\varTheta(1)$);
+  \item aggiornamento della cronologia di gioco ($\varTheta(1)$);
+  \item aggiornamento del codice \emph{hash}.
+\end{itemize}
+
+Complessivamente, il costo in tempo è di $\varTheta(k)$, mentre quello in
+memoria è costante.
+
+\subsubsection{Funzione di valutazione}
+
+Al fine di evitare approcci rudimentali come le euristiche di Shevchenko e Chua
+Hock Chuan, \verb!monkey.mnk.Board! fa uso della seguente versione semplificata
+della funzione di valutazione di Abdoulaye-Houndji-Ezin-Aglin \cite{abdoulaye}:
+
+\begin{equation}
+\begin{split}
+  f ={} &100 p_{k - 2, 2} + 80 p_{k - 1, 1} + 250 p_{k - 1, 2} + 1000000 p_k \\
+  & - 1300 q_{k - 2, 2} - 2000 q_{k - 1, 1} + 5020 q_{k - 1, 2} + 1000000 q_k
+\end{split}
+\end{equation}
+
+nella quale $p_{i, 1}$ è il numero di minacce semiaperte di dimensione $i$ del
+giocatore; $p_{i, 2}$ è il numero di minacce aperte di dimensione $i$ del
+giocatore; $p_i$ è il numero di minacce senza buchi di dimensione $i$ del
+giocatore; $q_{i, 1}$ è il numero di minacce semiaperte di dimensione $i$
+dell'avversario; $q_{i, 2}$ è il numero di minacce aperte di dimensione $i$
+dell'avversario; $q_i$ è il numero di minacce senza buchi di dimensione $i$
+dell'avversario. Grazie all'approccio incrementale, tale calcolo viene sempre
+effettuato in tempo e spazio costanti.
+
+\subsubsection{Funzione di \emph{hashing}}
+
+Il metodo di \emph{hashing} proposto da Zobrist
+\cite{edsoai.ocn79990521120120101} è semplice, in tempo costante e accompagnato
+da una letturatura ben più corposa delle sue controparti come BHC. Usando un
+seme costante per la generazione dei disgiunti, è possibile verificarne la
+validità staticamente. Per esempio, è utile accertarsi che tale seme generi
+disgiunti distinti due a due.
+
+Per aumentare il numero di ricerche con successo all'interno della tabella delle
+trasposizioni, a trasposizioni simmetriche (fino a otto su una griglia quadrata,
+o fino a quattro in caso contrario) viene assegnato lo stesso codice
+\emph{hash}, e sempre in tempo costante. Questo permette di evitare di esplorare
+più volte sottoalberi di fatto equivalenti. Gli effettivi vantaggi di questo
+accorgimento sono stati dimostrati sperimentalmente da Schiffel \cite{schiffel}.
 
 \section{Conclusioni}
 
-\section{Bibliografia}
+Anche se {
+    \fontspec[ Path = fonts/ ]{Symbola}
+    \symbol{"1F17C}\symbol{"1F435}\symbol{"1F17D}\symbol{"1F17A}ey
+} è stato in grado di giocare in maniera più che competitiva contro un giocatore
+umano, quantificarne le prestazioni complessive non si è rivelato possibile. La
+mancanza di un'infrastruttura comune agli studenti del corso per il collaudo dei
+propri progetti sotto forma di torneo informale ha inciso negativamente sulle
+nostre capacità di valutazione obiettiva del lavoro svolto. Dal punto di vista
+dell'analisi del costo computazionale, l'informazione mancante è un'accurata
+stima asintotica del numero $n_{BNS}(d)$ dei nodi ispezionati da
+$\proc{Best-Node-Search}$ con limite di profondità $d$. Esso, come nel caso
+delle altre varianti della potatura alfa-beta, viene di norma misurato solo
+sperimentalmente. Al momento tali ricerche sono state effettuate solo per la
+versione originale dell'algoritmo, e solo per alberi con fattore di
+ramificazione omogeneo. Se in futuro si dovesse proseguire con le ricerche in
+questa direzione, si potrebbe derivare il numero di nodi raggiunti da
+$\proc{Iterative-Deepening-Search}$ al variare di $s$:
+
+\begin{equation}
+  n_{IDS}(s) = \sum_{i = 0}^{s} n_{BNS}(i)
+\end{equation}
+
+Questo porterebbe quindi al calcolo del costo temporale della procedura
+$\proc{Iterative-Deepening-Search}$:
+
+\begin{equation}
+  T(s) = n_{IDS}(s) \Theta(k) = \Theta(n_{IDS}(s) k)
+\end{equation}
+
+\section{Ricerche future}
+
+\subsection{Alcune strategie ancora inutilizzate}
+
+Fra le tecniche di ricerca non adottate in questo progetto ma che potrebbero
+migliorarne i risultati ricordiamo:
+\begin{itemize}
+    \item il metodo Monte Carlo;
+    \item la ricerca di quiescienza;
+    \item l'estensione singola;
+    \item analisi retrograda \cite{at.UBO029034619980101.207--211};
+    \item la ricerca per schemi;
+    \item la ricerca per prova numerica;
+    \item la ricerca dello spazio delle minacce;
+    \item la $\lambda$-ricerca \cite{VANDENHERIK2002277}.
+\end{itemize}
+
+\subsection{Nel contesto del torneo}
+
+Il progetto ha trattato esclusivamente strategie circoscritte alla singola
+partita: espedienti sul lungo periodo, orientati ad un piazzamento il più alto
+possibile in classifica, sono stati ignorati. Possibili spunti per ricerche
+future includono:
+\begin{itemize}
+  \item ``fare lo gnorri'': davanti ad una sconfitta come primo giocatore
+    reputata quasi inevitabile, resituire una mossa illegale o stallare fino
+    allo scadere del tempo permette di far guadagnare all'avversario un punto in
+    meno (si veda \ref{tournament});
+  \item ``congiurare'': consiste in una cospirazione orchestrata da una
+    maggioranza sufficientemente grande di intelligenze artificiali partecipanti
+    al torneo. Tramite un uso oculato del ``fare lo gnorri'', è sempre possibile
+    assicurare a uno dei propri membri il primo posto in classifica. Deve però
+    essere possibile riuscire a identificare quest'ultimo quando vi si gioca
+    contro, per esempio istruendolo in precedenza affinché giochi un'apertura
+    inconsueta.
+\end{itemize}
+
+\subsection{Approcci differenti}
+
+È utile inoltre osservare come, se presentate in un insegnamento diverso, ad
+esempio un corso di calcolo numerico o approfondimento profondo, le stesse
+specifiche avrebbero potuto stimolare a soluzioni completamente differenti.
+
+\pagebreak
+
+\begin{sloppypar}
+\printbibliography[
+  heading=bibintoc
+]
+\end{sloppypar}
 
 \end{document}
