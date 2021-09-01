@@ -355,7 +355,7 @@ della potatura alfa-beta, che si colloca invece nei metodi a forza bruta.
 \begin{sloppypar}
 In primo luogo, viste le imposizioni sul tempo di esecuzione, il nostro
 algoritmo ha necessariamente bisogno di un limite di profondità $d$.
-L'interfaccia delle due funzioni per una "classica" potatura alfa-beta
+L'interfaccia delle due funzioni per una ``classica'' potatura alfa-beta
 \cite{at.UBO029034619980101.200--202} risulta quindi essere:
 \end{sloppypar}
 \begin{itemize}
@@ -404,11 +404,9 @@ rispetto alla versione originale:
     \end{sloppypar}
     \item l'algoritmo originale, ispirandosi a $\proc{Negamax}$, sostituiva alla
       chiamata a $\proc{Min-Value}$ della linea \ref{li:min-value} una a
-      $\proc{Max-Value}$ con argomenti e valore resituito negati di segno. La
-      nostra accezione di ``giochi a somma zero'' designa però i giochi a somma
-      costante, per i quali tale espediente non è utilizzabile nel caso
-      generale: evitarlo ci permette di fare uso di funzioni di valutazione
-      degli stati asimmetriche rispetto ai due giocatori;
+      $\proc{Max-Value}$ con argomenti e valore resituito negati di segno. 
+      Evitare questo espediente ci permette di fare uso di funzioni di
+      valutazione degli stati asimmetriche rispetto ai due giocatori;
     \item la nostra esplorazione dell'albero, come già detto, supporta il
       dietrofront (linea \ref{li:backtracking}).
 \end{itemize}
@@ -475,9 +473,8 @@ e ne espande altri che erano stati originariamente solo accennati dagli autori:
 \begin{sloppypar}
 Lo pseudocodice che segue impiega un semplice sistema di gestione delle
 eccezioni alla linea \ref{li:try}. Questo ha permesso di codificare
-$\proc{Best-Node-Search}$ facendo affidamento al principio dell'``acchiappa e
-rilascia'', e ignorando così la gestione delle scadenze temporali, che viene
-delegata a ipotetiche implementazioni di $\proc{Max-Value}$ e
+$\proc{Best-Node-Search}$ ignorando la gestione delle scadenze temporali, che
+viene delegata a ipotetiche implementazioni di $\proc{Max-Value}$ e
 $\proc{Min-Value}$. Ovviamente, è comunque possibile (e fruttuoso a livello di
 prestazioni) fare affidamento a valori restituiti dalle varie funzioni che
 segnalino questo tipo di occorrenze.
@@ -558,7 +555,7 @@ La rappresentazione dello stato di un \emph{m,n,k-game} fa ampio uso
 dell'approccio incrementale: la maggior parte delle informazioni derivate
 riguardanti la situazione attuale vengono salvate nella rappresentazione stessa.
 In questo modo, non devono essere calcolate ogni volta da capo né quando vengono
-richieste più volte, né quando lo stato viene minimizzato.
+richieste più volte, né quando lo stato viene modificato.
 
 \subsubsection{Stato iniziale}
 
@@ -594,7 +591,7 @@ costruzione: è quello della ``chiocciola'', vale a dire a spirale a partire dal
 centro. In questo modo, viene data più rilevanza alle posizioni centrali,
 generalmente considerate più forti. In maniera analoga alla ricerca per schemi
 \cite{VANDENHERIK2002277}, ci si limita alla enumerazione delle mosse
-appartenenti a un certo "schema di minacce" $\psi$ considerato l'area
+appartenenti a un certo ``schema di minacce'' $\psi$ considerato l'area
 attualmente degna di nota della griglia. In questa implementazione, viene
 congetturato che essa coincida con l'insieme delle celle vuote adiacenti anche
 in diagonale a una piena o, qualora non ve ne fossero, al singoletto contenente

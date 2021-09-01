@@ -455,7 +455,7 @@ public class AI<S extends State<S, A>, A> {
 	/** Utilities instance for generic objects. */
 	final private ObjectUtils objectUtils = new ObjectUtils();
 	/** The higher, the more time is used at most for each search. */
-	final private float RELAXATION = 0.95f;
+	final private float RELAXATION = 0.94f;
 	/** A transposition table for this instance of the {@link AI}. */
 	final private HashMap<Integer, Entry<S, A>> transpositionTable;
 	/** Start time of the current turn. */
