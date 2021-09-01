@@ -74,7 +74,7 @@ diagonale almeno \emph{k} simboli, questi vince la partita e il suo avversario
 la perde. Se non rimangono più celle vuote sulla griglia, la partita finisce
 in pareggio.
 
-\subsection{Il torneo: la classifica dei giocatori}
+\subsection{Il torneo: la classifica dei giocatori} \label{tournament}
 
 Ogni volta che, all'interno del torneo, un giocatore conclude una partita, egli
 guadagna: 
@@ -89,10 +89,11 @@ guadagna:
 \noindent
 Le regole del torneo considerano una vittoria ``a tavolino'' quando l'avversario
 non restituisce una mossa entro il tempo limite (approssimativo) di 10 secondi,
-o comunque un mossa illegale (già occupata o esterna alla griglia). Non è dato
-conoscere l'identità dell'avversario. Per ognuna delle seguenti configurazioni,
-ciascun giocatore gioca esattamente quattro partite contro ogni altro
-partecipante, di cui due come primo giocatore e due come secondo giocatore.
+o comunque sceglie un mossa illegale (già occupata o esterna alla griglia). Non
+è dato conoscere l'identità dell'avversario. Per ognuna delle configurazioni in
+tabella \ref{table:1}, ciascun agente gioca esattamente quattro partite contro
+ogni altro partecipante, di cui due come primo giocatore e due come secondo
+giocatore.
 
 \begin{table}[h!]
 \centering
@@ -157,11 +158,11 @@ partecipante, di cui due come primo giocatore e due come secondo giocatore.
 
 \subsection{L'obiettivo: il giocatore}
 
-Lo scopo del progetto è lo sviluppo di una intelligenza artificiale in Java
-per il giocatore di \emph{m,n,k-game}. Se qualità della risposta e costo
-temporale sono prioritari, lo stesso non vale per il costo in memoria, anche se
-devono comunque essere evitati sprechi. Infine, a parità dei fattori di cui
-sopra, la precedenza spetta alle strategie concettualmente più semplici.
+Lo scopo del progetto è lo sviluppo di un'intelligenza artificiale in Java per
+un giocatore di \emph{m,n,k-game}. Se qualità della risposta e costo temporale
+sono prioritari, lo stesso non vale per il costo in memoria, anche se devono
+comunque essere evitati sprechi. Infine, a parità dei fattori di cui sopra, la
+precedenza spetta alle strategie concettualmente più semplici.
 
 \subsection{L'interfaccia: \texttt{mnkgame.MNKPlayer}}
 
@@ -179,7 +180,7 @@ talvolta arrichiti con limitazioni imposte dalle regole: ne sono esempi Tris,
 Go-Moku e Renju. Per alcune configurazioni, il valore di gioco teorico è già
 stato dimostrato. Van den Herik, Uiterwijk e van Rijswijck
 \cite{VANDENHERIK2002277} hanno raccolto tali risultati dalla letteratura
-precedente nella seguente tabella.
+precedente in tabella \ref{table:2}.
 
 \begin{table}[h!]
   \centering
@@ -219,8 +220,8 @@ Van den Herik, Uiterwijk e van Rijswijck \cite{VANDENHERIK2002277} classificano
 \emph{m,n,k-game} come di ``categoria 3'', ovvero con un'alta complessità dello
 spazio degli stati e una bassa complessità dell'albero di gioco. Per poter
 quantificare meglio il numero di stati effettivamente appartenenti al nostro
-albero di gioco, faremo uso del numero di celle della griglia come indice della
-dimensione dell'istanza del problema. Esso vale:
+albero di gioco, faremo uso del numero $s$ di celle della griglia come indice
+della dimensione dell'istanza del problema. Esso vale:
 
 \begin{equation}
 s = m \times n
@@ -291,7 +292,7 @@ Durante lo sviluppo del progetto, sono stati impiegati i seguenti strumenti:
 \begin{itemize}
   \item Vim e Visual Studio Code come \emph{editor} di codice;
   \item \verb!make! per la compilazione automatizzata; 
-  \item OpenJDK Runtime Environment 11.0.12 e Java\texttrademark SE Runtime
+  \item OpenJDK Runtime Environment 11.0.12 e Java\texttrademark{} SE Runtime
     Environment 15 come piattaforme Java;
   \item Git per il controllo di versione;
   \item GitHub Actions per l'integrazione e lo sviluppo continui;
@@ -326,17 +327,17 @@ per il calcolo del minimo e del massimo fra due elementi, nonché con una mappa
 implementata come tabella ad indirizzamento diretto
 \cite{at.UBO708344820100101}. Da notare che, fatta eccezione per
 l'inizializzazione della suddetta mappa (che ha un costo temporale lineare nella
-sua capacità), tutti i metodi di questo pacchetto hanno costo costante.
+propria capacità), tutti i metodi di questo pacchetto hanno costo costante.
 \end{sloppypar}
 
 \subsection{\texttt{monkey.ai}}
 
 L'intelligenza artificiale progettata propone due diversi algoritmi per la
 scelta della mossa: il primo effettua una ricerca all'interno dell'albero di
-gioco, mentre il secondo un più veloce ma meno accurato confronto fra le mosse
-al momento disponibili. Quest'ultimo è pensato per le configurazioni troppo
-impegnative per il primo algoritmo. Spetta a \verb!MoNKey.java! decidere a quale
-metodo fare affidamento basandosi su $s$.
+gioco, mentre il secondo esegue un più veloce ma meno accurato confronto fra le
+mosse al momento disponibili. Quest'ultimo è pensato per le configurazioni
+troppo impegnative per il primo algoritmo. Spetta a \verb!MoNKey.java! decidere
+a quale metodo fare affidamento basandosi su $s$.
 
 \subsubsection{Ricerca nell'albero di gioco}
 
@@ -457,7 +458,7 @@ e ne espande altri che erano stati originariamente solo accennati dagli autori:
     \item qualora una chiamata a $\proc{Best-Node-Search}$ segnali lo scadere
       del tempo, viene restituita la mossa calcolata con la più profonda ricerca
       completata;
-    \item La linea \ref{li:setup-backup} memorizza una copia dello stato di
+    \item la linea \ref{li:setup-backup} memorizza una copia dello stato di
       gioco di partenza. In questo modo, in caso di terminazione urgente dovuta
       allo scadere del tempo di gioco, è possibile ripristinare alla linea
       \ref{li:restore-backup} tale copia con costo temporale costante. Nessuna
@@ -550,7 +551,7 @@ $\id{best-moves}$ le memorizzerà tutte.
 La rappresentazione dello stato di un \emph{m,n,k-game} fa ampio uso
 dell'approccio incrementale: la maggior parte delle informazioni derivate
 riguardanti la situazione attuale vengono salvate nella rappresentazione stessa.
-In questo modo, non devono essere calcolato ogni volta da capo né quando vengono
+In questo modo, non devono essere calcolate ogni volta da capo né quando vengono
 richieste più volte, né quando lo stato viene minimizzato.
 
 \subsubsection{Stato iniziale}
@@ -653,18 +654,22 @@ Anche se {
     \fontspec[ Path = fonts/ ]{Symbola}
     \symbol{"1F17C}\symbol{"1F435}\symbol{"1F17D}\symbol{"1F17A}ey
 } è stato in grado di giocare in maniera più che competitiva contro un giocatore
-umano, quantificarne le prestazioni complessive non si è rivelato possibile.
-L'informazione mancante è un'accurata stima asintotica del numero $n_{BNS}$
-dei nodi ispezionati da $\proc{Best-Node-Search}$. Esso, come nel caso delle
-altre varianti della potatura alfa-beta, viene di norma misurato solo
+umano, quantificarne le prestazioni complessive non si è rivelato possibile. La
+mancanza di un'infrastruttura comune agli studenti del corso per il collaudo dei
+propri progetti sotto forma di torneo informale ha inciso negativamente sulle
+nostre capacità di valutazione obiettiva del lavoro svolto. Dal punto di vista
+dell'analisi del costo computazionale, l'informazione mancante è un'accurata
+stima asintotica del numero $n_{BNS}(d)$ dei nodi ispezionati da
+$\proc{Best-Node-Search}$ con limite di profondità $d$. Esso, come nel caso
+delle altre varianti della potatura alfa-beta, viene di norma misurato solo
 sperimentalmente. Al momento tali ricerche sono state effettuate solo per la
 versione originale dell'algoritmo, e solo per alberi con fattore di
-ramificazione omogeneo. Se in futuro si dovesse proseguire con le richerce in
+ramificazione omogeneo. Se in futuro si dovesse proseguire con le ricerche in
 questa direzione, si potrebbe derivare il numero di nodi raggiunti da
 $\proc{Iterative-Deepening-Search}$ al variare di $s$:
 
 \begin{equation}
-  n_{IDS}(s) = \sum_{i = 0}^{s} n_{BNS}
+  n_{IDS}(s) = \sum_{i = 0}^{s} n_{BNS}(i)
 \end{equation}
 
 Questo porterebbe quindi al calcolo del costo temporale della procedura
@@ -675,6 +680,47 @@ $\proc{Iterative-Deepening-Search}$:
 \end{equation}
 
 \section{Ricerche future}
+
+\subsection{Alcune strategie ancora inutilizzate}
+
+Fra le tecniche di ricerca non adottate in questo progetto ma che potrebbero
+migliorarne i risultati ricordiamo:
+\begin{itemize}
+    \item il metodo Monte Carlo;
+    \item la ricerca di quiescienza;
+    \item l'estensione singola;
+    \item analisi retrograda \cite{at.UBO029034619980101.207--211};
+    \item la ricerca per schemi;
+    \item la ricerca per prova numerica;
+    \item la ricerca dello spazio delle minacce;
+    \item la $\lambda$-ricerca \cite{VANDENHERIK2002277}.
+\end{itemize}
+
+\subsection{Nel contesto del torneo}
+
+Il progetto ha trattato esclusivamente strategie circoscritte alla singola
+partita: espedienti sul lungo periodo, orientati ad un piazzamento il più alto
+possibile in classifica, sono stati ignorati. Possibili spunti per ricerche
+future includono:
+\begin{itemize}
+  \item ``fare lo gnorri'': davanti ad una sconfitta come primo giocatore
+    reputata quasi inevitabile, resituire una mossa illegale o stallare fino
+    allo scadere del tempo permette di far guadagnare all'avversario un punto in
+    meno (si veda \ref{tournament});
+  \item ``congiurare'': consiste in una cospirazione orchestrata da una
+    maggioranza sufficientemente grande di intelligenze artificiali partecipanti
+    al torneo. Tramite un uso oculato del ``fare lo gnorri'', è sempre possibile
+    assicurare a uno dei propri membri il primo posto in classifica. Deve però
+    essere possibile riuscire a identificare quest'ultimo quando vi si gioca
+    contro, per esempio istruendolo in precedenza affinché giochi un'apertura
+    inconsueta.
+\end{itemize}
+
+\subsection{Approcci differenti}
+
+È utile inoltre osservare come, se presentate in un insegnamento diverso, ad
+esempio un corso di calcolo numerico o approfondimento profondo, le stesse
+specifiche avrebbero potuto stimolare a soluzioni completamente differenti.
 
 \pagebreak
 
