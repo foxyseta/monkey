@@ -95,9 +95,13 @@ public class AI<S extends State<S, A>, A> implements Callable<A> {
 				// System.err.println("\t🙈 = " + depthLimit);
 				res = task.get(timeLimit, TimeUnit.MILLISECONDS);
 			} catch (Exception e) {
+				if (!executor.isTerminated())
+					executor.shutdownNow();
 				state = backupState;
 				return res != null ? res : state.actions().next();
 			}
+			if (!executor.isTerminated())
+				executor.shutdownNow();
 		}
 		return res;
 	}
