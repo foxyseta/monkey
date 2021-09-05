@@ -2,7 +2,14 @@ package monkey.ai;
 
 import java.util.HashMap;
 import java.util.Iterator;
+
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
 import monkey.ai.table.Entry;
 import monkey.ai.table.SearchResult;
 import monkey.ai.table.SearchResult.ScoreType;
@@ -29,16 +36,20 @@ public class AI<S extends State<S, A>, A> implements Callable<A> {
 	 * @param p  The player the {@link AI} will play as.
 	 * @param s0 The initial {@link State} of the game.
 	 * @param t  The maximum number of milliseconds usable to select a move.
-	 * @throws NullPointerException Any of the arguments are <code>null</code>.
+	 * @throws IllegalArgumentException t is not strictly positive.
+	 * @throws NullPointerException     Any of the arguments are <code>null</code>.
 	 * @author Gaia Clerici
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	public AI(Player p, S s0) {
+	public AI(Player p, S s0, int t) {
 		// if (p == null || s0 == null)
 		// throw new NullPointerException("Some of the arguments are null.");
+		// if (t <= 0)
+		// throw new IllegalArgumentException("t is not strictly positive.");
 		player = p;
 		state = s0;
+		timeout = t;
 		transpositionTable = new HashMap<Integer, Entry<S, A>>(state.ttSuggestedCapacity());
 	}
 
@@ -69,36 +80,40 @@ public class AI<S extends State<S, A>, A> implements Callable<A> {
 	 * @version 1.0
 	 * @since 1.0
 	 */
+	public A iterativeDeepeningSearch() {
+		final ExecutorService executor = Executors.newSingleThreadExecutor();
+		final Future<A> task = executor.submit(this);
+		executor.shutdown();
+		try {
+			return task.get(timeout, TimeUnit.SECONDS);
+		} catch (Exception e) {
+			state = backupState;
+			return res == null ? state.actions().next() : res;
+		} finally {
+			if (!executor.isTerminated())
+				executor.shutdownNow();
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @author Gaia Clerici
+	 * @version 1.0
+	 * @since 1.0
+	 */
 	public A call() {
 		// if (state.terminalTest())
 		// throw new IllegalArgumentException("s is a terminal state.");
 		// if (player != state.player())
 		// throw new IllegalArgumentException("It's not your turn.");
 
-		final S backupState = state.clone();
-		final int maxLimit = state.overestimatedHeight();
+		backupState = state.clone();
 		res = null;
+		final int maxLimit = state.overestimatedHeight();
 		for (int d = 0; d <= maxLimit; ++d)
-			try {
-				// System.err.println("\t🙈 = " + depthLimit);
-				res = bestNodeLimitedSearch(d);
-			} catch (Exception e) {
-				state = backupState;
-				throw e;
-			}
-		return res;
-	}
-
-	/**
-	 * Retrieves the partial result computed by the last search.
-	 *
-	 * @author Gaia Clerici
-	 * @version 1.0
-	 * @since 1.0
-	 */
-	public A partial_result() {
-		if (res == null)
-			res = state.actions().next();
+			// System.err.println("\t🙈 = " + depthLimit);
+			res = bestNodeLimitedSearch(d);
 		return res;
 	}
 
@@ -434,10 +449,14 @@ public class AI<S extends State<S, A>, A> implements Callable<A> {
 	final private Player player;
 	/** The current {@link State} of the game. */
 	private S state;
+	/** Timeout per initialization/move (in seconds). */
+	private int timeout;
 	/** Utilities instance for generic objects. */
 	final private ObjectUtils objectUtils = new ObjectUtils();
 	/** A transposition table for this instance of the {@link AI}. */
 	final private HashMap<Integer, Entry<S, A>> transpositionTable;
+	/** A copy of {@link #state}. */
+	private S backupState;
 	/**
 	 * Number of nodes actually inspected since the beginning of the last alpha-beta
 	 * search.
