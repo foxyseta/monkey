@@ -2,14 +2,7 @@ package monkey.ai;
 
 import java.util.HashMap;
 import java.util.Iterator;
-
-import java.util.concurrent.Future;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.Callable;
-
 import monkey.ai.table.Entry;
 import monkey.ai.table.SearchResult;
 import monkey.ai.table.SearchResult.ScoreType;
@@ -41,14 +34,12 @@ public class AI<S extends State<S, A>, A> implements Callable<A> {
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	public AI(Player p, S s0, long t) {
+	public AI(Player p, S s0) {
 		// if (p == null || s0 == null)
 		// throw new NullPointerException("Some of the arguments are null.");
 		player = p;
 		state = s0;
-		timeLimit = t;
-		final int capacity = state.ttSuggestedCapacity();
-		transpositionTable = new HashMap<Integer, Entry<S, A>>(capacity);
+		transpositionTable = new HashMap<Integer, Entry<S, A>>(state.ttSuggestedCapacity());
 	}
 
 	/**
@@ -78,7 +69,7 @@ public class AI<S extends State<S, A>, A> implements Callable<A> {
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	public A iterativeDeepeningSearch() {
+	public A call() {
 		// if (state.terminalTest())
 		// throw new IllegalArgumentException("s is a terminal state.");
 		// if (player != state.player())
@@ -86,23 +77,28 @@ public class AI<S extends State<S, A>, A> implements Callable<A> {
 
 		final S backupState = state.clone();
 		final int maxLimit = state.overestimatedHeight();
-		A res = null;
-		for (d = 0; d <= maxLimit; ++d) {
-			final ExecutorService executor = Executors.newSingleThreadExecutor();
-			final Future<A> task = executor.submit(this);
-			executor.shutdown();
+		res = null;
+		for (int d = 0; d <= maxLimit; ++d)
 			try {
 				// System.err.println("\t🙈 = " + depthLimit);
-				res = task.get(timeLimit, TimeUnit.MILLISECONDS);
+				res = bestNodeLimitedSearch(d);
 			} catch (Exception e) {
-				if (!executor.isTerminated())
-					executor.shutdownNow();
 				state = backupState;
-				return res != null ? res : state.actions().next();
+				throw e;
 			}
-			if (!executor.isTerminated())
-				executor.shutdownNow();
-		}
+		return res;
+	}
+
+	/**
+	 * Retrieves the partial result computed by the last search.
+	 *
+	 * @author Gaia Clerici
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	public A partial_result() {
+		if (res == null)
+			res = state.actions().next();
 		return res;
 	}
 
@@ -157,7 +153,7 @@ public class AI<S extends State<S, A>, A> implements Callable<A> {
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	public A bestNodeLimitedSearch(int depthLimit) {
+	protected A bestNodeLimitedSearch(int depthLimit) {
 		int alpha = state.initialAlpha(player), beta = state.initialBeta(player),
 				subtreeCount = state.countRelevantActions(), betterCount;
 		A bestNode;
@@ -186,18 +182,6 @@ public class AI<S extends State<S, A>, A> implements Callable<A> {
 			}
 		} while (beta - alpha >= 2 && betterCount != 1 || betterCount == 0);
 		return bestNode;
-	}
-
-	/**
-	 * {@inheritDoc} </br>
-	 * Executes a best node limited search with the current depth limit.
-	 *
-	 * @author Gaia Clerici
-	 * @since 1.0
-	 * @version 1.0
-	 */
-	public A call() {
-		return bestNodeLimitedSearch(d);
 	}
 
 	/**
@@ -450,8 +434,6 @@ public class AI<S extends State<S, A>, A> implements Callable<A> {
 	final private Player player;
 	/** The current {@link State} of the game. */
 	private S state;
-	/** The maximum number of milliseconds usable to select a move. */
-	final private long timeLimit;
 	/** Utilities instance for generic objects. */
 	final private ObjectUtils objectUtils = new ObjectUtils();
 	/** A transposition table for this instance of the {@link AI}. */
@@ -463,7 +445,7 @@ public class AI<S extends State<S, A>, A> implements Callable<A> {
 	private long inspectedNodes;
 	/** Random number generator. */
 	final private java.util.Random random = new java.util.Random(System.currentTimeMillis());
-	/** Current depth limit. */
-	private int d = 0;
+	/** The action which is currently considered as stronger. */
+	private A res;
 
 }

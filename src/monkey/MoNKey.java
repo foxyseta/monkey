@@ -1,5 +1,10 @@
 package monkey;
 
+import java.util.concurrent.Future;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import mnkgame.MNKCell;
 import mnkgame.MNKPlayer;
 import monkey.ai.AI;
@@ -26,9 +31,10 @@ public class MoNKey implements MNKPlayer {
 	 */
 	@Override
 	public void initPlayer(int M, int N, int K, boolean first, int timeout_in_secs) {
-		ai = new AI<Board, Position>(first ? Player.P1 : Player.P2, new Board(M, N, K), timeout_in_secs * S_TO_MS);
+		ai = new AI<Board, Position>(first ? Player.P1 : Player.P2, new Board(M, N, K));
 		m = M;
 		n = N;
+		timeout = timeout_in_secs;
 	}
 
 	/**
@@ -45,7 +51,21 @@ public class MoNKey implements MNKPlayer {
 			ai.update(new Position(m, n, MC[MC.length - 2]));
 		if (MC.length > 0)
 			ai.update(new Position(m, n, MC[MC.length - 1]));
-		final Position p = m * n > BIGGAME ? ai.immediateSearch() : ai.iterativeDeepeningSearch();
+		Position p;
+		if (m * n > BIGGAME)
+			p = ai.immediateSearch();
+		else {
+			final ExecutorService executor = Executors.newSingleThreadExecutor();
+			final Future<Position> task = executor.submit(ai);
+			executor.shutdown();
+			try {
+				p = task.get(timeout, TimeUnit.SECONDS);
+			} catch (Exception e) {
+				p = ai.partial_result();
+			}
+			if (!executor.isTerminated())
+				executor.shutdownNow();
+		}
 		// System.err.println(formatTimeInterval(System.currentTimeMillis() -
 		// startTime));
 		return new MNKCell(p.getRow(), p.getColumn());
@@ -82,6 +102,8 @@ public class MoNKey implements MNKPlayer {
 	private int m;
 	/** Number of columns. */
 	private int n;
+	/** Timeout per initialization/move (in seconds). */
+	private int timeout;
 	/**
 	 * Maximum number of cells of a configuration commonly considered small enough
 	 * to be explored.
