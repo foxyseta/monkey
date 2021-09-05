@@ -2,7 +2,14 @@ package monkey.ai;
 
 import java.util.HashMap;
 import java.util.Iterator;
+
+import java.util.concurrent.Future;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.Callable;
+
 import monkey.ai.table.Entry;
 import monkey.ai.table.SearchResult;
 import monkey.ai.table.SearchResult.ScoreType;
@@ -20,7 +27,7 @@ import monkey.util.ObjectUtils;
  * @version 1.0
  * @since 1.0
  */
-public class AI<S extends State<S, A>, A> {
+public class AI<S extends State<S, A>, A> implements Callable<A> {
 
 	/**
 	 * Constructs a new {@link AI} for a certain {@link Player} given an initial
@@ -72,7 +79,6 @@ public class AI<S extends State<S, A>, A> {
 	 * @since 1.0
 	 */
 	public A iterativeDeepeningSearch() {
-		startTime = System.currentTimeMillis();
 		// if (state.terminalTest())
 		// throw new IllegalArgumentException("s is a terminal state.");
 		// if (player != state.player())
@@ -81,14 +87,18 @@ public class AI<S extends State<S, A>, A> {
 		final S backupState = state.clone();
 		final int maxLimit = state.overestimatedHeight();
 		A res = null;
-		for (int depthLimit = 0; depthLimit <= maxLimit; ++depthLimit)
+		for (d = 0; d <= maxLimit; ++d) {
+			final ExecutorService executor = Executors.newSingleThreadExecutor();
+			final Future<A> task = executor.submit(this);
+			executor.shutdown();
 			try {
 				// System.err.println("\t🙈 = " + depthLimit);
-				res = bestNodeLimitedSearch(depthLimit);
-			} catch (TimeoutException e) {
+				res = task.get(timeLimit, TimeUnit.MILLISECONDS);
+			} catch (Exception e) {
 				state = backupState;
 				return res != null ? res : state.actions().next();
 			}
+		}
 		return res;
 	}
 
@@ -143,7 +153,7 @@ public class AI<S extends State<S, A>, A> {
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	protected A bestNodeLimitedSearch(int depthLimit) throws TimeoutException {
+	public A bestNodeLimitedSearch(int depthLimit) {
 		int alpha = state.initialAlpha(player), beta = state.initialBeta(player),
 				subtreeCount = state.countRelevantActions(), betterCount;
 		A bestNode;
@@ -172,6 +182,18 @@ public class AI<S extends State<S, A>, A> {
 			}
 		} while (beta - alpha >= 2 && betterCount != 1 || betterCount == 0);
 		return bestNode;
+	}
+
+	/**
+	 * {@inheritDoc} </br>
+	 * Executes a best node limited search with the current depth limit.
+	 *
+	 * @author Gaia Clerici
+	 * @since 1.0
+	 * @version 1.0
+	 */
+	public A call() {
+		return bestNodeLimitedSearch(d);
 	}
 
 	/**
@@ -209,23 +231,20 @@ public class AI<S extends State<S, A>, A> {
 	 * @return The utility brought by the most useful action for the <code>AI</code>
 	 *         within <code>s</code>.
 	 * @throws NullPointerException The state is null.
-	 * @throws TimeoutException     The time limit is almost over.
 	 * @author Gaia Clerici
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	protected int maxValue(S s, int alpha, int beta, int depthLimit) throws TimeoutException {
+	protected int maxValue(S s, int alpha, int beta, int depthLimit) {
 		// exceptions/base case
 		// if (s == null)
 		// throw new NullPointerException("s is null.");
-		timeCheck();
 		final long previouslyInspectedNodes = inspectedNodes++;
 		if (cutoffTest(s, depthLimit))
 			return s.eval(player);
 
 		// transposition table lookup
 		final Entry<S, A> cachedEntry = transpositionTable.get(s.hashCode());
-		timeCheck();
 		A bestOrRefutationMove = null, cachedMove = null;
 		if (cachedEntry != null) {
 			final SearchResult<A> cachedSearchResult = cachedEntry.pickSearchResult(s, depthLimit);
@@ -258,7 +277,6 @@ public class AI<S extends State<S, A>, A> {
 		if (bestOrRefutationMove != null) {
 			v = minValue(s.result(bestOrRefutationMove), alpha, beta, depthLimit - 1);
 			s.revert();
-			timeCheck();
 			if (v.compareTo(beta) >= 0) {
 				addSearchResult(cachedEntry, new SearchResult<A>(s.convertToHashedAction(bestOrRefutationMove), v,
 						ScoreType.LOWERBOUND, depthLimit, inspectedNodes - previouslyInspectedNodes));
@@ -278,7 +296,6 @@ public class AI<S extends State<S, A>, A> {
 					bestOrRefutationMove = toChild;
 				}
 				s.revert();
-				timeCheck();
 				if (v.compareTo(beta) >= 0) {
 					addSearchResult(cachedEntry, new SearchResult<A>(s.convertToHashedAction(bestOrRefutationMove), v,
 							ScoreType.LOWERBOUND, depthLimit, inspectedNodes - previouslyInspectedNodes));
@@ -308,23 +325,20 @@ public class AI<S extends State<S, A>, A> {
 	 * @return The utility brought by the most useful action for the opponent within
 	 *         s.
 	 * @throws NullPointerException The state is null.
-	 * @throws TimeoutException     The time limit is almost over.
 	 * @author Gaia Clerici
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	protected int minValue(S s, int alpha, int beta, int depthLimit) throws TimeoutException {
+	protected int minValue(S s, int alpha, int beta, int depthLimit) {
 		// exceptions/base case
 		// if (s == null)
 		// throw new NullPointerException("s is null.");
-		timeCheck();
 		final long previouslyInspectedNodes = inspectedNodes++;
 		if (cutoffTest(s, depthLimit))
 			return s.eval(player);
 
 		// transposition table lookup
 		final Entry<S, A> cachedEntry = transpositionTable.get(s.hashCode());
-		timeCheck();
 		A bestOrRefutationMove = null, cachedMove = null;
 		if (cachedEntry != null) {
 			final SearchResult<A> cachedSearchResult = cachedEntry.pickSearchResult(s, depthLimit);
@@ -357,7 +371,6 @@ public class AI<S extends State<S, A>, A> {
 		if (bestOrRefutationMove != null) {
 			v = maxValue(s.result(bestOrRefutationMove), alpha, beta, depthLimit - 1);
 			s.revert();
-			timeCheck();
 			if (v.compareTo(alpha) <= 0) {
 				addSearchResult(cachedEntry, new SearchResult<A>(s.convertToHashedAction(bestOrRefutationMove), v,
 						ScoreType.UPPERBOUND, depthLimit, inspectedNodes - previouslyInspectedNodes));
@@ -377,7 +390,6 @@ public class AI<S extends State<S, A>, A> {
 					bestOrRefutationMove = toChild;
 				}
 				s.revert();
-				timeCheck();
 				if (v.compareTo(alpha) <= 0) {
 					addSearchResult(cachedEntry, new SearchResult<A>(s.convertToHashedAction(bestOrRefutationMove), v,
 							ScoreType.UPPERBOUND, depthLimit, inspectedNodes - previouslyInspectedNodes));
@@ -408,21 +420,6 @@ public class AI<S extends State<S, A>, A> {
 	}
 
 	/**
-	 * Asserts the fact that the time is not almost over, or throws an exception if
-	 * this is not the case. This can be useful right after a frequent and/or
-	 * time-consuming operation.
-	 *
-	 * @throws TimeoutException The time limit is almost over.
-	 * @author Stefano Volpe
-	 * @version 1.0
-	 * @since 1.0
-	 */
-	protected void timeCheck() throws TimeoutException {
-		if (System.currentTimeMillis() - startTime > timeLimit * RELAXATION)
-			throw new TimeoutException();
-	}
-
-	/**
 	 * Adds a new {@link SearchResult} to the {@link #transpositionTable}.
 	 *
 	 * @param cachedEntry     The correct retrieved {@link monkey.ai.table.Entry},
@@ -436,12 +433,11 @@ public class AI<S extends State<S, A>, A> {
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	private void addSearchResult(Entry<S, A> cachedEntry, SearchResult<A> newSearchResult) throws TimeoutException {
+	private void addSearchResult(Entry<S, A> cachedEntry, SearchResult<A> newSearchResult) {
 		if (cachedEntry == null)
 			transpositionTable.put(state.hashCode(), new Entry<S, A>(newSearchResult));
 		else
 			cachedEntry.add(newSearchResult);
-		timeCheck();
 	}
 
 	/**
@@ -454,12 +450,8 @@ public class AI<S extends State<S, A>, A> {
 	final private long timeLimit;
 	/** Utilities instance for generic objects. */
 	final private ObjectUtils objectUtils = new ObjectUtils();
-	/** The higher, the more time is used at most for each search. */
-	final private float RELAXATION = 0.94f;
 	/** A transposition table for this instance of the {@link AI}. */
 	final private HashMap<Integer, Entry<S, A>> transpositionTable;
-	/** Start time of the current turn. */
-	private long startTime;
 	/**
 	 * Number of nodes actually inspected since the beginning of the last alpha-beta
 	 * search.
@@ -467,5 +459,7 @@ public class AI<S extends State<S, A>, A> {
 	private long inspectedNodes;
 	/** Random number generator. */
 	final private java.util.Random random = new java.util.Random(System.currentTimeMillis());
+	/** Current depth limit. */
+	private int d = 0;
 
 }
