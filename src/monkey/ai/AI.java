@@ -91,6 +91,7 @@ public class AI<S extends State<S, A>, A> implements Callable<A> {
 			state = backupState;
 			return res == null ? state.actions().next() : res;
 		} catch (Exception e) {
+			System.err.println(e);
 			throw new InternalError();
 		}
 	}
