@@ -86,10 +86,12 @@ public class AI<S extends State<S, A>, A> implements Callable<A> {
 		executor.shutdown();
 		try {
 			return task.get(timeout, TimeUnit.SECONDS);
-		} catch (Exception e) {
+		} catch (TimeoutException e) {
 			executor.shutdownNow();
 			state = backupState;
 			return res == null ? state.actions().next() : res;
+		} catch (Exception e) {
+			throw new InternalError();
 		}
 	}
 
