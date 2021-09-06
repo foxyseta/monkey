@@ -45,7 +45,7 @@ public class MoNKey implements MNKPlayer {
 			ai.update(new Position(m, n, MC[MC.length - 2]));
 		if (MC.length > 0)
 			ai.update(new Position(m, n, MC[MC.length - 1]));
-		Position p = m * n > BIGGAME ? ai.immediateSearch() : ai.iterativeDeepeningSearch();
+		final Position p = m * n > BIGGAME ? ai.immediateSearch() : ai.iterativeDeepeningSearch();
 		// System.err.println(formatTimeInterval(System.currentTimeMillis() -
 		// startTime));
 		return new MNKCell(p.getRow(), p.getColumn());

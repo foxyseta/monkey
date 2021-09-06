@@ -35,7 +35,7 @@ public class AI<S extends State<S, A>, A> implements Callable<A> {
 	 *
 	 * @param p  The player the {@link AI} will play as.
 	 * @param s0 The initial {@link State} of the game.
-	 * @param t  The maximum number of milliseconds usable to select a move.
+	 * @param t  The maximum number of seconds usable to select a move.
 	 * @throws IllegalArgumentException t is not strictly positive.
 	 * @throws NullPointerException     Any of the arguments are <code>null</code>.
 	 * @author Gaia Clerici
@@ -87,11 +87,9 @@ public class AI<S extends State<S, A>, A> implements Callable<A> {
 		try {
 			return task.get(timeout, TimeUnit.SECONDS);
 		} catch (Exception e) {
+			executor.shutdownNow();
 			state = backupState;
 			return res == null ? state.actions().next() : res;
-		} finally {
-			if (!executor.isTerminated())
-				executor.shutdownNow();
 		}
 	}
 
