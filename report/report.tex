@@ -24,12 +24,17 @@
 \graphicspath{ {./images/} }
 
 \title{
-  {
-    \fontspec[ Path = fonts/ ]{Symbola}
-    \symbol{"1F17C}\symbol{"1F435}\symbol{"1F17D}\symbol{"1F17A}ey
-  } \large \\
-  \small Relazione del progetto per l'insegnamento di Algoritmi e strutture di
-  dati
+  \textbf{
+    \fontspec[ Path = fonts/ ]{Symbola}{
+      {\huge
+        \symbol{"1F17C}\symbol{"1F435}\symbol{"1F17D}\symbol{"1F17A}ey
+      } 
+    } \\
+  }
+  \textbf{\large
+      Relazione del progetto per l'insegnamento di \break
+      Algoritmi e strutture di dati
+  }
 }
 
 \author{
@@ -38,7 +43,7 @@
 }
 
 \date{
-	Universit\`a di Bologna \\
+	Alma Mater Studiorum - Universit\`a di Bologna \\
   \today
 }
 
@@ -48,7 +53,7 @@
 \thispagestyle{empty}
 
 \begin{figure}[h]
-  \includegraphics[width=0.75\textwidth]{monkey}
+  \includegraphics[width=0.7\textwidth]{monkey}
   \centering
 \end{figure}
 
@@ -57,6 +62,7 @@
 \thispagestyle{empty}
 \vspace*{\fill}
 
+\noindent
 In copertina: \href{https://unsplash.com/photos/daC7ji1EMHM}{foto di
 Bob Brewer}
 
@@ -82,14 +88,14 @@ in pareggio.
 
 \subsection{Il torneo: la classifica dei giocatori} \label{tournament}
 
-Ogni volta che, all'interno del torneo, un giocatore conclude una partita, egli
+Ogni volta che, all'interno del torneo, un giocatore conclude una partita,
 guadagna: 
 \begin{itemize}
-  \item 3 punti in caso di una vittoria come secondo giocatore, ma non a
+  \item 3 punti in caso di vittoria come secondo giocatore, ma non a
     tavolino;
-  \item 2 punti in caso di una vittoria come primo giocatore o a tavolino;
-  \item 1 punto in caso di un pareggio;
-  \item 0 punti in caso di una sconfitta.
+  \item 2 punti in caso di vittoria come primo giocatore o a tavolino;
+  \item 1 punto in caso di pareggio;
+  \item 0 punti in caso di sconfitta.
 \end{itemize}
 
 \noindent
@@ -166,26 +172,26 @@ giocatore.
 
 Lo scopo del progetto è lo sviluppo di un'intelligenza artificiale in Java per
 un giocatore di \emph{m,n,k-game}. Se qualità della risposta e costo temporale
-sono prioritari, lo stesso non vale per il costo in memoria, anche se devono
-comunque essere evitati sprechi. Infine, a parità dei fattori di cui sopra, la
-precedenza spetta alle strategie concettualmente più semplici.
+sono prioritari, lo stesso non vale per il costo in memoria, anche se è
+comunque preferibile evitare sprechi. Infine, a parità dei fattori di cui sopra,
+la precedenza spetta alle strategie concettualmente più semplici.
 
 \subsection{L'interfaccia: \texttt{mnkgame.MNKPlayer}}
 
 L'interfaccia che l'intelligenza artificiale deve implementare è contenuta nel
 pacchetto \verb!mnkgame!. Oltre a un metodo per la selezione della mossa
-desiderata, ne viene concesso un altro invocato in fase di inizializzazione
-prima di ogni partita.
+desiderata, ne viene concesso un altro dedicato all'inizializzazione prima di
+ogni partita.
 
 \section{Analisi del problema}
 
 \subsection{Il valore di gioco teorico}
 
 Molte istanze del problema in questione si presentano come giochi a sé stanti,
-talvolta arrichiti con limitazioni imposte dalle regole: ne sono esempi Tris,
+talvolta arricchiti con limitazioni imposte dalle regole: ne sono esempi Tris,
 Go-Moku e Renju. Per alcune configurazioni, il valore di gioco teorico è già
 stato dimostrato. Van den Herik, Uiterwijk e van Rijswijck
-\cite{VANDENHERIK2002277} hanno raccolto tali risultati dalla letteratura
+\cite{VANDENHERIK2002277} hanno raccolto i risultati stabiliti nella letteratura
 precedente in tabella \ref{table:2}.
 
 \begin{table}[h!]
@@ -217,7 +223,7 @@ precedente in tabella \ref{table:2}.
 
 Tramite l'argomento del ``furto di strategia'', usato per la prima volta da John
 Nash nel 1949 \cite{at.UBO716493520180101}, si dimostra che nessuno dei valori
-di gioco teorico non ancora aggiunto alla tabella è una vittoria per il secondo
+di gioco teorici non ancora aggiunti alla tabella è una vittoria per il secondo
 giocatore.
 
 \subsection{L'albero di gioco}
@@ -365,7 +371,7 @@ L'interfaccia delle due funzioni per una ``classica'' potatura alfa-beta
     al nodo che rappresenta lo stato $s$ assumendo che esso sia di minimo.
 \end{itemize}
 In entrambi i casi, $\alpha$ e $\beta$ fungono da parametri della potatura,
-mentre $d$ è il limite di profondità imposto. La mutuale ricorsione di queste
+mentre $d$ è il limite di profondità imposto. La mutua ricorsione di queste
 due procedure è responsabile di un'esplorazione a profondità limitata
 dell'albero; tale ricerca supporta il dietrofront
 \cite{at.UBO029034619980101.108} (\emph{backtracking}) tramite le funzioni
@@ -476,7 +482,7 @@ eccezioni alla linea \ref{li:try}. Questo ha permesso di codificare
 $\proc{Best-Node-Search}$ ignorando la gestione delle scadenze temporali, che
 viene delegata a ipotetiche implementazioni di $\proc{Max-Value}$ e
 $\proc{Min-Value}$. Ovviamente, è comunque possibile (e fruttuoso a livello di
-prestazioni) fare affidamento a valori restituiti dalle varie funzioni che
+prestazioni) fare affidamento sui valori restituiti dalle varie funzioni che
 segnalino questo tipo di occorrenze.
 \end{sloppypar}
 
@@ -512,7 +518,7 @@ altre variabili di costo in memoria costante.
 
 \subsubsection{Confronto fra mosse}
 
-Questa secondo modo di individuare una mossa promettente ne estrae una in modo
+Questo secondo modo di individuare una mossa promettente ne estrae una in modo
 pseudorandomico fra quelle che, applicate allo stato attuale, massimizzano la
 funzione di valutazione. Anche questo algoritmo supporta il dietrofront e si
 limita ad analizzare le azioni considerate ``rilevanti''.
@@ -604,10 +610,11 @@ operazioni vengono effettuate:
 \begin{itemize}
   \item aggiornamento della cella coinvolta ($\varTheta(1)$);
   \item aggiornamento dei contatori delle minacce influenzate ($\varTheta(k)$);
-  \item aggiornamento dei contatori di celle piene adiacenti ($\varTheta(1)$);
+  \item aggiornamento dei contatori delle celle piene adiacenti
+    ($\varTheta(1)$);
   \item eventuale aggiornamento dell'esito della partita ($\varTheta(1)$);
   \item aggiornamento della cronologia di gioco ($\varTheta(1)$);
-  \item aggiornamento del codice \emph{hash}.
+  \item aggiornamento del codice \emph{hash} ($\varTheta(1)$).
 \end{itemize}
 
 Complessivamente, il costo in tempo è di $\varTheta(k)$, mentre quello in
@@ -707,7 +714,7 @@ possibile in classifica, sono stati ignorati. Possibili spunti per ricerche
 future includono:
 \begin{itemize}
   \item ``fare lo gnorri'': davanti ad una sconfitta come primo giocatore
-    reputata quasi inevitabile, resituire una mossa illegale o stallare fino
+    reputata quasi inevitabile, restituire una mossa illegale o stallare fino
     allo scadere del tempo permette di far guadagnare all'avversario un punto in
     meno (si veda \ref{tournament});
   \item ``congiurare'': consiste in una cospirazione orchestrata da una
@@ -722,7 +729,7 @@ future includono:
 \subsection{Approcci differenti}
 
 È utile inoltre osservare come, se presentate in un insegnamento diverso, ad
-esempio un corso di calcolo numerico o approfondimento profondo, le stesse
+esempio un corso di calcolo numerico o apprendimento automatico, le stesse
 specifiche avrebbero potuto stimolare a soluzioni completamente differenti.
 
 \begin{sloppypar}
