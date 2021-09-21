@@ -225,7 +225,6 @@ public class AI<S extends State<S, A>, A> {
 
 		// transposition table lookup
 		final Entry<S, A> cachedEntry = transpositionTable.get(s.hashCode());
-		timeCheck();
 		A bestOrRefutationMove = null, cachedMove = null;
 		if (cachedEntry != null) {
 			final SearchResult<A> cachedSearchResult = cachedEntry.pickSearchResult(s, depthLimit);
@@ -258,7 +257,6 @@ public class AI<S extends State<S, A>, A> {
 		if (bestOrRefutationMove != null) {
 			v = minValue(s.result(bestOrRefutationMove), alpha, beta, depthLimit - 1);
 			s.revert();
-			timeCheck();
 			if (v.compareTo(beta) >= 0) {
 				addSearchResult(cachedEntry, new SearchResult<A>(s.convertToHashedAction(bestOrRefutationMove), v,
 						ScoreType.LOWERBOUND, depthLimit, inspectedNodes - previouslyInspectedNodes));
@@ -278,7 +276,6 @@ public class AI<S extends State<S, A>, A> {
 					bestOrRefutationMove = toChild;
 				}
 				s.revert();
-				timeCheck();
 				if (v.compareTo(beta) >= 0) {
 					addSearchResult(cachedEntry, new SearchResult<A>(s.convertToHashedAction(bestOrRefutationMove), v,
 							ScoreType.LOWERBOUND, depthLimit, inspectedNodes - previouslyInspectedNodes));
@@ -324,7 +321,6 @@ public class AI<S extends State<S, A>, A> {
 
 		// transposition table lookup
 		final Entry<S, A> cachedEntry = transpositionTable.get(s.hashCode());
-		timeCheck();
 		A bestOrRefutationMove = null, cachedMove = null;
 		if (cachedEntry != null) {
 			final SearchResult<A> cachedSearchResult = cachedEntry.pickSearchResult(s, depthLimit);
@@ -357,7 +353,6 @@ public class AI<S extends State<S, A>, A> {
 		if (bestOrRefutationMove != null) {
 			v = maxValue(s.result(bestOrRefutationMove), alpha, beta, depthLimit - 1);
 			s.revert();
-			timeCheck();
 			if (v.compareTo(alpha) <= 0) {
 				addSearchResult(cachedEntry, new SearchResult<A>(s.convertToHashedAction(bestOrRefutationMove), v,
 						ScoreType.UPPERBOUND, depthLimit, inspectedNodes - previouslyInspectedNodes));
@@ -377,7 +372,6 @@ public class AI<S extends State<S, A>, A> {
 					bestOrRefutationMove = toChild;
 				}
 				s.revert();
-				timeCheck();
 				if (v.compareTo(alpha) <= 0) {
 					addSearchResult(cachedEntry, new SearchResult<A>(s.convertToHashedAction(bestOrRefutationMove), v,
 							ScoreType.UPPERBOUND, depthLimit, inspectedNodes - previouslyInspectedNodes));
@@ -441,7 +435,6 @@ public class AI<S extends State<S, A>, A> {
 			transpositionTable.put(state.hashCode(), new Entry<S, A>(newSearchResult));
 		else
 			cachedEntry.add(newSearchResult);
-		timeCheck();
 	}
 
 	/**
