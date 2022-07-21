@@ -1,6 +1,6 @@
 # 🅼🐵🅽🅺ey
 
-Project for the University of Bologna Algorithms and Data Structures course
+Project for the University of Bologna Data Structure and Algorithms course
 (a.y. 2020-21).
 
 ## Prerequisites
